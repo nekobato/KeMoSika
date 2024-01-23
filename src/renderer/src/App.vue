@@ -6,6 +6,6 @@ onMounted(async () => {
 });
 </script>
 
-<template></template>
+<template>hoge</template>
 
 <style scoped></style>

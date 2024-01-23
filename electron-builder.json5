@@ -9,10 +9,10 @@
   directories: {
     output: "release/${version}"
   },
-  files: ["dist", "dist-electron"],
+  files: ["out", "resources"],
   mac: {
     target: ["dmg"],
-    icon: "dist/icons/mac/icon.icns",
+    icon: "resources/icons/mac/icon.icns",
     artifactName: "${productName}-Mac-${version}-Installer.${ext}"
   },
   win: {

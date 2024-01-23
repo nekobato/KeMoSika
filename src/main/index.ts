@@ -10,7 +10,7 @@ import {
 import { nanoid } from "nanoid/non-secure";
 import path from "node:path";
 import * as statics from "./static";
-import { uIOhook, UiohookKey } from "uiohook-napi";
+import { uIOhook } from "uiohook-napi";
 import {} from "./store";
 
 // 残像防止
@@ -20,7 +20,10 @@ let win: BrowserWindow | null;
 
 function setInputMonitor() {
   uIOhook.on("keydown", (event) => {
-    console.log(event.keycode);
+    win?.webContents.send("input:keydown", event);
+  });
+  uIOhook.on("keyup", (event) => {
+    win?.webContents.send("input:keyup", event);
   });
   uIOhook.start();
 }
@@ -60,39 +63,30 @@ function setMenu() {
 
 function createWindow() {
   win = new BrowserWindow({
-    icon: path.join(statics.publicRoot, "icon.png"),
+    icon: path.join(statics.resourcesRoot, "icon.png"),
     webPreferences: {
       preload: statics.preload
     },
-    alwaysOnTop: true,
-    frame: false,
+    width: 800,
+    height: 600,
+    frame: true,
     transparent: true,
-    resizable: false,
-    movable: false,
-    show: false,
+    show: true,
     roundedCorners: false
   });
-
-  const { workArea } = require("electron").screen.getPrimaryDisplay();
-  win.setBounds({
-    x: workArea.x,
-    y: workArea.y,
-    width: workArea.width,
-    height: workArea.height
-  });
-  win.setVisibleOnAllWorkspaces(true);
 
   win.webContents.on("did-finish-load", () => {
     win?.webContents.send("main-process-message", new Date().toLocaleString());
   });
 
-  if (statics.VITE_DEV_SERVER_URL) {
+  console.log("server", statics.serverUrl);
+  if (statics.serverUrl) {
     win.loadURL(statics.pageRoot);
   } else {
     win.loadFile(statics.pageRoot);
   }
-  win.setIgnoreMouseEvents(true);
-  if (statics.VITE_DEV_SERVER_URL) {
+
+  if (statics.serverUrl) {
     win.webContents.openDevTools();
   }
 }

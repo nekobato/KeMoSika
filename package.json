@@ -43,5 +43,5 @@
     "vue": "^3.3.11",
     "vue-tsc": "^1.8.25"
   },
-  "main": "dist-electron/main.js"
+  "main": "out/main/index.js"
 }
