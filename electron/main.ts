@@ -10,14 +10,20 @@ import {
 import { nanoid } from "nanoid/non-secure";
 import path from "node:path";
 import * as statics from "./static";
+import { uIOhook, UiohookKey } from "uiohook-napi";
 import {} from "./store";
 
 // 残像防止
 app.disableHardwareAcceleration();
 
 let win: BrowserWindow | null;
-let isVisible = false;
-let isAnimation = false;
+
+function setInputMonitor() {
+  uIOhook.on("keydown", (event) => {
+    console.log(event.keycode);
+  });
+  uIOhook.start();
+}
 
 function setMenu() {
   const template: (MenuItemConstructorOptions | MenuItem)[] = [
@@ -27,7 +33,7 @@ function setMenu() {
         {
           label: "Config",
           click: () => {
-            openConfig();
+            // openConfig();
           }
         },
         {
@@ -113,13 +119,5 @@ app
   .then(setMenu)
   .then(createWindow)
   .then(() => {
-    const config = getConfig();
-
-    ipcMain.on("open-path", (_, path) => {
-      if (path) {
-        win?.webContents.send("ring:close");
-        isVisible = false;
-        shell.openPath(path);
-      }
-    });
+    setInputMonitor();
   });

@@ -8,14 +8,13 @@
     "url": "https://nekobato.net"
   },
   "license": "MIT",
-  "description": "Ring UI Application Launcher for macOS",
+  "description": "Keyboard/Mouse Input Visualizer",
   "scripts": {
-    "dev": "node script/copyBinary && vite",
-    "prebuild": "node script/copyBinary",
-    "build": "vue-tsc && vite build && electron-builder",
-    "prerelease": "node script/copyBinary",
-    "release": "vite build && electron-builder --publish always",
-    "preview": "vite preview",
+    "postinstall": "rm -rf node_modules/electron/dist && node node_modules/electron/install.js",
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "preview": "electron-vite preview",
+    "release": "electron-vite build && electron-builder --publish always",
     "build:icon": "electron-icon-builder --input=./public/icon.png --output=./public"
   },
   "engines": {
@@ -24,7 +23,7 @@
   },
   "dependencies": {
     "electron-store": "^8.1.0",
-    "file-icon": "^5.1.1"
+    "uiohook-napi": "^1.5.3"
   },
   "devDependencies": {
     "@iconify/vue": "^4.1.1",
@@ -33,6 +32,7 @@
     "electron": "^28.1.4",
     "electron-builder": "^24.6.4",
     "electron-icon-builder": "^2.0.1",
+    "electron-vite": "^2.0.0",
     "fs-extra": "^11.2.0",
     "nanoid": "^5.0.4",
     "sass": "^1.69.5",
