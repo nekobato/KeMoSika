@@ -2,15 +2,12 @@ import {
   BrowserWindow,
   app,
   globalShortcut,
-  ipcMain,
-  shell,
   type MenuItem,
   type MenuItemConstructorOptions
 } from "electron";
-import { nanoid } from "nanoid/non-secure";
 import path from "node:path";
-import * as statics from "./static";
 import { uIOhook } from "uiohook-napi";
+import * as statics from "./static";
 import {} from "./store";
 
 // 残像防止
@@ -105,6 +102,7 @@ app.on("activate", () => {
 });
 
 app.on("will-quit", () => {
+  uIOhook.stop();
   globalShortcut.unregisterAll();
 });
 
