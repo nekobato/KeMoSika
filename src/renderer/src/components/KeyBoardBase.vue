@@ -1,0 +1,21 @@
+<script setup lang="ts"></script>
+
+<template>
+  <div class="base">
+    <slot></slot>
+  </div>
+</template>
+
+<style scoped>
+.base {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  background: #272b2c;
+  display: flex;
+  flex-direction: column;
+  padding: 30px 15px;
+  font: 28px arial;
+}
+</style>

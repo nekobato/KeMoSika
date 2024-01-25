@@ -64,12 +64,12 @@ function createWindow() {
     webPreferences: {
       preload: statics.preload
     },
-    width: 800,
-    height: 600,
+    width: 400,
+    height: 300,
     frame: true,
-    transparent: true,
+    transparent: false,
     show: true,
-    roundedCorners: false
+    roundedCorners: true
   });
 
   win.webContents.on("did-finish-load", () => {
