@@ -15,7 +15,10 @@
     "build": "electron-vite build",
     "preview": "electron-vite preview",
     "release": "electron-vite build && electron-builder --publish always",
-    "build:icon": "electron-icon-builder --input=./public/icon.png --output=./public"
+    "build:icon": "electron-icon-builder --input=./public/icon.png --output=./public",
+    "build:win": "pnpm run build && electron-builder --win --config --x64",
+    "build:mac": "pnpm run build && electron-builder --mac --config",
+    "build:linux": "pnpm run build && electron-builder --linux --config"
   },
   "engines": {
     "node": ">=20",
@@ -23,7 +26,8 @@
   },
   "dependencies": {
     "electron-store": "^8.1.0",
-    "uiohook-napi": "^1.5.3"
+    "uiohook-napi": "^1.5.3",
+    "node-gyp-build": "^4.8.0"
   },
   "devDependencies": {
     "@iconify/vue": "^4.1.1",
