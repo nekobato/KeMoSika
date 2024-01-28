@@ -36,13 +36,24 @@ textarea.nn-text-field {
   color: #ffffff;
   font-weight: normal;
   font-size: 16px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px solid rgba(255, 255, 255, 0.24);
   border-radius: 4px;
   -webkit-appearance: textfield;
 
   &:focus {
     background: rgba(255, 255, 255, 0.2);
+  }
+
+  &.align-right {
+    text-align: right;
+  }
+
+  &[type="number"] {
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+    }
   }
 }
 

@@ -1,35 +1,38 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { ref } from "vue";
+import { nanoid } from "nanoid/non-secure";
+import ConfigLayout from "../components/layouts/ConfigLayout.vue";
 import KeyTable from "../components/Config/KeyTableList.vue";
 
-const keys = ref([
-  {
-    id: 1,
+const keys = ref(
+  [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(() => ({
+    id: nanoid(),
+    key: "A",
+    type: "normal",
     x: 0,
     y: 0,
-    width: 1,
-    height: 1,
+    size: 48,
+    width: 48,
     color: "#ff0000"
-  }
-]);
+  }))
+);
 </script>
 
 <template>
-  <div class="config-layout">
-    <KeyTable :keys />
+  <ConfigLayout>
+    <KeyTable class="key-table" :keys="keys" />
     <div class="preview"></div>
-  </div>
+  </ConfigLayout>
 </template>
 
 <style scoped lang="scss">
-.config-layout {
-  display: grid;
-  grid-template-rows: 1fr 1fr;
-  grid-template-columns: 1fr;
-  width: 100%;
-  height: 100%;
+.key-table {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  overflow-y: scroll;
+  flex-wrap: nowrap;
 }
-
 .preview {
   width: 100%;
   height: 100%;

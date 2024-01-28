@@ -5,7 +5,7 @@ import {
   type MenuItem,
   type MenuItemConstructorOptions
 } from "electron";
-import path from "node:path";
+import path, { join } from "node:path";
 import { uIOhook } from "uiohook-napi";
 import * as statics from "./static";
 import {} from "./store";
@@ -81,6 +81,14 @@ function createWindow() {
     win.loadURL(statics.pageRoot);
   } else {
     win.loadFile(statics.pageRoot);
+  }
+
+  const pageName = "config";
+
+  if (process.env.NODE_ENV === "development") {
+    win.loadURL(statics.pageRoot + "#" + pageName);
+  } else {
+    win.loadFile(join(statics.pageRoot), { hash: pageName });
   }
 
   if (statics.serverUrl) {
