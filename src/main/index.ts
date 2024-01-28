@@ -64,8 +64,8 @@ function createWindow() {
     webPreferences: {
       preload: statics.preload
     },
-    width: 400,
-    height: 300,
+    width: 800,
+    height: 600,
     frame: true,
     transparent: false,
     show: true,

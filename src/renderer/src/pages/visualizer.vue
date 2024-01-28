@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { type UiohookKeyboardEvent } from "uiohook-napi";
 import { keyCodeMap } from "@renderer/utils";
-import KeyBoardBase from "./KeyBoardBase.vue";
-import Key from "./Key.vue";
+import KeyBoardBase from "../components/KeyBoardBase.vue";
+import Key from "../components/Key.vue";
 import { ref } from "vue";
 
 window.ipc.on("input:keydown", (_, e: UiohookKeyboardEvent) => {
