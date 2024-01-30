@@ -1,27 +1,15 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { nanoid } from "nanoid/non-secure";
 import ConfigLayout from "../components/layouts/ConfigLayout.vue";
-import KeyTable from "../components/Config/KeyTableList.vue";
-
-const keys = ref(
-  [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(() => ({
-    id: nanoid(),
-    key: "A",
-    type: "normal",
-    x: 0,
-    y: 0,
-    size: 48,
-    width: 48,
-    color: "#ff0000"
-  }))
-);
+import KeyTable from "../components/pages/config/KeyTableList.vue";
+import Pagination from "../components/pages/config/Pagination.vue";
 </script>
 
 <template>
   <ConfigLayout>
-    <KeyTable class="key-table" :keys="keys" />
-    <div class="preview"></div>
+    <KeyTable class="key-table" />
+    <div class="preview">
+      <Pagination />
+    </div>
   </ConfigLayout>
 </template>
 
@@ -34,6 +22,10 @@ const keys = ref(
   flex-wrap: nowrap;
 }
 .preview {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 16px;
   width: 100%;
   height: 100%;
   --dot-bg: #2f3336;

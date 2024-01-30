@@ -1,9 +1,27 @@
 <script setup lang="ts">
 import KeyboardShortcutInput from "@renderer/components/common/KeyboardShortcutInput.vue";
 
-const props = defineProps({
-  keys: {
-    type: Array<{
+import { nanoid } from "nanoid/non-secure";
+import { nextTick, ref } from "vue";
+
+const list = ref<HTMLUListElement>();
+
+const keys = ref(
+  [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(() => ({
+    id: nanoid(),
+    key: "A",
+    type: "normal",
+    x: 0,
+    y: 0,
+    size: 48,
+    width: 48
+  }))
+);
+
+const emit = defineEmits<{
+  (
+    e: "change",
+    keys: {
       id: string;
       key: string;
       type: string;
@@ -11,18 +29,36 @@ const props = defineProps({
       y: number;
       size: number;
       width: number;
-    }>,
-    required: true
-  }
-});
+    }[]
+  ): void;
+}>();
 
 const onChangeKey = (index: number, key: string[]) => {
-  props.keys[index].key = key[key.length - 1];
+  keys.value[index].key = key[key.length - 1];
+};
+
+const onClickAddButton = () => {
+  keys.value.push({
+    id: nanoid(),
+    key: "A",
+    type: "normal",
+    x: 0,
+    y: 0,
+    size: 48,
+    width: 48
+  });
+
+  nextTick(() => {
+    list.value?.scrollTo({
+      top: list.value.scrollHeight,
+      behavior: "smooth"
+    });
+  });
 };
 </script>
 
 <template>
-  <ul class="key-table-list">
+  <ul class="key-table-list" ref="list">
     <li>
       <div class="key-table-list-header">
         <div class="column name">
@@ -45,7 +81,7 @@ const onChangeKey = (index: number, key: string[]) => {
         </div>
       </div>
     </li>
-    <li v-for="(key, index) in props.keys" :key="key.id">
+    <li v-for="(key, index) in keys" :key="key.id">
       <div class="key-table-list-item">
         <div class="column name">
           <KeyboardShortcutInput
@@ -89,6 +125,9 @@ const onChangeKey = (index: number, key: string[]) => {
           />
         </div>
       </div>
+    </li>
+    <li>
+      <div class="add-button" @click="onClickAddButton">追加</div>
     </li>
   </ul>
 </template>
@@ -157,5 +196,24 @@ const onChangeKey = (index: number, key: string[]) => {
 .nn-text-field {
   width: 100%;
   height: 32px;
+}
+
+.add-button {
+  margin-top: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  border: 1px solid #2f3336;
+  border-radius: 8px;
+  color: #2f3336;
+  font-size: 14px;
+  cursor: pointer;
+
+  &:hover {
+    background: #2f3336;
+    color: #fff;
+  }
 }
 </style>
