@@ -40,6 +40,7 @@
     "electron-vite": "^2.0.0",
     "fs-extra": "^11.2.0",
     "nanoid": "^5.0.4",
+    "pinia": "^2.1.7",
     "sass": "^1.69.5",
     "typescript": "^5.2.2",
     "vite": "^5.0.8",
@@ -48,7 +49,9 @@
     "vite-svg-loader": "^5.1.0",
     "vue": "^3.3.11",
     "vue-router": "^4.2.5",
-    "vue-tsc": "^1.8.25"
+    "vue-tsc": "^1.8.25",
+    "vue3-moveable": "^0.28.0",
+    "vue3-selecto": "^1.12.3"
   },
   "main": "out/main/index.js"
 }

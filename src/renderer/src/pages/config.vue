@@ -1,48 +1,51 @@
 <script setup lang="ts">
 import ConfigLayout from "../components/layouts/ConfigLayout.vue";
-import KeyTable from "../components/pages/config/KeyTableList.vue";
 import Pagination from "../components/pages/config/Pagination.vue";
+import NNButton from "../components/common/NNButton.vue";
+import KeyConfig from "@renderer/components/pages/config/KeyConfig.vue";
+import KeyLayoutConfig from "@renderer/components/pages/config/KeyLayoutConfig.vue";
 </script>
 
 <template>
   <ConfigLayout>
-    <KeyTable class="key-table" />
+    <KeyConfig class="key-config" />
     <div class="preview">
-      <Pagination />
+      <KeyLayoutConfig />
+      <div class="overlay-ui">
+        <Pagination />
+        <NNButton class="start-button">スタート</NNButton>
+      </div>
     </div>
   </ConfigLayout>
 </template>
 
 <style scoped lang="scss">
-.key-table {
+.key-config {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   overflow-y: scroll;
-  flex-wrap: nowrap;
 }
 .preview {
+  position: relative;
+  width: 100%;
+}
+
+.overlay-ui {
+  top: 0;
+  left: 0;
+  position: absolute;
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding: 16px;
   width: 100%;
   height: 100%;
-  --dot-bg: #2f3336;
-  --dot-color: #84878a;
-  --dot-size: 1px;
-  --dot-space: 20px;
-  background: linear-gradient(
-        90deg,
-        var(--dot-bg) calc(var(--dot-space) - var(--dot-size)),
-        transparent 1%
-      )
-      center / var(--dot-space) var(--dot-space),
-    linear-gradient(
-        var(--dot-bg) calc(var(--dot-space) - var(--dot-size)),
-        transparent 1%
-      )
-      center / var(--dot-space) var(--dot-space),
-    var(--dot-color);
+  padding: 16px;
+}
+
+.start-button {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
 }
 </style>

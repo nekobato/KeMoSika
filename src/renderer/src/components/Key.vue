@@ -17,13 +17,22 @@ const props = defineProps({
   y: {
     type: Number,
     required: true
+  },
+  size: {
+    type: Number,
+    required: true
+  },
+  width: {
+    type: Number
   }
 });
 
 const style = computed(() => {
   return {
     left: `${props.x}px`,
-    top: `${props.y}px`
+    top: `${props.y}px`,
+    height: `${props.size}px`,
+    width: `${props.width ? props.width : props.size}px`
   };
 });
 </script>

@@ -137,7 +137,6 @@ const onClickAddButton = () => {
   display: flex;
   flex: 0 0 auto;
   gap: 4px;
-  flex-wrap: wrap;
   justify-content: center;
   align-items: flex-start;
   flex-direction: column;

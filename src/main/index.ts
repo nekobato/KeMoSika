@@ -3,7 +3,8 @@ import {
   app,
   globalShortcut,
   type MenuItem,
-  type MenuItemConstructorOptions
+  type MenuItemConstructorOptions,
+  ipcMain
 } from "electron";
 import path, { join } from "node:path";
 import { uIOhook } from "uiohook-napi";
@@ -120,4 +121,14 @@ app
   .then(createWindow)
   .then(() => {
     setInputMonitor();
+
+    ipcMain.handle("get:config", async () => {
+      return {
+        keys: []
+      };
+    });
+
+    ipcMain.handle("set:config", async (_, { keys }) => {
+      return keys;
+    });
   });
