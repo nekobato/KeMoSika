@@ -11,10 +11,8 @@ import KeyLayoutConfig from "@renderer/components/pages/config/KeyLayoutConfig.v
     <KeyConfig class="key-config" />
     <div class="preview">
       <KeyLayoutConfig />
-      <div class="overlay-ui">
-        <Pagination />
-        <NNButton class="start-button">スタート</NNButton>
-      </div>
+      <Pagination />
+      <NNButton class="start-button">スタート</NNButton>
     </div>
   </ConfigLayout>
 </template>
@@ -29,18 +27,6 @@ import KeyLayoutConfig from "@renderer/components/pages/config/KeyLayoutConfig.v
 .preview {
   position: relative;
   width: 100%;
-}
-
-.overlay-ui {
-  top: 0;
-  left: 0;
-  position: absolute;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  width: 100%;
-  height: 100%;
-  padding: 16px;
 }
 
 .start-button {

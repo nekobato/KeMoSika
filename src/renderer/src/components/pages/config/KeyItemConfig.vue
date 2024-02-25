@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { useStore } from "@renderer/store";
 import { ref } from "vue";
-import { Moveable } from "vue3-moveable";
 
 const props = defineProps({
   key: {

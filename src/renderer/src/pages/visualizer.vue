@@ -4,6 +4,9 @@ import { keyCodeMap } from "@renderer/utils";
 import KeyBoardBase from "../components/KeyBoardBase.vue";
 import Key from "../components/Key.vue";
 import { ref } from "vue";
+import { useStore } from "@renderer/store";
+
+const store = useStore();
 
 window.ipc.on("input:keydown", (_, e: UiohookKeyboardEvent) => {
   const keyName = keyCodeMap[e.keycode];
@@ -31,10 +34,16 @@ const isDown = ref<{ [key: string]: boolean }>({
 <template>
   <div class="visualizer">
     <KeyBoardBase>
-      <Key :is-down="isDown.w" key-name="W" :x="72" :y="0" />
-      <Key :is-down="isDown.a" key-name="A" :x="0" :y="72" />
-      <Key :is-down="isDown.s" key-name="S" :x="72" :y="72" />
-      <Key :is-down="isDown.d" key-name="D" :x="144" :y="72" />
+      <Key
+        v-for="item in store.$state.keys"
+        :key="item.id"
+        :keyName="item.key"
+        :x="item.x"
+        :y="item.y"
+        :width="item.width"
+        :size="item.size"
+        :isDown="isDown[item.key] || false"
+      />
     </KeyBoardBase>
   </div>
 </template>

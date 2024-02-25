@@ -14,7 +14,7 @@ export const useStore = defineStore({
     async addKey(key: Key) {
       this.keys.push(key);
       await window.ipc.invoke("set:config", {
-        keys: this.$state.keys.values()
+        keys: this.keys.map((k) => ({ ...k }))
       });
     }
   }
