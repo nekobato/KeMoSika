@@ -12,9 +12,9 @@ export const useStore = defineStore({
       this.keys = config.keys;
     },
     async addKey(key: Key) {
-      this.keys.push(key);
+      this.$state.keys = [...this.keys, key];
       await window.ipc.invoke("set:config", {
-        keys: this.keys.map((k) => ({ ...k }))
+        keys: this.keys
       });
     }
   }

@@ -9,7 +9,7 @@ import {
 import path, { join } from "node:path";
 import { uIOhook } from "uiohook-napi";
 import * as statics from "./static";
-import {} from "./store";
+import { getStore, setStore } from "./store";
 
 // 残像防止
 app.disableHardwareAcceleration();
@@ -29,7 +29,7 @@ function setInputMonitor() {
 function setMenu() {
   const template: (MenuItemConstructorOptions | MenuItem)[] = [
     {
-      label: "TTurns",
+      label: "KeMoSika",
       submenu: [
         {
           label: "Config",
@@ -123,12 +123,11 @@ app
     setInputMonitor();
 
     ipcMain.handle("get:config", async () => {
-      return {
-        keys: []
-      };
+      return getStore();
     });
 
-    ipcMain.handle("set:config", async (_, { keys }) => {
-      return keys;
+    ipcMain.handle("set:config", async (_, data) => {
+      console.log("set:config", data);
+      return setStore(data);
     });
   });

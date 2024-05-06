@@ -3,9 +3,9 @@
  */
 {
   $schema: "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
-  appId: "net.nekobato.t-turns",
+  appId: "net.nekobato.KeMoSika",
   asar: true,
-  productName: "TTurns",
+  productName: "KeMoSika",
   directories: {
     output: "release/${version}"
   },

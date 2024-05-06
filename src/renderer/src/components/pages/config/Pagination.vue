@@ -21,6 +21,9 @@ import PaginationItem from "@renderer/svg/pagination-item.svg";
 
 <style scoped lang="scss">
 .pagination {
+  position: absolute;
+  margin: auto;
+  top: 16px;
   display: inline-flex;
   gap: 8px;
 }
