@@ -1,3 +1,15 @@
+import { useKeyModifier } from "@vueuse/core";
+
+export const useKeyModifiers = () => {
+  const capsLock = useKeyModifier("CapsLock");
+  const numLock = useKeyModifier("NumLock");
+  const scrollLock = useKeyModifier("ScrollLock");
+  const shift = useKeyModifier("Shift");
+  const control = useKeyModifier("Control");
+  const alt = useKeyModifier("Alt");
+  return { capsLock, numLock, scrollLock, shift, control, alt };
+};
+
 export const keyCodeMap: Record<number, string> = {
   1: "escape",
   2: "1",

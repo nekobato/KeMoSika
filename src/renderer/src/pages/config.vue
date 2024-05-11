@@ -1,31 +1,48 @@
 <script setup lang="ts">
 import ConfigLayout from "../components/layouts/ConfigLayout.vue";
-import Pagination from "../components/pages/config/Pagination.vue";
-import NNButton from "../components/common/NNButton.vue";
-import KeyLayoutConfig from "@renderer/components/pages/config/KeyLayoutConfig.vue";
-import { useStore } from "@renderer/store";
+import Key from "../components/Key.vue";
+import router from "@renderer/router";
+import { nanoid } from "nanoid/non-secure";
+import { ref } from "vue";
 
-const store = useStore();
+const keys = ref([] as any[]);
+
+const startVisualization = () => {
+  router.push("/visualizer");
+};
 
 const addKey = () => {
-  store.$state.keys.push({
-    id: "0",
+  keys.value.push({
+    id: nanoid(),
     key: "A",
     type: "normal",
-    size: 64,
-    width: 64,
-    x: 100,
-    y: 100
+    x: 0,
+    y: 0,
+    size: 48,
+    width: 48,
+    color: "#ff0000"
   });
 };
 </script>
 
 <template>
   <ConfigLayout>
-    <KeyLayoutConfig />
-    <Pagination />
-    <NNButton class="start-button">スタート</NNButton>
-    <NNButton class="add-button" @click="addKey">追加</NNButton>
+    <div class="preview">
+      <Key
+        v-for="key in keys"
+        :key="key.id"
+        :key-name="key.key"
+        :x="key.x"
+        :y="key.y"
+        :size="key.size"
+        :is-down="false"
+        :is-modifying="false"
+      />
+      <button @click="startVisualization" class="button type-start">
+        START
+      </button>
+      <button @click="addKey" class="button type-addkey">ADD KEY</button>
+    </div>
   </ConfigLayout>
 </template>
 
@@ -45,5 +62,37 @@ const addKey = () => {
   position: absolute;
   bottom: 16px;
   right: 16px;
+}
+.button {
+  width: 160px;
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  background: #e6e6e6;
+  border: 2px solid #e6e6e6;
+  padding: 0 24px;
+  color: #444444;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+  margin: auto;
+
+  &:hover {
+    background: #cacaca;
+  }
+
+  &.type-start {
+    bottom: 16px;
+    right: 0;
+    left: 0;
+  }
+
+  &.type-addkey {
+    bottom: 16px;
+    right: 16px;
+  }
 }
 </style>

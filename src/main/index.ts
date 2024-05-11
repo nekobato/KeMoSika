@@ -10,6 +10,10 @@ import path, { join } from "node:path";
 import { uIOhook } from "uiohook-napi";
 import * as statics from "./static";
 import { getStore, setStore } from "./store";
+import {} from "./store";
+import { initSentry } from "./utils/sentry";
+
+initSentry();
 
 // 残像防止
 app.disableHardwareAcceleration();

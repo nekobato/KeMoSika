@@ -6,6 +6,11 @@ const props = defineProps({
     type: Boolean,
     required: true
   },
+  isModifying: {
+    type: Boolean,
+    required: false,
+    default: false
+  },
   keyName: {
     type: String,
     required: true
@@ -38,7 +43,11 @@ const style = computed(() => {
 </script>
 
 <template>
-  <div class="key" :class="{ down: props.isDown }" :style="style">
+  <div
+    class="key"
+    :class="{ down: props.isDown, modify: props.isModifying }"
+    :style="style"
+  >
     <span>{{ props.keyName }}</span>
   </div>
 </template>
