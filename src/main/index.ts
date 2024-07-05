@@ -134,4 +134,28 @@ app
       console.log("set:config", data);
       return setStore(data);
     });
+
+    ipcMain.handle("keyboard:getLayouts", async () => {
+      return getStore().layouts || [];
+    });
+
+    ipcMain.handle("keyboard:saveLayout", async (_, data) => {
+      const layouts = getStore().layouts || [];
+      const exists = layouts.find((item) => item.id === data.id);
+      if (exists) {
+        exists.keys = data.keys;
+      } else {
+        layouts.push(data);
+      }
+      return setStore({ layouts });
+    });
+
+    ipcMain.handle("keyboard:saveLayoutName", async (_, data) => {
+      const layouts = getStore().layouts || [];
+      const exists = layouts.find((item) => item.id === data.id);
+      if (exists) {
+        exists.name = data.name;
+      }
+      return setStore({ layouts });
+    });
   });

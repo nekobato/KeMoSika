@@ -1,19 +1,22 @@
-import Store from "electron-store";
+import Store, { Schema } from "electron-store";
 
 type ConfigSchema = {
-  keys: {
+  layouts: {
     id: string;
-    key: string;
-    type: string;
-    size: number;
-    width: number;
-    x: number;
-    y: number;
+    keys: {
+      id: string;
+      key: string;
+      type: string;
+      size: number;
+      width: number;
+      x: number;
+      y: number;
+    }[];
   }[];
 };
 
-const schema: Store.Schema<ConfigSchema> = {
-  keys: {
+const schema: Schema<ConfigSchema> = {
+  layouts: {
     type: "array",
     default: [],
     items: {
@@ -22,23 +25,35 @@ const schema: Store.Schema<ConfigSchema> = {
         id: {
           type: "string"
         },
-        key: {
-          type: "string"
-        },
-        type: {
-          type: "string"
-        },
-        size: {
-          type: "number"
-        },
-        width: {
-          type: "number"
-        },
-        x: {
-          type: "number"
-        },
-        y: {
-          type: "number"
+        keys: {
+          type: "array",
+          default: [],
+          items: {
+            type: "object",
+            properties: {
+              id: {
+                type: "string"
+              },
+              key: {
+                type: "string"
+              },
+              type: {
+                type: "string"
+              },
+              size: {
+                type: "number"
+              },
+              width: {
+                type: "number"
+              },
+              x: {
+                type: "number"
+              },
+              y: {
+                type: "number"
+              }
+            }
+          }
         }
       }
     }
@@ -49,7 +64,7 @@ export const store = new Store({
   name: "config",
   schema: schema,
   defaults: {
-    keys: []
+    layouts: []
   }
 });
 

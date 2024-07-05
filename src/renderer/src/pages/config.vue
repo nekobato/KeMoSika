@@ -1,48 +1,114 @@
 <script setup lang="ts">
 import ConfigLayout from "../components/layouts/ConfigLayout.vue";
-import Key from "../components/Key.vue";
-import router from "@renderer/router";
+import KeyboardButton from "../components/KeyboardButton.vue";
+// import router from "@renderer/router";
 import { nanoid } from "nanoid/non-secure";
-import { ref } from "vue";
+import { nextTick, ref, watch } from "vue";
+import Moveable from "vue3-moveable";
+import { computed } from "vue";
+import KeyboardKeyConfig from "@renderer/components/pages/config/KeyboardKeyConfig.vue";
 
-const keys = ref([] as any[]);
-
-const startVisualization = () => {
-  router.push("/visualizer");
-};
-
-const addKey = () => {
-  keys.value.push({
-    id: nanoid(),
+const keys = ref<any[]>([
+  {
+    id: `key-${nanoid()}`,
     key: "A",
     type: "normal",
     x: 0,
     y: 0,
     size: 48,
     width: 48,
-    color: "#ff0000"
+    color: "#ff0000",
+    isModifying: false
+  }
+]);
+const moveableRef = ref<Moveable>();
+
+const keysCount = computed(() => keys.value.length);
+
+// const startVisualization = () => {
+//   router.push("/visualizer");
+// };
+
+const addKey = () => {
+  keys.value.push({
+    id: `key-${nanoid()}`,
+    key: "A",
+    type: "normal",
+    x: 10,
+    y: 10,
+    size: 48,
+    width: 48,
+    color: "#ff0000",
+    isModifying: false
   });
 };
+
+const onDragKey = (e: any) => {
+  const key = keys.value.find((key) => key.id === e.target.id);
+  if (key) {
+    key.x = e.left;
+    key.y = e.top;
+  }
+};
+
+const onDragStart = (e: any) => {
+  const key = keys.value.find((key) => key.id === e.target.id);
+  if (key) {
+    key.isModifying = true;
+  }
+};
+
+const onDragEnd = (e: any) => {
+  const key = keys.value.find((key) => key.id === e.target.id);
+  if (key) {
+    key.isModifying = false;
+  }
+};
+
+watch(keysCount, () => {
+  nextTick(() => {
+    moveableRef.value?.updateSelectors();
+  });
+});
 </script>
 
 <template>
   <ConfigLayout>
     <div class="preview">
-      <Key
-        v-for="key in keys"
-        :key="key.id"
-        :key-name="key.key"
-        :x="key.x"
-        :y="key.y"
-        :size="key.size"
-        :is-down="false"
-        :is-modifying="false"
-      />
-      <button @click="startVisualization" class="button type-start">
-        START
-      </button>
+      <div class="container">
+        <KeyboardButton
+          v-for="key in keys"
+          :id="key.id"
+          :key="key.id"
+          class="keyboard-key configurable-key"
+          :class="{ modifying: key.isModifying }"
+          :key-name="key.key"
+          :x="key.x"
+          :y="key.y"
+          :size="key.size"
+          :is-down="false"
+          :is-modifying="key.isModifying"
+        />
+        <Moveable
+          ref="moveableRef"
+          target=".configurable-key"
+          :draggable="true"
+          :scalable="false"
+          :rotatable="false"
+          :roundable="false"
+          :origin="false"
+          :individual-groupable="true"
+          :snappable="true"
+          :element-guidelines="['.keyboard-key']"
+          :hide-default-lines="true"
+          @drag="onDragKey"
+          @drag-start="onDragStart"
+          @drag-end="onDragEnd"
+        />
+      </div>
       <button @click="addKey" class="button type-addkey">ADD KEY</button>
     </div>
+    <KeyboardKeyConfig />
   </ConfigLayout>
 </template>
 
@@ -56,6 +122,7 @@ const addKey = () => {
 .preview {
   position: relative;
   width: 100%;
+  height: 100%;
 }
 
 .start-button {
@@ -93,6 +160,19 @@ const addKey = () => {
   &.type-addkey {
     bottom: 16px;
     right: 16px;
+  }
+}
+
+.container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.configurable-key {
+  cursor: grab;
+
+  &.modifying {
+    cursor: grabbing;
   }
 }
 </style>

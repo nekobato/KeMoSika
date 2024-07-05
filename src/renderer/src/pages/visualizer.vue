@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { type UiohookKeyboardEvent } from "uiohook-napi";
 import { keyCodeMap } from "@renderer/utils";
-import KeyBoardBase from "../components/KeyBoardBase.vue";
-import Key from "../components/Key.vue";
+import KeyboardBase from "../components/KeyboardBase.vue";
+import Key from "../components/KeyboardButton.vue";
 import { ref } from "vue";
 import { useStore } from "@renderer/store";
 
@@ -33,7 +33,7 @@ const isDown = ref<{ [key: string]: boolean }>({
 
 <template>
   <div class="visualizer">
-    <KeyBoardBase>
+    <KeyboardBase>
       <Key
         v-for="item in store.$state.keys"
         :key="item.id"
@@ -44,7 +44,7 @@ const isDown = ref<{ [key: string]: boolean }>({
         :size="item.size"
         :isDown="isDown[item.key] || false"
       />
-    </KeyBoardBase>
+    </KeyboardBase>
   </div>
 </template>
 

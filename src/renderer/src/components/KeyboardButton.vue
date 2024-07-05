@@ -43,13 +43,13 @@ const style = computed(() => {
 </script>
 
 <template>
-  <div
+  <button
     class="key"
     :class="{ down: props.isDown, modify: props.isModifying }"
     :style="style"
   >
     <span>{{ props.keyName }}</span>
-  </div>
+  </button>
 </template>
 
 <style scoped>
@@ -61,6 +61,7 @@ const style = computed(() => {
   box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.7);
   color: #71d4fe;
   background: #2f3336;
+  border: none;
   border-radius: 12px;
   text-shadow: 0px 0px 40px #71d4fe, 0px 0px 80px #71d4fe;
   width: 64px;
