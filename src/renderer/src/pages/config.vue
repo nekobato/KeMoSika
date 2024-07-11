@@ -1,26 +1,29 @@
 <script setup lang="ts">
-import ConfigLayout from "../components/layouts/ConfigLayout.vue";
-import KeyboardButton from "../components/KeyboardButton.vue";
-// import router from "@renderer/router";
+import KeyboardKeyConfig from "../components/pages/config/KeyboardKeyConfig.vue";
 import { nanoid } from "nanoid/non-secure";
-import { nextTick, ref, watch } from "vue";
+import { computed, nextTick, ref, watch } from "vue";
 import Moveable from "vue3-moveable";
-import { computed } from "vue";
-import KeyboardKeyConfig from "@renderer/components/pages/config/KeyboardKeyConfig.vue";
+import KeyboardButton from "../components/KeyboardButton.vue";
+import ConfigLayout from "../components/layouts/ConfigLayout.vue";
+import { KeyboardKeyEdit } from "../types/app";
 
-const keys = ref<any[]>([
+const keys = ref<KeyboardKeyEdit[]>([
   {
-    id: `key-${nanoid()}`,
-    key: "A",
-    type: "normal",
-    x: 0,
-    y: 0,
-    size: 48,
-    width: 48,
-    color: "#ff0000",
+    keyData: {
+      id: `key-${nanoid()}`,
+      character: "A",
+      codeMaps: ["KeyA"],
+      x: 0,
+      y: 0,
+      width: 48,
+      height: 48,
+      fontSize: 48,
+      color: "#ff0000"
+    },
     isModifying: false
   }
 ]);
+const activeKeyIndex = ref<number>(0);
 const moveableRef = ref<Moveable>();
 
 const keysCount = computed(() => keys.value.length);
@@ -31,35 +34,38 @@ const keysCount = computed(() => keys.value.length);
 
 const addKey = () => {
   keys.value.push({
-    id: `key-${nanoid()}`,
-    key: "A",
-    type: "normal",
-    x: 10,
-    y: 10,
-    size: 48,
-    width: 48,
-    color: "#ff0000",
+    keyData: {
+      id: `key-${nanoid()}`,
+      character: "A",
+      codeMaps: ["KeyA"],
+      x: 10,
+      y: 10,
+      width: 48,
+      height: 48,
+      fontSize: 48,
+      color: "#ff0000"
+    },
     isModifying: false
   });
 };
 
 const onDragKey = (e: any) => {
-  const key = keys.value.find((key) => key.id === e.target.id);
+  const key = keys.value.find((key) => key.keyData.id === e.target.id);
   if (key) {
-    key.x = e.left;
-    key.y = e.top;
+    key.keyData.x = e.left;
+    key.keyData.y = e.top;
   }
 };
 
 const onDragStart = (e: any) => {
-  const key = keys.value.find((key) => key.id === e.target.id);
+  const key = keys.value.find((key) => key.keyData.id === e.target.id);
   if (key) {
     key.isModifying = true;
   }
 };
 
 const onDragEnd = (e: any) => {
-  const key = keys.value.find((key) => key.id === e.target.id);
+  const key = keys.value.find((key) => key.keyData.id === e.target.id);
   if (key) {
     key.isModifying = false;
   }
@@ -78,14 +84,10 @@ watch(keysCount, () => {
       <div class="container">
         <KeyboardButton
           v-for="key in keys"
-          :id="key.id"
-          :key="key.id"
+          :id="key.keyData.id"
+          :keyData="key.keyData"
           class="keyboard-key configurable-key"
           :class="{ modifying: key.isModifying }"
-          :key-name="key.key"
-          :x="key.x"
-          :y="key.y"
-          :size="key.size"
           :is-down="false"
           :is-modifying="key.isModifying"
         />
@@ -108,7 +110,7 @@ watch(keysCount, () => {
       </div>
       <button @click="addKey" class="button type-addkey">ADD KEY</button>
     </div>
-    <KeyboardKeyConfig />
+    <KeyboardKeyConfig :keyData="keys[activeKeyIndex].keyData" />
   </ConfigLayout>
 </template>
 
@@ -159,7 +161,7 @@ watch(keysCount, () => {
 
   &.type-addkey {
     bottom: 16px;
-    right: 16px;
+    left: 16px;
   }
 }
 

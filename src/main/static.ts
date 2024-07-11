@@ -1,17 +1,17 @@
 import { app } from "electron";
 import path from "node:path";
 
-export const root = path.join(__dirname, "..");
+export const root = path.join(import.meta.dirname, "..");
 
-export const mainRoot = path.join(__dirname, "../main");
-export const rendererRoot = path.join(__dirname, "../renderer");
-export const preloadRoot = path.join(__dirname, "../preload");
+export const mainRoot = path.join(import.meta.dirname, "../main");
+export const rendererRoot = path.join(import.meta.dirname, "../renderer");
+export const preloadRoot = path.join(import.meta.dirname, "../preload");
 export const resourcesRoot = app.isPackaged
-  ? path.join(__dirname, "../resources")
-  : path.join(__dirname, "../resources");
+  ? path.join(import.meta.dirname, "../resources")
+  : path.join(import.meta.dirname, "../resources");
 export const serverUrl = process.env["ELECTRON_RENDERER_URL"];
 
-export const preload = path.join(preloadRoot, "index.js");
+export const preload = path.join(preloadRoot, "index.mjs");
 
 export const pageRoot = serverUrl
   ? (serverUrl as string) // dev

@@ -57,5 +57,5 @@
     "vue3-moveable": "^0.28.0",
     "vue3-selecto": "^1.12.3"
   },
-  "main": "out/main/index.js"
+  "main": "./out/main/index.js"
 }

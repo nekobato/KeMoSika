@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, PropType } from "vue";
+import { KeyboardKeyData } from "../types/app";
 
 const props = defineProps({
+  keyData: Object as PropType<KeyboardKeyData>,
   isDown: {
     type: Boolean,
     required: true
@@ -10,34 +12,15 @@ const props = defineProps({
     type: Boolean,
     required: false,
     default: false
-  },
-  keyName: {
-    type: String,
-    required: true
-  },
-  x: {
-    type: Number,
-    required: true
-  },
-  y: {
-    type: Number,
-    required: true
-  },
-  size: {
-    type: Number,
-    required: true
-  },
-  width: {
-    type: Number
   }
 });
 
 const style = computed(() => {
   return {
-    left: `${props.x}px`,
-    top: `${props.y}px`,
-    height: `${props.size}px`,
-    width: `${props.width ? props.width : props.size}px`
+    left: `${props.keyData.x}px`,
+    top: `${props.keyData.y}px`,
+    height: `${props.keyData.height}px`,
+    width: `${props.keyData.width}px`
   };
 });
 </script>
@@ -48,7 +31,7 @@ const style = computed(() => {
     :class="{ down: props.isDown, modify: props.isModifying }"
     :style="style"
   >
-    <span>{{ props.keyName }}</span>
+    <span>{{ props.keyData.character }}</span>
   </button>
 </template>
 

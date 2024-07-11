@@ -1,9 +1,16 @@
-export type Key = {
+export type KeyboardKeyData = {
   id: string;
-  key: string;
-  type: "normal" | "wide" | "enter";
+  character: string;
+  codeMaps: string[];
   x: number;
   y: number;
-  size: number;
   width: number;
+  height: number;
+  fontSize: number;
+  color: string;
+};
+
+export type KeyboardKeyEdit = {
+  keyData: KeyboardKeyData;
+  isModifying: boolean;
 };

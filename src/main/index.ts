@@ -4,13 +4,13 @@ import {
   globalShortcut,
   type MenuItem,
   type MenuItemConstructorOptions,
-  ipcMain
+  ipcMain,
+  Menu
 } from "electron";
 import path, { join } from "node:path";
 import { uIOhook } from "uiohook-napi";
 import * as statics from "./static";
 import { getStore, setStore } from "./store";
-import {} from "./store";
 import { initSentry } from "./utils/sentry";
 
 initSentry();
@@ -59,7 +59,6 @@ function setMenu() {
     }
   ];
 
-  const { Menu } = require("electron");
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 }
 
@@ -67,7 +66,8 @@ function createWindow() {
   win = new BrowserWindow({
     icon: path.join(statics.resourcesRoot, "icon.png"),
     webPreferences: {
-      preload: statics.preload
+      preload: statics.preload,
+      sandbox: false
     },
     width: 800,
     height: 600,
