@@ -13,9 +13,9 @@ const theme = computed(() => {
 
 const store = useStore();
 
-onBeforeMount(() => {
-  store.init();
-});
+// onBeforeMount(() => {
+//   store.init();
+// });
 
 onMounted(() => {
   window.removeLoading();

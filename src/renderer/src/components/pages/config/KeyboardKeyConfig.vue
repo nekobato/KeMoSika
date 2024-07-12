@@ -13,7 +13,7 @@ defineProps({
     <EP.ElForm class="form" :model="keyData" label-width="auto">
       <EP.ElFormItem label="Key">
         <EP.ElInput
-          class="input-bounds"
+          class="input-key"
           size="small"
           v-model="keyData.character"
         />
@@ -118,6 +118,12 @@ defineProps({
 }
 .form {
   width: 100%;
+}
+.input-key {
+  width: 64px;
+  ::v-deep(input) {
+    text-align: center;
+  }
 }
 .input-bounds {
   width: 64px;

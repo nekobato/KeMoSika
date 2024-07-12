@@ -20,7 +20,8 @@ const style = computed(() => {
     left: `${props.keyData.x}px`,
     top: `${props.keyData.y}px`,
     height: `${props.keyData.height}px`,
-    width: `${props.keyData.width}px`
+    width: `${props.keyData.width}px`,
+    fontSize: `${props.keyData.fontSize}px`
   };
 });
 </script>
@@ -41,10 +42,10 @@ const style = computed(() => {
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.7);
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.7);
   color: #71d4fe;
   background: #2f3336;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   text-shadow: 0px 0px 40px #71d4fe, 0px 0px 80px #71d4fe;
   width: 64px;

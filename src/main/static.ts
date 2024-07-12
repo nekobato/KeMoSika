@@ -11,7 +11,7 @@ export const resourcesRoot = app.isPackaged
   : path.join(import.meta.dirname, "../resources");
 export const serverUrl = process.env["ELECTRON_RENDERER_URL"];
 
-export const preload = path.join(preloadRoot, "index.mjs");
+export const preload = path.join(preloadRoot, "index.js");
 
 export const pageRoot = serverUrl
   ? (serverUrl as string) // dev

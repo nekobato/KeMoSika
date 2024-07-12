@@ -2,9 +2,10 @@
 import { type UiohookKeyboardEvent } from "uiohook-napi";
 import { keyCodeMap } from "@renderer/utils";
 import KeyboardBase from "../components/KeyboardBase.vue";
-import Key from "../components/KeyboardButton.vue";
 import { ref } from "vue";
-import { useStore } from "@renderer/store";
+import { useStore } from "../store";
+import KeyboardButton from "../components/KeyboardButton.vue";
+import router from "../router";
 
 const store = useStore();
 
@@ -29,22 +30,22 @@ const isDown = ref<{ [key: string]: boolean }>({
   s: false,
   w: false
 });
+
+const back = () => {
+  router.replace("/config");
+};
 </script>
 
 <template>
   <div class="visualizer">
     <KeyboardBase>
-      <Key
+      <KeyboardButton
         v-for="item in store.$state.keys"
-        :key="item.id"
-        :keyName="item.key"
-        :x="item.x"
-        :y="item.y"
-        :width="item.width"
-        :size="item.size"
-        :isDown="isDown[item.key] || false"
+        :keyData="item.keyData"
+        :isDown="isDown[item.keyData.character.toLocaleLowerCase()] || false"
       />
     </KeyboardBase>
+    <button @click="back" class="button type-back">BACK</button>
   </div>
 </template>
 
@@ -57,6 +58,12 @@ const isDown = ref<{ [key: string]: boolean }>({
   justify-content: center;
   align-items: center;
   background: #272b2c;
-  padding: 64px;
+}
+.button {
+  &.type-back {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+  }
 }
 </style>

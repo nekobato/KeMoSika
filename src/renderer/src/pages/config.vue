@@ -5,35 +5,25 @@ import { computed, nextTick, ref, watch } from "vue";
 import Moveable from "vue3-moveable";
 import KeyboardButton from "../components/KeyboardButton.vue";
 import ConfigLayout from "../components/layouts/ConfigLayout.vue";
-import { KeyboardKeyEdit } from "../types/app";
+import { useStore } from "../store";
+import router from "../router";
 
-const keys = ref<KeyboardKeyEdit[]>([
-  {
-    keyData: {
-      id: `key-${nanoid()}`,
-      character: "A",
-      codeMaps: ["KeyA"],
-      x: 0,
-      y: 0,
-      width: 48,
-      height: 48,
-      fontSize: 48,
-      color: "#ff0000"
-    },
-    isModifying: false
-  }
-]);
+const store = useStore();
 const activeKeyIndex = ref<number>(0);
 const moveableRef = ref<Moveable>();
 
-const keysCount = computed(() => keys.value.length);
+const keysCount = computed(() => store.$state.keys.length);
+const keys = computed(() => store.$state.keys);
+const keyIdSelectors = computed(() =>
+  keys.value.map((key) => `#${key.keyData.id}`)
+);
 
-// const startVisualization = () => {
-//   router.push("/visualizer");
-// };
+const startVisualization = () => {
+  router.push("/visualizer");
+};
 
 const addKey = () => {
-  keys.value.push({
+  store.$state.keys.push({
     keyData: {
       id: `key-${nanoid()}`,
       character: "A",
@@ -42,7 +32,7 @@ const addKey = () => {
       y: 10,
       width: 48,
       height: 48,
-      fontSize: 48,
+      fontSize: 24,
       color: "#ff0000"
     },
     isModifying: false
@@ -51,6 +41,9 @@ const addKey = () => {
 
 const onDragKey = (e: any) => {
   const key = keys.value.find((key) => key.keyData.id === e.target.id);
+  activeKeyIndex.value = keys.value.findIndex(
+    (key) => key.keyData.id === e.target.id
+  );
   if (key) {
     key.keyData.x = e.left;
     key.keyData.y = e.top;
@@ -74,6 +67,7 @@ const onDragEnd = (e: any) => {
 watch(keysCount, () => {
   nextTick(() => {
     moveableRef.value?.updateSelectors();
+    // moveableRef.value?.updateRect();
   });
 });
 </script>
@@ -101,7 +95,7 @@ watch(keysCount, () => {
           :origin="false"
           :individual-groupable="true"
           :snappable="true"
-          :element-guidelines="['.keyboard-key']"
+          :element-guidelines="keyIdSelectors"
           :hide-default-lines="true"
           @drag="onDragKey"
           @drag-start="onDragStart"
@@ -109,6 +103,9 @@ watch(keysCount, () => {
         />
       </div>
       <button @click="addKey" class="button type-addkey">ADD KEY</button>
+      <button @click="startVisualization" class="button type-start">
+        START
+      </button>
     </div>
     <KeyboardKeyConfig :keyData="keys[activeKeyIndex].keyData" />
   </ConfigLayout>
