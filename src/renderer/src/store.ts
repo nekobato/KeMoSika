@@ -16,7 +16,7 @@ export const useStore = defineStore({
           width: 48,
           height: 48,
           fontSize: 24,
-          color: "#ff0000"
+          color: "#71d4fe"
         },
         isModifying: false
       }

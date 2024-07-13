@@ -17,5 +17,15 @@
   flex-direction: column;
   padding: 30px 15px;
   font: 28px arial;
+  animation: rotateBase 10s linear infinite;
+}
+
+@keyframes rotateBase {
+  0% {
+    transform: rotateX(0deg);
+  }
+  100% {
+    transform: rotateX(360deg);
+  }
 }
 </style>

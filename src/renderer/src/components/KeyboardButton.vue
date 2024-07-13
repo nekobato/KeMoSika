@@ -21,7 +21,8 @@ const style = computed(() => {
     top: `${props.keyData.y}px`,
     height: `${props.keyData.height}px`,
     width: `${props.keyData.width}px`,
-    fontSize: `${props.keyData.fontSize}px`
+    fontSize: `${props.keyData.fontSize}px`,
+    color: props.keyData.color
   };
 });
 </script>

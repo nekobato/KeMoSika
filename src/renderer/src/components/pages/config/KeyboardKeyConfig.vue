@@ -1,10 +1,20 @@
 <script setup lang="ts">
 import { PropType, ref } from "vue";
 import * as EP from "element-plus";
+import { Icon } from "@iconify/vue";
 import { KeyboardKeyData } from "../../../types/app";
+import KeyboardKeyImageInput from "./KeyboardKeyImageInput.vue";
 
 defineProps({
   keyData: Object as PropType<KeyboardKeyData>
+});
+
+const keyImageInputDefault = ref({
+  isDragOver: false
+});
+
+const keyImageInputActive = ref({
+  isDragOver: false
 });
 </script>
 
@@ -18,10 +28,24 @@ defineProps({
           v-model="keyData.character"
         />
       </EP.ElFormItem>
-      <EP.ElFormItem label="KeyMap">
-        <EP.ElTag size="small" type="info" v-for="mapKey in keyData.codeMaps">{{
-          mapKey
-        }}</EP.ElTag>
+      <EP.ElFormItem class="keymap-group" label="KeyMap">
+        <EP.ElTag
+          class="keymap"
+          type="info"
+          closable
+          v-for="mapKey in keyData.codeMaps"
+          @close="
+            () => keyData.codeMaps.splice(keyData.codeMaps.indexOf(mapKey), 1)
+          "
+          >{{ mapKey || "Empty" }}</EP.ElTag
+        >
+        <EP.ElButton
+          class="keymap"
+          size="small"
+          @click="() => keyData.codeMaps.push('')"
+        >
+          <Icon class="icon" icon="mingcute:add-line" />Add</EP.ElButton
+        >
       </EP.ElFormItem>
       <EP.ElRow>
         <EP.ElCol :span="12">
@@ -99,6 +123,17 @@ defineProps({
           </EP.ElFormItem>
         </EP.ElCol>
       </EP.ElRow>
+      <EP.ElRow>
+        <EP.ElText>Key Image</EP.ElText>
+      </EP.ElRow>
+      <EP.ElRow class="row image-upload" :gutter="8">
+        <EP.ElCol :span="12">
+          <KeyboardKeyImageInput label="Default" />
+        </EP.ElCol>
+        <EP.ElCol :span="12">
+          <KeyboardKeyImageInput label="Active" />
+        </EP.ElCol>
+      </EP.ElRow>
     </EP.ElForm>
   </section>
 </template>
@@ -119,6 +154,12 @@ defineProps({
 .form {
   width: 100%;
 }
+.row {
+  &.image-upload {
+    margin-top: 8px;
+    height: 120px;
+  }
+}
 .input-key {
   width: 64px;
   ::v-deep(input) {
@@ -127,5 +168,15 @@ defineProps({
 }
 .input-bounds {
   width: 64px;
+}
+.keymap {
+  border-color: #71d4fe;
+  &:not(:first-child) {
+    margin-left: 4px;
+  }
+  .icon {
+    color: #fff;
+    margin-right: 2px;
+  }
 }
 </style>
