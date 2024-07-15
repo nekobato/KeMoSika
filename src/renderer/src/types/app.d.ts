@@ -1,6 +1,7 @@
 export type KeyboardKeyData = {
   id: string;
   character: string;
+  code: string;
   codeMaps: string[];
   x: number;
   y: number;

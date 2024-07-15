@@ -27,6 +27,7 @@ const addKey = () => {
     keyData: {
       id: `key-${nanoid()}`,
       character: "A",
+      code: "KeyA",
       codeMaps: ["KeyA"],
       x: 10,
       y: 10,

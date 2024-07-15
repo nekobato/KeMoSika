@@ -4,6 +4,7 @@ import * as EP from "element-plus";
 import { Icon } from "@iconify/vue";
 import { KeyboardKeyData } from "../../../types/app";
 import KeyboardKeyImageInput from "./KeyboardKeyImageInput.vue";
+import { keyboardEventToElectronAccelerator } from "../../../utils/key";
 
 defineProps({
   keyData: Object as PropType<KeyboardKeyData>
@@ -16,18 +17,43 @@ const keyImageInputDefault = ref({
 const keyImageInputActive = ref({
   isDragOver: false
 });
+
+const onKeyDownShortcutInput = async (e: KeyboardEvent) => {
+  const shortcut = keyboardEventToElectronAccelerator(e);
+
+  if (shortcut === "" || shortcut === keyData.code) {
+    return;
+  }
+
+  // if (config) {
+  //   await window.ipc.invoke("set:shortcuts", {
+  //     name: "toggleCommand",
+  //     command: shortcut
+  //   });
+  //   emit("change");
+  // }
+};
 </script>
 
 <template>
   <section class="keyboard-key-config">
     <EP.ElForm class="form" :model="keyData" label-width="auto">
-      <EP.ElFormItem label="Key">
-        <EP.ElInput
-          class="input-key"
-          size="small"
-          v-model="keyData.character"
-        />
-      </EP.ElFormItem>
+      <EP.ElRow>
+        <EP.ElCol :span="12">
+          <EP.ElFormItem label="Key">
+            <EP.ElInput
+              class="input-key"
+              size="small"
+              v-model="keyData.character"
+            />
+          </EP.ElFormItem>
+        </EP.ElCol>
+        <EP.ElCol :span="12">
+          <EP.ElFormItem label="Code">
+            <EP.ElInput class="input-key" size="small" v-model="keyData.code" />
+          </EP.ElFormItem>
+        </EP.ElCol>
+      </EP.ElRow>
       <EP.ElFormItem class="keymap-group" label="KeyMap">
         <EP.ElTag
           class="keymap"

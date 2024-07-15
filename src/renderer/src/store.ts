@@ -10,6 +10,7 @@ export const useStore = defineStore({
         keyData: {
           id: `key-${nanoid()}`,
           character: "A",
+          code: "KeyA",
           codeMaps: ["KeyA"],
           x: 0,
           y: 0,
