@@ -3,13 +3,15 @@ import KeyboardKeyConfig from "../components/pages/config/KeyboardKeyConfig.vue"
 import { nanoid } from "nanoid/non-secure";
 import { computed, nextTick, ref, watch } from "vue";
 import Moveable from "vue3-moveable";
+import Selecto from "vue3-selecto";
 import KeyboardButton from "../components/KeyboardButton.vue";
 import ConfigLayout from "../components/layouts/ConfigLayout.vue";
 import { useStore } from "../store";
 import router from "../router";
 
 const store = useStore();
-const activeKeyIndex = ref<number>(0);
+const activeKeyIndexes = ref<number[]>([0]);
+const previewRef = ref<HTMLDivElement>();
 const moveableRef = ref<Moveable>();
 
 const keysCount = computed(() => store.$state.keys.length);
@@ -26,25 +28,31 @@ const addKey = () => {
   store.$state.keys.push({
     keyData: {
       id: `key-${nanoid()}`,
-      character: "A",
-      code: "KeyA",
-      codeMaps: ["KeyA"],
-      x: 10,
-      y: 10,
+      type: "key",
+      codeMap: ["KeyA"],
+      x: 0,
+      y: 0,
       width: 48,
       height: 48,
-      fontSize: 24,
-      color: "#71d4fe"
-    },
-    isModifying: false
+      rotation: 0,
+      text: {
+        isVisible: true,
+        character: "A",
+        x: 0,
+        y: 0,
+        size: 24,
+        color: "#71d4fe"
+      },
+      images: {
+        default: "",
+        keyPress: ""
+      }
+    }
   });
 };
 
-const onDragKey = (e: any) => {
+const onDrag = (e: any) => {
   const key = keys.value.find((key) => key.keyData.id === e.target.id);
-  activeKeyIndex.value = keys.value.findIndex(
-    (key) => key.keyData.id === e.target.id
-  );
   if (key) {
     key.keyData.x = e.left;
     key.keyData.y = e.top;
@@ -54,54 +62,85 @@ const onDragKey = (e: any) => {
 const onDragStart = (e: any) => {
   const key = keys.value.find((key) => key.keyData.id === e.target.id);
   if (key) {
-    key.isModifying = true;
+    // key.isModifying = true;
   }
 };
 
 const onDragEnd = (e: any) => {
   const key = keys.value.find((key) => key.keyData.id === e.target.id);
   if (key) {
-    key.isModifying = false;
+    // key.isModifying = false;
   }
+};
+
+const onDragGroup = (e: any) => {
+  e.events.forEach((ev: any) => {
+    const key = keys.value.find((key) => key.keyData.id === ev.target.id);
+    if (key) {
+      key.keyData.x = ev.left;
+      key.keyData.y = ev.top;
+    }
+  });
+};
+
+const onSelectEnd = (e: any) => {
+  const selectedKeys = keys.value.filter((key) =>
+    e.selected.some((el: any) => el.id === key.keyData.id)
+  );
+
+  // moveableRef.value.dragStart();
+  moveableRef.value.waitToChangeTarget().then(() => {
+    moveableRef.value.dragStart(e.inputEvent);
+  });
+  activeKeyIndexes.value = selectedKeys.map((key) => keys.value.indexOf(key));
+  console.log(selectedKeys);
 };
 
 watch(keysCount, () => {
   nextTick(() => {
-    moveableRef.value?.updateSelectors();
-    // moveableRef.value?.updateRect();
-    console.log(keys.value);
+    moveableRef.value.updateSelectors();
+    moveableRef.value.updateRect();
   });
 });
 </script>
 
 <template>
   <ConfigLayout>
-    <div class="preview">
+    <div class="preview" ref="previewRef">
       <div class="container">
         <KeyboardButton
           v-for="key in keys"
-          :id="key.keyData.id"
-          :keyData="key.keyData"
           class="keyboard-key configurable-key"
-          :class="{ modifying: key.isModifying }"
+          :id="key.keyData.id"
+          :key-data="key.keyData"
           :is-down="false"
-          :is-modifying="key.isModifying"
         />
         <Moveable
           ref="moveableRef"
-          target=".configurable-key"
+          :target="keyIdSelectors"
           :draggable="true"
           :scalable="false"
           :rotatable="false"
           :roundable="false"
-          :origin="false"
-          :individual-groupable="true"
           :snappable="true"
+          :origin="false"
           :element-guidelines="keyIdSelectors"
+          :individual-groupable="true"
           :hide-default-lines="true"
-          @drag="onDragKey"
+          @drag="onDrag"
+          @drag-group="onDragGroup"
           @drag-start="onDragStart"
           @drag-end="onDragEnd"
+        />
+        <Selecto
+          :container="previewRef"
+          :drag-container="previewRef"
+          :selectable-targets="keyIdSelectors"
+          :selectBy-click="true"
+          :select-from-inside="false"
+          :continue-select="false"
+          :toggle-continue-select="['shift']"
+          @select-end="onSelectEnd"
         />
       </div>
       <button @click="addKey" class="button type-addkey">ADD KEY</button>
@@ -109,7 +148,13 @@ watch(keysCount, () => {
         START
       </button>
     </div>
-    <KeyboardKeyConfig :keyData="keys[activeKeyIndex].keyData" />
+    <KeyboardKeyConfig
+      :keyData="
+        activeKeyIndexes.length > 0
+          ? keys[activeKeyIndexes[0]].keyData
+          : undefined
+      "
+    />
   </ConfigLayout>
 </template>
 

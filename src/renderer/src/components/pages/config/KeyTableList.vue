@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import KeyboardShortcutInput from "@renderer/components/common/KeyboardShortcutInput.vue";
+import KeyboardShortcutInput from "@/components/common/KeyboardShortcutInput.vue";
 
 import { nanoid } from "nanoid/non-secure";
 import { nextTick, ref } from "vue";

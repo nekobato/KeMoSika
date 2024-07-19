@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useStore } from "@renderer/store";
+import { useStore } from "@/store";
 import { OnDrag } from "vue3-moveable";
 import ConfigurableKey from "./ConfigurableKey.vue";
 

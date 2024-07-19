@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import PaginationItem from "@renderer/svg/pagination-item.svg";
+import PaginationItem from "@/svg/pagination-item.svg";
 </script>
 
 <template>

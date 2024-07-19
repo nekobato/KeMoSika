@@ -1,17 +1,12 @@
 <script setup lang="ts">
 import { computed, PropType } from "vue";
-import { KeyboardKeyData } from "../types/app";
+import { KeyboardKeyData } from "@shared/types";
 
 const props = defineProps({
   keyData: Object as PropType<KeyboardKeyData>,
   isDown: {
     type: Boolean,
     required: true
-  },
-  isModifying: {
-    type: Boolean,
-    required: false,
-    default: false
   }
 });
 
@@ -21,19 +16,18 @@ const style = computed(() => {
     top: `${props.keyData.y}px`,
     height: `${props.keyData.height}px`,
     width: `${props.keyData.width}px`,
-    fontSize: `${props.keyData.fontSize}px`,
-    color: props.keyData.color
+    fontSize: `${props.keyData.text.size}px`,
+    color: props.keyData.text.color,
+    transform: `rotate(${props.keyData.rotation}deg)`
   };
 });
 </script>
 
 <template>
-  <button
-    class="key"
-    :class="{ down: props.isDown, modify: props.isModifying }"
-    :style="style"
-  >
-    <span>{{ props.keyData.character }}</span>
+  <button class="key" :class="{ down: props.isDown }" :style="style">
+    <span v-show="props.keyData.text.isVisible">{{
+      props.keyData.text.character
+    }}</span>
   </button>
 </template>
 

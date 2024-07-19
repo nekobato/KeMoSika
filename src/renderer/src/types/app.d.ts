@@ -1,17 +1,5 @@
-export type KeyboardKeyData = {
-  id: string;
-  character: string;
-  code: string;
-  codeMaps: string[];
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  fontSize: number;
-  color: string;
-};
+import { KeyboardKeyData } from "@shared/types";
 
 export type KeyboardKeyEdit = {
   keyData: KeyboardKeyData;
-  isModifying: boolean;
 };

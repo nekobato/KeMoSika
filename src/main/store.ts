@@ -1,17 +1,11 @@
 import Store, { Schema } from "electron-store";
+import { LayoutItemData } from "@shared/types";
 
 type ConfigSchema = {
   layouts: {
     id: string;
-    keys: {
-      id: string;
-      key: string;
-      type: string;
-      size: number;
-      width: number;
-      x: number;
-      y: number;
-    }[];
+    name: string;
+    items: LayoutItemData[];
   }[];
 };
 
@@ -25,34 +19,83 @@ const schema: Schema<ConfigSchema> = {
         id: {
           type: "string"
         },
-        keys: {
+        name: {
+          type: "string"
+        },
+        items: {
           type: "array",
-          default: [],
           items: {
             type: "object",
             properties: {
-              id: {
-                type: "string"
-              },
-              key: {
-                type: "string"
-              },
               type: {
                 type: "string"
               },
-              size: {
-                type: "number"
-              },
-              width: {
-                type: "number"
+              id: {
+                type: "string"
               },
               x: {
                 type: "number"
               },
               y: {
                 type: "number"
+              },
+              width: {
+                type: "number"
+              },
+              height: {
+                type: "number"
+              },
+              images: {
+                type: "object",
+                properties: {
+                  default: {
+                    type: "string"
+                  },
+                  keyPress: {
+                    type: "string"
+                  },
+                  leftClick: {
+                    type: "string"
+                  },
+                  rightClick: {
+                    type: "string"
+                  },
+                  middleClick: {
+                    type: "string"
+                  },
+                  scrollUp: {
+                    type: "string"
+                  },
+                  scrollDown: {
+                    type: "string"
+                  }
+                }
+              },
+              text: {
+                type: "object",
+                properties: {
+                  character: {
+                    type: "string"
+                  },
+                  x: {
+                    type: "number"
+                  },
+                  y: {
+                    type: "number"
+                  },
+                  size: {
+                    type: "number"
+                  },
+                  color: {
+                    type: "string"
+                  },
+                  font: {
+                    type: "string"
+                  }
+                }
               }
-            }
+            },
+            required: ["type", "id", "x", "y", "width", "height"]
           }
         }
       }

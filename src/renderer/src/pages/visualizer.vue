@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { type UiohookKeyboardEvent } from "uiohook-napi";
-import { keyCodeMap } from "@renderer/utils";
-import KeyboardBase from "../components/KeyboardBase.vue";
+import { keyCodeMap } from "@/utils";
+import KeyboardBase from "@/components/KeyboardBase.vue";
 import { ref } from "vue";
 import { useStore } from "../store";
 import KeyboardButton from "../components/KeyboardButton.vue";

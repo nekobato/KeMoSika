@@ -11,6 +11,11 @@ export default defineConfig({
         entry: resolve("src/main/index.ts"),
         formats: ["es"]
       }
+    },
+    resolve: {
+      alias: {
+        "@shared": resolve(__dirname, "./src/shared")
+      }
     }
   },
   preload: {
@@ -20,7 +25,8 @@ export default defineConfig({
     plugins: [vue(), svgLoader()],
     resolve: {
       alias: {
-        "@renderer": resolve("src/renderer/src")
+        "@": resolve(__dirname, "./src/renderer/src"),
+        "@shared": resolve(__dirname, "./src/shared")
       }
     }
   }

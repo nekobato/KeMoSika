@@ -9,17 +9,26 @@ export const useStore = defineStore({
       {
         keyData: {
           id: `key-${nanoid()}`,
-          character: "A",
-          code: "KeyA",
-          codeMaps: ["KeyA"],
+          type: "key",
+          codeMap: ["KeyA"],
           x: 0,
           y: 0,
           width: 48,
           height: 48,
-          fontSize: 24,
-          color: "#71d4fe"
-        },
-        isModifying: false
+          rotation: 0,
+          text: {
+            isVisible: true,
+            character: "A",
+            x: 0,
+            y: 0,
+            size: 24,
+            color: "#71d4fe"
+          },
+          images: {
+            default: "",
+            keyPress: ""
+          }
+        }
       }
     ] as KeyboardKeyEdit[]
   }),
