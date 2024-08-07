@@ -10,24 +10,34 @@ const props = defineProps({
   }
 });
 
-const style = computed(() => {
+const buttonStyle = computed(() => {
   return {
     left: `${props.keyData.x}px`,
     top: `${props.keyData.y}px`,
     height: `${props.keyData.height}px`,
     width: `${props.keyData.width}px`,
-    fontSize: `${props.keyData.text.size}px`,
-    color: props.keyData.text.color,
     transform: `rotate(${props.keyData.rotation}deg)`
+  };
+});
+
+const textStyle = computed(() => {
+  return {
+    left: `${props.keyData.text.x}px`,
+    top: `${props.keyData.text.y}px`,
+    fontSize: `${props.keyData.text.size}px`,
+    color: props.keyData.text.color
   };
 });
 </script>
 
 <template>
-  <button class="key" :class="{ down: props.isDown }" :style="style">
-    <span v-show="props.keyData.text.isVisible">{{
-      props.keyData.text.character
-    }}</span>
+  <button class="key" :class="{ down: props.isDown }" :style="buttonStyle">
+    <span
+      class="text"
+      v-show="props.keyData.text.isVisible"
+      :style="textStyle"
+      >{{ props.keyData.text.character }}</span
+    >
   </button>
 </template>
 
@@ -53,5 +63,9 @@ const style = computed(() => {
     background: #71d4fe;
     text-shadow: 0px 0px 40px #2f3336, 0px 0px 80px #2f3336;
   }
+}
+
+.text {
+  position: relative;
 }
 </style>

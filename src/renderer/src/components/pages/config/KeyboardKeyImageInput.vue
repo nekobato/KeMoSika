@@ -3,8 +3,12 @@ import { Icon } from "@iconify/vue";
 import { ref } from "vue";
 
 defineProps({
+  value: String,
   label: String
 });
+const emit = defineEmits<{
+  change: [file: File];
+}>();
 const isDragOver = ref(false);
 
 const onDragOver = (e: DragEvent) => {
@@ -13,6 +17,9 @@ const onDragOver = (e: DragEvent) => {
 
 const onDrop = (e: DragEvent) => {
   isDragOver.value = false;
+  if (e.dataTransfer) {
+    emit("change", e.dataTransfer.files[0]);
+  }
 };
 
 const onDragLeave = (e: DragEvent) => {
@@ -29,7 +36,8 @@ const onDragLeave = (e: DragEvent) => {
     @dragleave.prevent="onDragLeave"
   >
     <span class="label">{{ label }}</span>
-    <Icon class="icon" icon="mingcute:add-line" />
+    <Icon class="icon" icon="mingcute:add-line" v-if="!value" />
+    <img class="image" v-if="value" :src="'media://' + value" />
   </div>
 </template>
 
@@ -58,6 +66,10 @@ const onDragLeave = (e: DragEvent) => {
     left: 4px;
     color: #4c4d4f;
     font-size: 14px;
+  }
+
+  .image {
+    object-fit: contain;
   }
 
   .icon {

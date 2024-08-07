@@ -8,8 +8,14 @@ export type KeyboardKeyData = {
   y: number;
   rotation: number;
   images: {
-    default: string;
-    keyPress: string;
+    keyDefault: string;
+    keyActive: string;
+    mouseDefault: string;
+    mouseLeftClick: string;
+    mouseRightClick: string;
+    mouseMiddleClick: string;
+    mouseScrollUp: string;
+    mouseScrollDown: string;
   };
   text?: {
     isVisible: boolean;
@@ -30,12 +36,14 @@ export type MouseData = {
   x: number;
   y: number;
   images: {
-    default: string;
-    leftClick: string;
-    rightClick: string;
-    middleClick: string;
-    scrollUp: string;
-    scrollDown: string;
+    keyDefault: string;
+    keyActive: string;
+    mouseDefault: string;
+    mouseLeftClick: string;
+    mouseRightClick: string;
+    mouseMiddleClick: string;
+    mouseScrollUp: string;
+    mouseScrollDown: string;
   };
 };
 

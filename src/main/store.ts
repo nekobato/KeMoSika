@@ -5,7 +5,7 @@ type ConfigSchema = {
   layouts: {
     id: string;
     name: string;
-    items: LayoutItemData[];
+    keys: LayoutItemData[];
   }[];
 };
 
@@ -22,7 +22,7 @@ const schema: Schema<ConfigSchema> = {
         name: {
           type: "string"
         },
-        items: {
+        keys: {
           type: "array",
           items: {
             type: "object",
@@ -48,25 +48,28 @@ const schema: Schema<ConfigSchema> = {
               images: {
                 type: "object",
                 properties: {
-                  default: {
+                  keyDefault: {
                     type: "string"
                   },
-                  keyPress: {
+                  keyActive: {
                     type: "string"
                   },
-                  leftClick: {
+                  mouseDefault: {
                     type: "string"
                   },
-                  rightClick: {
+                  mouseLeftClick: {
                     type: "string"
                   },
-                  middleClick: {
+                  mouseRightClick: {
                     type: "string"
                   },
-                  scrollUp: {
+                  mouseMiddleClick: {
                     type: "string"
                   },
-                  scrollDown: {
+                  mousesScrollUp: {
+                    type: "string"
+                  },
+                  mousesScrollDown: {
                     type: "string"
                   }
                 }

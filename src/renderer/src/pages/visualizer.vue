@@ -1,48 +1,50 @@
 <script setup lang="ts">
 import { type UiohookKeyboardEvent } from "uiohook-napi";
-import { keyCodeMap } from "@/utils";
+import { keyCodeMap } from "@/utils/key";
 import KeyboardBase from "@/components/KeyboardBase.vue";
 import { ref } from "vue";
 import { useStore } from "../store";
 import KeyboardButton from "../components/KeyboardButton.vue";
 import router from "../router";
+import { onMounted } from "vue";
 
 const store = useStore();
+
+const downKeys = ref<string[]>([]);
+
+const isDown = (codes: string[]) => {
+  return codes.some((code) => downKeys.value.includes(code));
+};
 
 window.ipc.on("input:keydown", (_, e: UiohookKeyboardEvent) => {
   const keyName = keyCodeMap[e.keycode];
   console.log(keyName);
-  if (keyName && isDown.value[keyName] !== undefined) {
-    isDown.value[keyName] = true;
+  if (keyName && downKeys.value.indexOf(keyName) === -1) {
+    downKeys.value.push(keyName);
   }
 });
 
 window.ipc.on("input:keyup", (_, e: UiohookKeyboardEvent) => {
   const keyName = keyCodeMap[e.keycode];
-  if (keyName && isDown.value[keyName] !== undefined) {
-    isDown.value[keyName] = false;
+  if (keyName) {
+    downKeys.value = downKeys.value.filter((key) => key !== keyName);
   }
 });
 
-const isDown = ref<{ [key: string]: boolean }>({
-  a: false,
-  d: false,
-  s: false,
-  w: false
-});
-
 const back = () => {
-  router.replace("/config");
+  router.push("/config");
 };
+
+onMounted(() => {});
 </script>
 
 <template>
   <div class="visualizer">
     <KeyboardBase>
       <KeyboardButton
-        v-for="item in store.$state.keys"
-        :keyData="item.keyData"
-        :isDown="isDown[item.keyData.character.toLocaleLowerCase()] || false"
+        v-for="item in store.currentLayout.keys"
+        :keyData="item"
+        :isDown="isDown(item.codeMap)"
       />
     </KeyboardBase>
     <button @click="back" class="button type-back">BACK</button>

@@ -5,33 +5,82 @@ import { Icon } from "@iconify/vue";
 import KeyboardKeyImageInput from "./KeyboardKeyImageInput.vue";
 import { keyboardEventToElectronAccelerator } from "@/utils/key";
 import { KeyboardKeyData } from "@shared/types";
+import { saveImage } from "../../../../../main/utils/image";
 
-defineProps({
+const props = defineProps({
   keyData: Object as PropType<KeyboardKeyData>
 });
 
-const keyImageInputDefault = ref({
-  isDragOver: false
-});
+const emit = defineEmits(["change"]);
 
-const keyImageInputActive = ref({
-  isDragOver: false
-});
-
-const onKeyDownShortcutInput = async (e: KeyboardEvent) => {
+const onKeyDownShortcutInput = async (e: KeyboardEvent, index: number) => {
+  e.preventDefault();
+  const targetCodeMap = props.keyData.codeMap[index];
   const shortcut = keyboardEventToElectronAccelerator(e);
 
-  if (shortcut === "") {
+  if (shortcut === "" || props.keyData.codeMap.includes(shortcut)) {
     return;
   }
 
-  // if (config) {
-  //   await window.ipc.invoke("set:shortcuts", {
-  //     name: "toggleCommand",
-  //     command: shortcut
-  //   });
-  //   emit("change");
-  // }
+  if (targetCodeMap) {
+    emit("change", {
+      ...props.keyData,
+      codeMap: props.keyData.codeMap.map((code, i) =>
+        i === index ? shortcut : code
+      )
+    });
+  }
+};
+
+const onChangeInput = (key: string, value: any) => {
+  switch (key) {
+    case "x":
+    case "y":
+    case "width":
+    case "height":
+    case "rotation":
+      emit("change", {
+        ...props.keyData,
+        [key]: value
+      });
+      break;
+    case "text.character":
+    case "text.x":
+    case "text.y":
+    case "text.size":
+    case "text.color":
+      emit("change", {
+        ...props.keyData,
+        text: {
+          ...props.keyData.text,
+          [key.split(".")[1]]: value
+        }
+      });
+      break;
+  }
+};
+
+const onChangeImage = async (
+  status: "keyDefault" | "keyActive",
+  file: { path: string; name: string }
+) => {
+  const imagePath = await window.ipc.invoke("image:save", {
+    id: props.keyData.id,
+    status: status,
+    imagePath: file.path
+  });
+
+  console.log(imagePath);
+
+  if (imagePath) {
+    emit("change", {
+      ...props.keyData,
+      images: {
+        ...props.keyData.images,
+        [status]: imagePath
+      }
+    });
+  }
 };
 </script>
 
@@ -43,11 +92,12 @@ const onKeyDownShortcutInput = async (e: KeyboardEvent) => {
           class="keymap"
           type="info"
           closable
-          v-for="mapKey in keyData.codeMap"
+          v-for="(mapKey, index) in keyData.codeMap"
           @close="
             () => keyData.codeMap.splice(keyData.codeMap.indexOf(mapKey), 1)
           "
-          @keydown="onKeyDownShortcutInput"
+          @keydown="onKeyDownShortcutInput($event, index)"
+          tabindex="0"
           >{{ mapKey || "Empty" }}</EP.ElTag
         >
         <EP.ElButton
@@ -68,7 +118,9 @@ const onKeyDownShortcutInput = async (e: KeyboardEvent) => {
               v-model="keyData.x"
               :min="0"
               :max="999999"
+              :step="1"
               :controls="false"
+              @change="onChangeInput('x', $event)"
             />
           </EP.ElFormItem>
         </EP.ElCol>
@@ -80,7 +132,9 @@ const onKeyDownShortcutInput = async (e: KeyboardEvent) => {
               v-model="keyData.y"
               :min="0"
               :max="999999"
+              :step="1"
               :controls="false"
+              @change="onChangeInput('y', $event)"
             />
           </EP.ElFormItem>
         </EP.ElCol>
@@ -94,7 +148,9 @@ const onKeyDownShortcutInput = async (e: KeyboardEvent) => {
               v-model="keyData.width"
               :min="0"
               :max="999999"
+              :step="1"
               :controls="false"
+              @change="onChangeInput('width', $event)"
             />
           </EP.ElFormItem>
         </EP.ElCol>
@@ -106,7 +162,9 @@ const onKeyDownShortcutInput = async (e: KeyboardEvent) => {
               v-model="keyData.height"
               :min="0"
               :max="999999"
+              :step="1"
               :controls="false"
+              @change="onChangeInput('height', $event)"
             />
           </EP.ElFormItem>
         </EP.ElCol>
@@ -123,7 +181,9 @@ const onKeyDownShortcutInput = async (e: KeyboardEvent) => {
               v-model="keyData.rotation"
               :min="0"
               :max="999999"
+              :step="1"
               :controls="false"
+              @change="onChangeInput('rotation', $event)"
             />
           </EP.ElFormItem>
         </EP.ElCol>
@@ -138,8 +198,39 @@ const onKeyDownShortcutInput = async (e: KeyboardEvent) => {
             class="input-key"
             size="small"
             v-model="keyData.text.character"
+            @change="onChangeInput('text.character', $event)"
           />
         </EP.ElFormItem>
+        <EP.ElRow>
+          <EP.ElCol :span="12">
+            <EP.ElFormItem label="X">
+              <EP.ElInputNumber
+                class="input-bounds"
+                size="small"
+                v-model="keyData.text.x"
+                :min="-9999"
+                :max="9999"
+                :step="1"
+                :controls="false"
+                @change="onChangeInput('text.x', $event)"
+              />
+            </EP.ElFormItem>
+          </EP.ElCol>
+          <EP.ElCol :span="12">
+            <EP.ElFormItem label="Y">
+              <EP.ElInputNumber
+                class="input-bounds"
+                size="small"
+                v-model="keyData.text.y"
+                :min="-9999"
+                :max="9999"
+                :step="1"
+                :controls="false"
+                @change="onChangeInput('text.y', $event)"
+              />
+            </EP.ElFormItem>
+          </EP.ElCol>
+        </EP.ElRow>
         <EP.ElRow>
           <EP.ElCol :span="12">
             <EP.ElFormItem label="Size">
@@ -149,7 +240,9 @@ const onKeyDownShortcutInput = async (e: KeyboardEvent) => {
                 v-model="keyData.text.size"
                 :min="10"
                 :max="99"
+                :step="1"
                 :controls="false"
+                @change="onChangeInput('text.size', $event)"
               />
             </EP.ElFormItem>
           </EP.ElCol>
@@ -160,6 +253,7 @@ const onKeyDownShortcutInput = async (e: KeyboardEvent) => {
                 size="small"
                 :show-alpha="true"
                 v-model="keyData.text.color"
+                @change="onChangeInput('text.color', $event)"
               />
             </EP.ElFormItem>
           </EP.ElCol>
@@ -171,14 +265,19 @@ const onKeyDownShortcutInput = async (e: KeyboardEvent) => {
       </EP.ElRow>
       <EP.ElRow class="row image-upload" :gutter="8">
         <EP.ElCol :span="12">
-          <KeyboardKeyImageInput label="Default" />
+          <KeyboardKeyImageInput
+            label="Default"
+            :value="keyData.images.keyDefault"
+            @change="onChangeImage('keyDefault', $event)"
+          />
         </EP.ElCol>
         <EP.ElCol :span="12">
-          <KeyboardKeyImageInput label="Active" />
+          <KeyboardKeyImageInput
+            label="Active"
+            :value="keyData.images.keyActive"
+            @change="onChangeImage('keyActive', $event)"
+          />
         </EP.ElCol>
-      </EP.ElRow>
-      <EP.ElRow class="submit-row">
-        <EP.ElButton type="primary">Save</EP.ElButton>
       </EP.ElRow>
     </EP.ElForm>
   </section>
@@ -220,9 +319,13 @@ const onKeyDownShortcutInput = async (e: KeyboardEvent) => {
   width: 64px;
 }
 .keymap {
+  cursor: pointer;
   border-color: #969696;
   &:not(:first-child) {
     margin-left: 4px;
+  }
+  &:focus {
+    border-color: #409eff;
   }
   .icon {
     color: #fff;

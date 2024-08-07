@@ -5,13 +5,16 @@ import {
   type MenuItem,
   type MenuItemConstructorOptions,
   ipcMain,
-  Menu
+  Menu,
+  protocol,
+  net
 } from "electron";
 import path, { join } from "node:path";
 import { uIOhook } from "uiohook-napi";
 import * as statics from "./static";
 import { getStore, setStore } from "./store";
 import { initSentry } from "./utils/sentry";
+import { getImagePathList, saveImage } from "./utils/image";
 
 initSentry();
 
@@ -101,6 +104,17 @@ function createWindow() {
   }
 }
 
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: "media",
+    privileges: {
+      secure: true,
+      supportFetchAPI: true,
+      bypassCSP: true
+    }
+  }
+]);
+
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     app.quit();
@@ -126,20 +140,26 @@ app
   .then(() => {
     setInputMonitor();
 
-    ipcMain.handle("get:config", async () => {
+    ipcMain.handle("config:get", async () => {
       return getStore();
     });
 
-    ipcMain.handle("set:config", async (_, data) => {
+    ipcMain.handle("config:set", async (_, data) => {
       console.log("set:config", data);
       return setStore(data);
     });
 
-    ipcMain.handle("keyboard:getLayouts", async () => {
+    ipcMain.handle("layout:get-all", async () => {
       return getStore().layouts || [];
     });
 
-    ipcMain.handle("keyboard:saveLayout", async (_, data) => {
+    ipcMain.handle("layout:create", async (_, data) => {
+      const layouts = getStore().layouts || [];
+      layouts.push(data);
+      return setStore({ layouts });
+    });
+
+    ipcMain.handle("layout:save", async (_, data) => {
       const layouts = getStore().layouts || [];
       const exists = layouts.find((item) => item.id === data.id);
       if (exists) {
@@ -150,12 +170,34 @@ app
       return setStore({ layouts });
     });
 
-    ipcMain.handle("keyboard:saveLayoutName", async (_, data) => {
+    ipcMain.handle("layout:saveName", async (_, data) => {
       const layouts = getStore().layouts || [];
       const exists = layouts.find((item) => item.id === data.id);
       if (exists) {
         exists.name = data.name;
       }
       return setStore({ layouts });
+    });
+
+    ipcMain.handle("layout:delete", async (_, id) => {
+      const layouts = getStore().layouts || [];
+      const index = layouts.findIndex((item) => item.id === id);
+      if (index > -1) {
+        layouts.splice(index, 1);
+      }
+      return setStore({ layouts });
+    });
+
+    ipcMain.handle("image:save", async (_, data) => {
+      return saveImage(data.id, data.status, data.imagePath);
+    });
+
+    ipcMain.handle("image:list", async () => {
+      return getImagePathList();
+    });
+
+    protocol.handle("media", (req) => {
+      const pathToMedia = new URL(req.url).pathname;
+      return net.fetch(`file://${pathToMedia}`);
     });
   });
