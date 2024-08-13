@@ -17,7 +17,16 @@ export const useStore = defineStore("store", () => {
     layouts: []
   });
 
-  const currentLayout = computed(() => {
+  const saveLayout = async () => {
+    await window.ipc.invoke(
+      "layout:save",
+      JSON.parse(
+        JSON.stringify(state.value.layouts[state.value.activeLayoutIndex])
+      )
+    );
+  };
+
+  const activeLayout = computed(() => {
     return state.value.layouts[state.value.activeLayoutIndex];
   });
 
@@ -33,32 +42,24 @@ export const useStore = defineStore("store", () => {
 
   const addKey = async (key: KeyboardKeyData) => {
     state.value.layouts[state.value.activeLayoutIndex].keys.push(key);
-    // await window.ipc.invoke("set:config", {
-    //   keys: state.value.keys
-    // });
+    await saveLayout();
   };
 
   const updateKey = async (key: KeyboardKeyData) => {
-    const index = state.value.layouts[
-      state.value.activeLayoutIndex
-    ].keys.findIndex((k) => k.id === key.id);
+    const index = activeLayout.value.keys.findIndex((k) => k.id === key.id);
     state.value.layouts[state.value.activeLayoutIndex].keys[index] = key;
-    // await window.ipc.invoke("set:config", {
-    //   keys: state.value.keys
-    // });
+    await saveLayout();
   };
   const removeKeys = async (keyIndexes: number[]) => {
     state.value.layouts[state.value.activeLayoutIndex].keys =
-      state.value.layouts[state.value.activeLayoutIndex].keys.filter(
-        (_, index) => !keyIndexes.includes(index)
-      );
+      activeLayout.value.keys.filter((_, index) => !keyIndexes.includes(index));
     // await window.ipc.invoke("set:config", {
     //   keys: state.value.keys
     // });
   };
   return {
     state,
-    currentLayout,
+    activeLayout,
     init,
     addLayout,
     addKey,

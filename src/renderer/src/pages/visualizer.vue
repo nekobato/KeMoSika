@@ -42,7 +42,7 @@ onMounted(() => {});
   <div class="visualizer">
     <KeyboardBase>
       <KeyboardButton
-        v-for="item in store.currentLayout.keys"
+        v-for="item in store.activeLayout.keys"
         :keyData="item"
         :isDown="isDown(item.codeMap)"
       />

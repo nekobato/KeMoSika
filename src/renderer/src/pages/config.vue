@@ -150,11 +150,7 @@ const onKeyDown = (e: KeyboardEvent) => {
   }
 };
 
-watch(keysCount, () => {
-  window.ipc.send(
-    "layout:save",
-    store.state.layouts[store.state.activeLayoutIndex]
-  );
+watch(keysCount, async () => {
   nextTick(() => {
     moveableRef.value.updateSelectors();
     moveableRef.value.updateRect();
@@ -179,7 +175,7 @@ onUnmounted(() => {
     <div class="preview" ref="previewRef" v-if="layout">
       <div class="layout-ui">
         <Icon class="icon" icon="mingcute:keyboard-fill" />
-        <span class="label">{{ store.currentLayout.name }}</span>
+        <span class="label">{{ store.activeLayout.name }}</span>
       </div>
       <div id="layout-area" class="container">
         <KeyboardButton
