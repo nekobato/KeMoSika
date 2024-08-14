@@ -16,7 +16,7 @@ const store = useStore();
 
 onBeforeMount(async () => {
   await store.init();
-  if (!store.state.layouts?.length) {
+  if (!store.$state.layouts?.length) {
     store.addLayout({
       id: nanoid(),
       name: "Layout 1"

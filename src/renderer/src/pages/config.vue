@@ -19,10 +19,12 @@ const moveableRef = ref<Moveable>();
 const selectoRef = ref<Selecto>();
 
 const layout = computed(
-  () => store.state.layouts[store.state.activeLayoutIndex]
+  () => store.$state.layouts[store.$state.activeLayoutIndex]
 );
-const keys = computed(
-  () => store.state.layouts[store.state.activeLayoutIndex]?.keys
+const keys = computed<KeyboardKeyData[]>(() =>
+  store.$state.layouts[store.$state.activeLayoutIndex]?.keys.filter(
+    (key) => key.type === "key"
+  )
 );
 const keysCount = computed(() => keys.value?.length);
 const keyIdSelectors = computed(() => {
@@ -87,7 +89,7 @@ const onDragEnd = (e: any) => {
   const key = keys.value.find((key) => key.id === e.target.id);
 
   if (key) {
-    // key.isModifying = false;
+    store.updateKey(key);
   }
 };
 
@@ -141,12 +143,27 @@ const onChangeInput = (keyData: KeyboardKeyData) => {
 
 const onKeyDown = (e: KeyboardEvent) => {
   e.preventDefault();
-  console.log("onKeyDown", e.key);
 
   // delete key
   if (e.key === "Delete" || e.key === "Backspace") {
     store.removeKeys(activeKeyIndexes.value);
     activeKeyIndexes.value = [];
+  }
+
+  // undo
+  if (e.key === "z" && (e.ctrlKey || e.metaKey)) {
+    console.log("undo");
+    if (store.history && store.history.length > 0) {
+      store.undo();
+    }
+  }
+
+  // redo
+  if (e.key === "z" && (e.ctrlKey || e.metaKey) && e.shiftKey) {
+    console.log("redo");
+    if (store.history && store.history.length > 0) {
+      store.redo();
+    }
   }
 };
 
@@ -156,10 +173,6 @@ watch(keysCount, async () => {
     moveableRef.value.updateRect();
   });
 });
-
-// watch(keys, () => {
-//   window.ipc.send("layout:save", store.state.layouts);
-// });
 
 onMounted(async () => {
   document.addEventListener("keydown", onKeyDown);

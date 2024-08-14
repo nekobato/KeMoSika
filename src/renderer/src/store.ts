@@ -1,64 +1,63 @@
 import { defineStore } from "pinia";
-import { KeyboardKeyData } from "@shared/types";
+import { LayoutData, LayoutItemData } from "@shared/types";
 import { computed, ref } from "vue";
-
-type StoreState = {
-  activeLayoutIndex: number;
-  layouts: {
-    id: string;
-    name: string;
-    keys: KeyboardKeyData[];
-  }[];
-};
+import { useManualRefHistory, useRefHistory } from "@vueuse/core";
 
 export const useStore = defineStore("store", () => {
-  const state = ref<StoreState>({
-    activeLayoutIndex: 0,
-    layouts: []
-  });
-
-  const saveLayout = async () => {
-    await window.ipc.invoke(
-      "layout:save",
-      JSON.parse(
-        JSON.stringify(state.value.layouts[state.value.activeLayoutIndex])
-      )
-    );
-  };
+  // $state
+  const activeLayoutIndex = ref<number>(0);
+  const layouts = ref<LayoutData[]>([]);
 
   const activeLayout = computed(() => {
-    return state.value.layouts[state.value.activeLayoutIndex];
+    return layouts.value[activeLayoutIndex.value];
   });
 
   const init = async () => {
-    state.value.layouts = await window.ipc.invoke("layout:get-all");
+    layouts.value = await window.ipc.invoke("layout:get-all");
   };
 
-  const addLayout = async (layout: { id: string; name: string }) => {
+  const addLayout = async (layout: LayoutData) => {
     const newLayout = { ...layout, keys: [] };
-    state.value.layouts.push(newLayout);
+    layouts.value.push(newLayout);
     await window.ipc.invoke("layout:create", newLayout);
   };
 
-  const addKey = async (key: KeyboardKeyData) => {
-    state.value.layouts[state.value.activeLayoutIndex].keys.push(key);
-    await saveLayout();
+  const addKey = async (key: LayoutItemData) => {
+    layouts.value[activeLayoutIndex.value].keys.push(key);
   };
 
-  const updateKey = async (key: KeyboardKeyData) => {
+  const updateKey = async (key: LayoutItemData) => {
     const index = activeLayout.value.keys.findIndex((k) => k.id === key.id);
-    state.value.layouts[state.value.activeLayoutIndex].keys[index] = key;
-    await saveLayout();
+    layouts.value[activeLayoutIndex.value].keys[index] = key;
+    commit();
+    saveLayout();
+    console.log("updateKey", history.value);
   };
+
   const removeKeys = async (keyIndexes: number[]) => {
-    state.value.layouts[state.value.activeLayoutIndex].keys =
+    layouts.value[activeLayoutIndex.value].keys =
       activeLayout.value.keys.filter((_, index) => !keyIndexes.includes(index));
     // await window.ipc.invoke("set:config", {
     //   keys: state.value.keys
     // });
   };
+
+  const { history, undo, redo, commit } = useManualRefHistory(layouts);
+
+  const saveLayout = async () => {
+    await window.ipc.invoke(
+      "layout:save",
+      JSON.parse(JSON.stringify(activeLayout.value))
+    );
+  };
+
   return {
-    state,
+    layouts,
+    activeLayoutIndex,
+    undo,
+    redo,
+    commitHistory: commit,
+    history,
     activeLayout,
     init,
     addLayout,

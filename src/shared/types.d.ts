@@ -35,6 +35,7 @@ export type MouseData = {
   height: number;
   x: number;
   y: number;
+  rotation: number;
   images: {
     keyDefault: string;
     keyActive: string;
@@ -48,3 +49,8 @@ export type MouseData = {
 };
 
 export type LayoutItemData = KeyboardKeyData | MouseData;
+export type LayoutData = {
+  id: string;
+  name: string;
+  keys: LayoutItemData[];
+};
