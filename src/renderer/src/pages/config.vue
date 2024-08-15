@@ -151,17 +151,19 @@ const onKeyDown = (e: KeyboardEvent) => {
   }
 
   // undo
-  if (e.key === "z" && (e.ctrlKey || e.metaKey)) {
-    console.log("undo");
-    if (store.history && store.history.length > 0) {
+  if (e.key === "z" && (e.ctrlKey || e.metaKey) && !e.shiftKey) {
+    // [0] is empty initial state
+    if (store.history && store.history.length > 2) {
+      activeKeyIndexes.value = [];
       store.undo();
     }
   }
 
   // redo
   if (e.key === "z" && (e.ctrlKey || e.metaKey) && e.shiftKey) {
-    console.log("redo");
-    if (store.history && store.history.length > 0) {
+    // [0] is empty initial state
+    if (store.history && store.history.length > 2) {
+      activeKeyIndexes.value = [];
       store.redo();
     }
   }
@@ -169,8 +171,8 @@ const onKeyDown = (e: KeyboardEvent) => {
 
 watch(keysCount, async () => {
   nextTick(() => {
-    moveableRef.value.updateSelectors();
-    moveableRef.value.updateRect();
+    moveableRef.value?.updateSelectors();
+    moveableRef.value?.updateRect();
   });
 });
 

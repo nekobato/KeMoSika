@@ -54,3 +54,8 @@ export type LayoutData = {
   name: string;
   keys: LayoutItemData[];
 };
+
+export type LayoutItemImage = {
+  id: string;
+  fileName: string;
+};

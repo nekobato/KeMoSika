@@ -10,10 +10,10 @@ if (!fs.existsSync(imagePath)) {
   fs.mkdirSync(imagePath);
 }
 
-export function saveImage(keyId: string, status: string, imagePath: string) {
+export function saveImage(imageId: string, imagePath: string) {
   const image = nativeImage.createFromPath(imagePath);
   const buffer = image.toPNG();
-  const filePath = path.join(userDataPath, "images", `${keyId}-${status}.png`);
+  const filePath = path.join(userDataPath, "images", `${imageId}.png`);
   fs.writeFileSync(filePath, buffer);
 
   return filePath;

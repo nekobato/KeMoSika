@@ -14,6 +14,7 @@ export const useStore = defineStore("store", () => {
 
   const init = async () => {
     layouts.value = await window.ipc.invoke("layout:get-all");
+    commit();
   };
 
   const addLayout = async (layout: LayoutData) => {
@@ -24,6 +25,8 @@ export const useStore = defineStore("store", () => {
 
   const addKey = async (key: LayoutItemData) => {
     layouts.value[activeLayoutIndex.value].keys.push(key);
+    commit();
+    saveLayout();
   };
 
   const updateKey = async (key: LayoutItemData) => {
@@ -40,9 +43,14 @@ export const useStore = defineStore("store", () => {
     // await window.ipc.invoke("set:config", {
     //   keys: state.value.keys
     // });
+    commit();
+    saveLayout();
   };
 
-  const { history, undo, redo, commit } = useManualRefHistory(layouts);
+  const { history, undo, redo, commit } = useManualRefHistory(layouts, {
+    clone: true,
+    capacity: 50
+  });
 
   const saveLayout = async () => {
     await window.ipc.invoke(

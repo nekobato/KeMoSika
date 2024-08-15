@@ -12,7 +12,7 @@ import {
 import path, { join } from "node:path";
 import { uIOhook } from "uiohook-napi";
 import * as statics from "./static";
-import { getStore, setStore } from "./store";
+import { getStore, setLayouts, setStore } from "./store";
 import { initSentry } from "./utils/sentry";
 import { getImagePathList, saveImage } from "./utils/image";
 
@@ -156,7 +156,7 @@ app
     ipcMain.handle("layout:create", async (_, data) => {
       const layouts = getStore().layouts || [];
       layouts.push(data);
-      return setStore({ layouts });
+      return setLayouts(layouts);
     });
 
     ipcMain.handle("layout:save", async (_, data) => {
@@ -167,7 +167,7 @@ app
       } else {
         layouts.push(data);
       }
-      return setStore({ layouts });
+      return setLayouts(layouts);
     });
 
     ipcMain.handle("layout:saveName", async (_, data) => {
@@ -176,7 +176,7 @@ app
       if (exists) {
         exists.name = data.name;
       }
-      return setStore({ layouts });
+      return setLayouts(layouts);
     });
 
     ipcMain.handle("layout:delete", async (_, id) => {
@@ -185,11 +185,11 @@ app
       if (index > -1) {
         layouts.splice(index, 1);
       }
-      return setStore({ layouts });
+      return setLayouts(layouts);
     });
 
     ipcMain.handle("image:save", async (_, data) => {
-      return saveImage(data.id, data.status, data.imagePath);
+      return saveImage(data.id, data.imagePath);
     });
 
     ipcMain.handle("image:list", async () => {

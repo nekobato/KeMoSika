@@ -1,5 +1,5 @@
 import Store, { Schema } from "electron-store";
-import { LayoutItemData } from "@shared/types";
+import { LayoutItemData, LayoutItemImage } from "@shared/types";
 
 type ConfigSchema = {
   layouts: {
@@ -7,6 +7,7 @@ type ConfigSchema = {
     name: string;
     keys: LayoutItemData[];
   }[];
+  images: LayoutItemImage[];
 };
 
 const schema: Schema<ConfigSchema> = {
@@ -103,6 +104,22 @@ const schema: Schema<ConfigSchema> = {
         }
       }
     }
+  },
+  images: {
+    type: "array",
+    default: [],
+    items: {
+      type: "object",
+      properties: {
+        id: {
+          type: "string"
+        },
+        fileName: {
+          type: "string"
+        }
+      },
+      required: ["id", "fileName"]
+    }
   }
 };
 
@@ -110,10 +127,30 @@ export const store = new Store({
   name: "config",
   schema: schema,
   defaults: {
-    layouts: []
+    layouts: [],
+    images: []
   }
 });
 
 export const getStore = () => store.store;
 
 export const setStore = (data: ConfigSchema) => (store.store = data);
+
+export const setLayouts = (layouts: ConfigSchema["layouts"]) => {
+  store.set("layouts", layouts);
+};
+
+export const setLayout = (layout: ConfigSchema["layouts"][0]) => {
+  const layouts = store.get("layouts");
+  const index = layouts.findIndex((item) => item.id === layout.id);
+  if (index === -1) {
+    layouts.push(layout);
+  } else {
+    layouts[index] = layout;
+  }
+  store.set("layouts", layouts);
+};
+
+export const setImages = (images: ConfigSchema["images"]) => {
+  store.set("images", images);
+};
