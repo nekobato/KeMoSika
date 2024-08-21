@@ -10,7 +10,7 @@ import { useStore } from "../store";
 import router from "../router";
 import { KeyboardKeyData } from "@shared/types";
 import { onMounted } from "vue";
-import { Icon } from "@iconify/vue";
+import LayoutSelector from "../components/pages/config/LayoutSelector.vue";
 
 const store = useStore();
 const activeKeyIndexes = ref<number[]>([]);
@@ -188,10 +188,11 @@ onUnmounted(() => {
 <template>
   <ConfigLayout>
     <div class="preview" ref="previewRef" v-if="layout">
-      <div class="layout-ui">
-        <Icon class="icon" icon="mingcute:keyboard-fill" />
-        <span class="label">{{ store.activeLayout.name }}</span>
-      </div>
+      <LayoutSelector
+        class="layout-selector"
+        :layouts="store.layouts"
+        :activeLayoutIndex="store.activeLayoutIndex"
+      />
       <div id="layout-area" class="container">
         <KeyboardButton
           v-for="key in keys"
@@ -311,24 +312,9 @@ onUnmounted(() => {
     cursor: grabbing;
   }
 }
-.layout-ui {
+.layout-selector {
   position: absolute;
   top: 16px;
   left: 16px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  filter: drop-shadow(4px 2px 0 #77777777);
-  .icon {
-    color: #d7ba8f;
-    margin-right: 8px;
-    width: 20px;
-    height: 20px;
-  }
-  .label {
-    font-weight: bold;
-    font-size: 20px;
-    color: #d7ba8f;
-  }
 }
 </style>
