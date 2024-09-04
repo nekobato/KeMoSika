@@ -28,5 +28,6 @@
       )
       center / var(--dot-space) var(--dot-space),
     var(--dot-color);
+  background-position: 0 0;
 }
 </style>

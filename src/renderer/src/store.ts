@@ -59,6 +59,10 @@ export const useStore = defineStore("store", () => {
     );
   };
 
+  const changeActiveLayout = (index: number) => {
+    activeLayoutIndex.value = index;
+  };
+
   return {
     layouts,
     activeLayoutIndex,
@@ -71,6 +75,7 @@ export const useStore = defineStore("store", () => {
     addLayout,
     addKey,
     updateKey,
-    removeKeys
+    removeKeys,
+    changeActiveLayout
   };
 });

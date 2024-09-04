@@ -188,11 +188,6 @@ onUnmounted(() => {
 <template>
   <ConfigLayout>
     <div class="preview" ref="previewRef" v-if="layout">
-      <LayoutSelector
-        class="layout-selector"
-        :layouts="store.layouts"
-        :activeLayoutIndex="store.activeLayoutIndex"
-      />
       <div id="layout-area" class="container">
         <KeyboardButton
           v-for="key in keys"
@@ -234,6 +229,13 @@ onUnmounted(() => {
           @select-end="onSelectEnd"
         />
       </div>
+
+      <LayoutSelector
+        class="layout-selector"
+        :layouts="store.layouts"
+        :activeLayoutIndex="store.activeLayoutIndex"
+        @change="store.changeActiveLayout"
+      />
       <button @click="addKey" class="button type-addkey">ADD KEY</button>
       <button @click="startVisualization" class="button type-start">
         START

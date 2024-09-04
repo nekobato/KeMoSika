@@ -38,26 +38,23 @@
   --color-text-input: #e5e5e5;
   --color-text-input-placeholder: #e5e5e5;
 
-  --hazy-color-white: #e5e5e5;
-  --hazy-color-black: #000000;
-  --hazy-color-info: #909399;
-  --hazy-color-success: #67c23a;
-  --hazy-color-warning: #e6a23c;
-  --hazy-color-error: #f56c6c;
+  --color-white: #e5e5e5;
+  --color-black: #000000;
+  --color-info: #909399;
+  --color-success: #67c23a;
+  --color-warning: #e6a23c;
+  --color-error: #f56c6c;
 
-  --hazy-color-white-t1: rgba(255, 255, 255, 0.08);
-  --hazy-color-white-t2: rgba(255, 255, 255, 0.32);
-  --hazy-color-white-t3: rgba(255, 255, 255, 0.48);
-  --hazy-color-white-t4: rgba(255, 255, 255, 0.64);
-  --hazy-color-white-t5: rgba(255, 255, 255, 0.8);
+  --color-white-t1: rgba(255, 255, 255, 0.08);
+  --color-white-t2: rgba(255, 255, 255, 0.32);
+  --color-white-t3: rgba(255, 255, 255, 0.48);
+  --color-white-t4: rgba(255, 255, 255, 0.64);
+  --color-white-t5: rgba(255, 255, 255, 0.8);
 
-  --hazy-color-black-t1: rgba(0, 0, 0, 0.08);
-  --hazy-color-black-t2: rgba(0, 0, 0, 0.32);
-  --hazy-color-black-t3: rgba(0, 0, 0, 0.48);
-  --hazy-color-black-t4: rgba(0, 0, 0, 0.64);
-  --hazy-color-black-t5: rgba(0, 0, 0, 0.8);
+  --color-black-t1: rgba(0, 0, 0, 0.08);
+  --color-black-t2: rgba(0, 0, 0, 0.32);
+  --color-black-t3: rgba(0, 0, 0, 0.48);
+  --color-black-t4: rgba(0, 0, 0, 0.64);
+  --color-black-t5: rgba(0, 0, 0, 0.8);
 
-  /* Tokens */
-  --hazy-background-color: var(--hazy-color-black-t5);
-  --hazy-border-color: var(--hazy-color-white-t1);
 }

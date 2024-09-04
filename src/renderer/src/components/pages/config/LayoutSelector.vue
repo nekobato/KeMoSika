@@ -2,6 +2,7 @@
 import { LayoutData } from "@shared/types";
 import { computed, PropType } from "vue";
 import { Icon } from "@iconify/vue";
+import { ElSelect } from "element-plus";
 
 const props = defineProps({
   layouts: Array as PropType<LayoutData[]>,
@@ -11,7 +12,9 @@ const props = defineProps({
 const emit = defineEmits(["change"]);
 
 const options = computed(() => {
+  console.log(props.layouts);
   return props.layouts.map((layout, index) => ({
+    key: index,
     label: layout.name,
     value: index
   }));
@@ -23,25 +26,25 @@ const onChange = (value: number) => {
 </script>
 
 <template>
-  <div class="container">
-    <Icon class="icon" icon="mingcute:keyboard-fill" />
-    <ElSelect
-      class="layout-selector"
-      size="large"
-      v-model="props.activeLayoutIndex"
-      @change="onChange"
-    >
-      <template #label="{ label }">
+  <ElSelect
+    class="layout-selector"
+    size="large"
+    :model-value="props.activeLayoutIndex"
+    @change="onChange"
+  >
+    <template #label="{ label }">
+      <div class="label">
+        <Icon class="icon" icon="mingcute:keyboard-fill" />
         <span class="label">{{ label }}</span>
-      </template>
-      <ElOption
-        v-for="item in options"
-        :key="item.value"
-        :label="item.label"
-        :value="item.value"
-      />
-    </ElSelect>
-  </div>
+      </div>
+    </template>
+    <ElOption
+      v-for="item in options"
+      :key="item.value"
+      :label="item.label"
+      :value="item.value"
+    />
+  </ElSelect>
 </template>
 
 <style scoped lang="scss">
@@ -52,7 +55,13 @@ const onChange = (value: number) => {
   height: 20px;
 }
 .layout-selector {
+  width: 240px;
+  height: 40px;
+  background-color: var(--dot-bg);
+  cursor: pointer;
   .label {
+    display: flex;
+    align-items: center;
     font-weight: bold;
     font-size: 20px;
     color: #d7ba8f;
