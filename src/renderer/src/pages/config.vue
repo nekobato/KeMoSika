@@ -115,9 +115,19 @@ const onRotateGroup = (e: any) => {
   e.events.forEach((ev: any) => {
     const key = keys.value.find((key) => key.id === ev.target.id);
     if (key) {
+      // key.x = ev.left;
+      // key.y = ev.top;
       key.rotation = (ev.beforeRotate + ev.rotate) % 360;
     }
   });
+};
+
+const onRotateEnd = (e: any) => {
+  console.log(e);
+  const key = keys.value.find((key) => key.id === e.target.id);
+  if (key) {
+    store.updateKey(key);
+  }
 };
 
 const onSelectEnd = (e: any) => {
@@ -166,6 +176,29 @@ const onKeyDown = (e: KeyboardEvent) => {
       activeKeyIndexes.value = [];
       store.redo();
     }
+  }
+
+  // move
+  if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+    let move = e.key === "ArrowUp" ? -1 : 1;
+    move *= e.shiftKey ? 10 : 1;
+    activeKeyIndexes.value.forEach((index) => {
+      keys.value[index].y += move;
+    });
+    nextTick(() => {
+      moveableRef.value?.updateRect();
+    });
+  }
+
+  if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+    let move = e.key === "ArrowLeft" ? -1 : 1;
+    move *= e.shiftKey ? 10 : 1;
+    activeKeyIndexes.value.forEach((index) => {
+      keys.value[index].x += move;
+    });
+    nextTick(() => {
+      moveableRef.value?.updateRect();
+    });
   }
 };
 
@@ -216,6 +249,7 @@ onUnmounted(() => {
           @drag-end="onDragEnd"
           @rotate="onRotate"
           @rotate-group="onRotateGroup"
+          @rotate-end="onRotateEnd"
         />
         <Selecto
           ref="selectoRef"

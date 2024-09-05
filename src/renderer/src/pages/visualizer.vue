@@ -1,16 +1,22 @@
 <script setup lang="ts">
 import { type UiohookKeyboardEvent } from "uiohook-napi";
 import { keyCodeMap } from "@/utils/key";
-import KeyboardBase from "@/components/KeyboardBase.vue";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { useStore } from "../store";
 import KeyboardButton from "../components/KeyboardButton.vue";
 import router from "../router";
 import { onMounted } from "vue";
+import { KeyboardKeyData } from "@shared/types";
 
 const store = useStore();
 
 const downKeys = ref<string[]>([]);
+
+const keys = computed<KeyboardKeyData[]>(() =>
+  store.$state.layouts[store.$state.activeLayoutIndex]?.keys.filter(
+    (key) => key.type === "key"
+  )
+);
 
 const isDown = (codes: string[]) => {
   return codes.some((code) => downKeys.value.includes(code));
@@ -40,13 +46,11 @@ onMounted(() => {});
 
 <template>
   <div class="visualizer">
-    <KeyboardBase>
-      <KeyboardButton
-        v-for="item in store.activeLayout.keys"
-        :keyData="item"
-        :isDown="isDown(item.codeMap)"
-      />
-    </KeyboardBase>
+    <KeyboardButton
+      v-for="keyData in keys"
+      :key-data="keyData"
+      :is-down="isDown(keyData.codeMap)"
+    />
     <button @click="back" class="button type-back">BACK</button>
   </div>
 </template>

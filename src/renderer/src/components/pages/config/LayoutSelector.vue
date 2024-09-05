@@ -12,7 +12,6 @@ const props = defineProps({
 const emit = defineEmits(["change"]);
 
 const options = computed(() => {
-  console.log(props.layouts);
   return props.layouts.map((layout, index) => ({
     key: index,
     label: layout.name,

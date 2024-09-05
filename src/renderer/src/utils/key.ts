@@ -99,7 +99,7 @@ export const keyCodeMap: Record<number, string> = {
   54: "shift",
   55: "*",
   56: "alt",
-  57: "space",
+  57: "Space",
   58: "capslock",
   59: "f1",
   60: "f2",

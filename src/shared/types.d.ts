@@ -59,3 +59,8 @@ export type LayoutItemImage = {
   id: string;
   fileName: string;
 };
+
+export type CanvasSettings = {
+  width: number;
+  height: number;
+};

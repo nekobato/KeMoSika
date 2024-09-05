@@ -6,6 +6,10 @@ type ConfigSchema = {
     id: string;
     name: string;
     keys: LayoutItemData[];
+    canvas: {
+      width: number;
+      height: number;
+    };
   }[];
   images: LayoutItemImage[];
 };
