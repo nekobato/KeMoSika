@@ -282,6 +282,11 @@ onUnmounted(() => {
       @change="onChangeInput"
       @keydown.stop
     />
+    <LayoutConfig
+      v-if="activeKeyIndexes.length === 0"
+      :layout="layout"
+      @change="store.updateLayout"
+    />
   </ConfigLayout>
 </template>
 
