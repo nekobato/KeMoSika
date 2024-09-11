@@ -12,9 +12,10 @@ import {
 import path, { join } from "node:path";
 import { uIOhook } from "uiohook-napi";
 import * as statics from "./static";
-import { getStore, setLayouts, setStore } from "./store";
+import * as store from "./store";
 import { initSentry } from "./utils/sentry";
-import { getImagePathList, saveImage } from "./utils/image";
+import { deleteImage, getImagePathList, saveImage } from "./utils/image";
+import { nanoid } from "nanoid/non-secure";
 
 initSentry();
 
@@ -91,12 +92,10 @@ function createWindow() {
     win.loadFile(statics.pageRoot);
   }
 
-  const pageName = "config";
-
   if (process.env.NODE_ENV === "development") {
-    win.loadURL(statics.pageRoot + "#" + pageName);
+    win.loadURL(statics.pageRoot);
   } else {
-    win.loadFile(join(statics.pageRoot), { hash: pageName });
+    win.loadFile(join(statics.pageRoot));
   }
 
   if (statics.serverUrl) {
@@ -141,55 +140,42 @@ app
     setInputMonitor();
 
     ipcMain.handle("config:get", async () => {
-      return getStore();
+      return store.getStore();
     });
 
     ipcMain.handle("config:set", async (_, data) => {
       console.log("set:config", data);
-      return setStore(data);
+      return store.setStore(data);
     });
 
     ipcMain.handle("layout:get-all", async () => {
-      return getStore().layouts || [];
+      return store.getStore().layouts || [];
     });
 
-    ipcMain.handle("layout:create", async (_, data) => {
-      const layouts = getStore().layouts || [];
-      layouts.push(data);
-      return setLayouts(layouts);
-    });
-
-    ipcMain.handle("layout:save", async (_, data) => {
-      const layouts = getStore().layouts || [];
-      const exists = layouts.find((item) => item.id === data.id);
-      if (exists) {
-        exists.keys = data.keys;
-      } else {
-        layouts.push(data);
-      }
-      return setLayouts(layouts);
-    });
-
-    ipcMain.handle("layout:saveName", async (_, data) => {
-      const layouts = getStore().layouts || [];
-      const exists = layouts.find((item) => item.id === data.id);
-      if (exists) {
-        exists.name = data.name;
-      }
-      return setLayouts(layouts);
+    // save, update
+    ipcMain.handle("layout:save", async (_, layout) => {
+      return store.setLayout(layout);
     });
 
     ipcMain.handle("layout:delete", async (_, id) => {
-      const layouts = getStore().layouts || [];
-      const index = layouts.findIndex((item) => item.id === id);
-      if (index > -1) {
-        layouts.splice(index, 1);
-      }
-      return setLayouts(layouts);
+      return store.deleteLayout(id);
     });
 
     ipcMain.handle("image:save", async (_, data) => {
-      return saveImage(data.id, data.imagePath);
+      const id = nanoid();
+      const fileName = saveImage(id, data.imagePath);
+      store.createImage(id, fileName);
+      return { id, fileName };
+    });
+
+    ipcMain.handle("image:delete", async (_, id) => {
+      const images = store.getStore().images || [];
+      const index = images.findIndex((item) => item.id === id);
+      if (index > -1) {
+        deleteImage(images[index].fileName);
+        images.splice(index, 1);
+      }
+      return store.setImages(images);
     });
 
     ipcMain.handle("image:list", async () => {

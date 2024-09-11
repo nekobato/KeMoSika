@@ -1,143 +1,39 @@
 <script setup lang="ts">
-import { PropType, ref } from "vue";
+import { LayoutData } from "@shared/types";
 import * as EP from "element-plus";
-import { Icon } from "@iconify/vue";
-import KeyboardKeyImageInput from "./KeyboardKeyImageInput.vue";
-import { keyboardEventToElectronAccelerator } from "@/utils/key";
-import { KeyboardKeyData } from "@shared/types";
-import { saveImage } from "../../../../../main/utils/image";
+import { PropType } from "vue";
 
 const props = defineProps({
-  keyData: Object as PropType<KeyboardKeyData>
+  layout: Object as PropType<LayoutData>
 });
 
 const emit = defineEmits(["change"]);
 
-const onKeyDownShortcutInput = async (e: KeyboardEvent, index: number) => {
-  e.preventDefault();
-  const targetCodeMap = props.keyData.codeMap[index];
-  const shortcut = keyboardEventToElectronAccelerator(e);
-
-  if (shortcut === "" || props.keyData.codeMap.includes(shortcut)) {
-    return;
-  }
-
-  if (targetCodeMap) {
-    emit("change", {
-      ...props.keyData,
-      codeMap: props.keyData.codeMap.map((code, i) =>
-        i === index ? shortcut : code
-      )
-    });
-  }
-};
-
 const onChangeInput = (key: string, value: any) => {
   switch (key) {
-    case "x":
-    case "y":
+    case "name":
     case "width":
     case "height":
-    case "rotation":
       emit("change", {
-        ...props.keyData,
+        ...props.layout,
         [key]: value
       });
       break;
-    case "text.character":
-    case "text.x":
-    case "text.y":
-    case "text.size":
-    case "text.color":
-      emit("change", {
-        ...props.keyData,
-        text: {
-          ...props.keyData.text,
-          [key.split(".")[1]]: value
-        }
-      });
-      break;
-  }
-};
-
-const onChangeImage = async (
-  status: "keyDefault" | "keyActive",
-  file: { path: string; name: string }
-) => {
-  const imagePath = await window.ipc.invoke("image:save", {
-    id: props.keyData.id,
-    status: status,
-    imagePath: file.path
-  });
-
-  console.log(imagePath);
-
-  if (imagePath) {
-    emit("change", {
-      ...props.keyData,
-      images: {
-        ...props.keyData.images,
-        [status]: imagePath
-      }
-    });
   }
 };
 </script>
-
 <template>
-  <section class="keyboard-key-config">
-    <EP.ElForm class="form" :model="keyData" label-width="auto" v-if="keyData">
-      <div class="keymap-group">
-        <EP.ElTag
-          class="keymap"
-          type="info"
-          closable
-          v-for="(mapKey, index) in keyData.codeMap"
-          @close="
-            () => keyData.codeMap.splice(keyData.codeMap.indexOf(mapKey), 1)
-          "
-          @keydown="onKeyDownShortcutInput($event, index)"
-          tabindex="0"
-          >{{ mapKey || "Empty" }}</EP.ElTag
-        >
-        <EP.ElButton
-          class="keymap"
-          size="small"
-          @click="() => keyData.codeMap.push('')"
-        >
-          <Icon class="icon" icon="mingcute:add-line" />Add</EP.ElButton
-        >
-      </div>
-
+  <section class="keyboard-key-config" v-if="layout">
+    <EP.ElForm class="form" :model="layout" label-width="auto">
       <EP.ElRow>
-        <EP.ElCol :span="12">
-          <EP.ElFormItem label="X">
-            <EP.ElInputNumber
-              class="input-bounds"
-              size="small"
-              v-model="keyData.x"
-              :min="0"
-              :max="999999"
-              :step="1"
-              :controls="false"
-              @change="onChangeInput('x', $event)"
-            />
-          </EP.ElFormItem>
-        </EP.ElCol>
-        <EP.ElCol :span="12">
-          <EP.ElFormItem label="Y">
-            <EP.ElInputNumber
-              class="input-bounds"
-              size="small"
-              v-model="keyData.y"
-              :min="0"
-              :max="999999"
-              :step="1"
-              :controls="false"
-              @change="onChangeInput('y', $event)"
-            />
-          </EP.ElFormItem>
-        </EP.ElCol>
+        <EP.ElFormItem label="Layout Name">
+          <EP.ElInput
+            v-model="layout.name"
+            size="small"
+            placeholder="Layout Name"
+            @change="onChangeInput('name', $event)"
+          />
+        </EP.ElFormItem>
       </EP.ElRow>
       <EP.ElRow>
         <EP.ElCol :span="12">
@@ -145,7 +41,7 @@ const onChangeImage = async (
             <EP.ElInputNumber
               class="input-bounds"
               size="small"
-              v-model="keyData.width"
+              v-model="layout.width"
               :min="0"
               :max="999999"
               :step="1"
@@ -159,7 +55,7 @@ const onChangeImage = async (
             <EP.ElInputNumber
               class="input-bounds"
               size="small"
-              v-model="keyData.height"
+              v-model="layout.height"
               :min="0"
               :max="999999"
               :step="1"
@@ -167,116 +63,6 @@ const onChangeImage = async (
               @change="onChangeInput('height', $event)"
             />
           </EP.ElFormItem>
-        </EP.ElCol>
-      </EP.ElRow>
-      <EP.ElRow>
-        <EP.ElCol :span="12">
-          <EP.ElFormItem class="formitem rotation">
-            <template #label>
-              <Icon icon="mingcute:clockwise-line" class="icon" />
-            </template>
-            <EP.ElInputNumber
-              class="input-bounds"
-              size="small"
-              v-model="keyData.rotation"
-              :min="0"
-              :max="999999"
-              :step="1"
-              :controls="false"
-              @change="onChangeInput('rotation', $event)"
-            />
-          </EP.ElFormItem>
-        </EP.ElCol>
-      </EP.ElRow>
-      <EP.ElDivider />
-      <EP.ElRow>
-        <EP.ElCheckbox v-model="keyData.text.isVisible" label="Text" border />
-      </EP.ElRow>
-      <div v-if="keyData.text.isVisible">
-        <EP.ElFormItem label="Character">
-          <EP.ElInput
-            class="input-key"
-            size="small"
-            v-model="keyData.text.character"
-            @change="onChangeInput('text.character', $event)"
-          />
-        </EP.ElFormItem>
-        <EP.ElRow>
-          <EP.ElCol :span="12">
-            <EP.ElFormItem label="X">
-              <EP.ElInputNumber
-                class="input-bounds"
-                size="small"
-                v-model="keyData.text.x"
-                :min="-9999"
-                :max="9999"
-                :step="1"
-                :controls="false"
-                @change="onChangeInput('text.x', $event)"
-              />
-            </EP.ElFormItem>
-          </EP.ElCol>
-          <EP.ElCol :span="12">
-            <EP.ElFormItem label="Y">
-              <EP.ElInputNumber
-                class="input-bounds"
-                size="small"
-                v-model="keyData.text.y"
-                :min="-9999"
-                :max="9999"
-                :step="1"
-                :controls="false"
-                @change="onChangeInput('text.y', $event)"
-              />
-            </EP.ElFormItem>
-          </EP.ElCol>
-        </EP.ElRow>
-        <EP.ElRow>
-          <EP.ElCol :span="12">
-            <EP.ElFormItem label="Size">
-              <EP.ElInputNumber
-                class="input-bounds"
-                size="small"
-                v-model="keyData.text.size"
-                :min="10"
-                :max="99"
-                :step="1"
-                :controls="false"
-                @change="onChangeInput('text.size', $event)"
-              />
-            </EP.ElFormItem>
-          </EP.ElCol>
-          <EP.ElCol :span="12">
-            <EP.ElFormItem label="Color">
-              <EP.ElColorPicker
-                class="input-bounds"
-                size="small"
-                :show-alpha="true"
-                v-model="keyData.text.color"
-                @change="onChangeInput('text.color', $event)"
-              />
-            </EP.ElFormItem>
-          </EP.ElCol>
-        </EP.ElRow>
-      </div>
-      <EP.ElDivider />
-      <EP.ElRow>
-        <EP.ElText>Image</EP.ElText>
-      </EP.ElRow>
-      <EP.ElRow class="row image-upload" :gutter="8">
-        <EP.ElCol :span="12">
-          <KeyboardKeyImageInput
-            label="Default"
-            :value="keyData.images.keyDefault"
-            @change="onChangeImage('keyDefault', $event)"
-          />
-        </EP.ElCol>
-        <EP.ElCol :span="12">
-          <KeyboardKeyImageInput
-            label="Active"
-            :value="keyData.images.keyActive"
-            @change="onChangeImage('keyActive', $event)"
-          />
         </EP.ElCol>
       </EP.ElRow>
     </EP.ElForm>
@@ -317,25 +103,6 @@ const onChangeImage = async (
 }
 .input-bounds {
   width: 64px;
-}
-.keymap {
-  cursor: pointer;
-  border-color: #969696;
-  &:not(:first-child) {
-    margin-left: 4px;
-  }
-  &:focus {
-    border-color: #409eff;
-  }
-  .icon {
-    color: #fff;
-    margin-right: 2px;
-  }
-}
-.submit-row {
-  margin-top: 16px;
-  display: flex;
-  justify-content: flex-end;
 }
 .formitem {
   &.rotation {

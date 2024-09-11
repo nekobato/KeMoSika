@@ -20,7 +20,7 @@ export const useStore = defineStore("store", () => {
   const addLayout = async (layout: LayoutData) => {
     const newLayout = { ...layout, keys: [] };
     layouts.value.push(newLayout);
-    await window.ipc.invoke("layout:create", newLayout);
+    await window.ipc.invoke("layout:save", newLayout);
   };
 
   const addKey = async (key: LayoutItemData) => {

@@ -5,11 +5,9 @@ type ConfigSchema = {
   layouts: {
     id: string;
     name: string;
+    width: number;
+    height: number;
     keys: LayoutItemData[];
-    canvas: {
-      width: number;
-      height: number;
-    };
   }[];
   images: LayoutItemImage[];
 };
@@ -26,6 +24,12 @@ const schema: Schema<ConfigSchema> = {
         },
         name: {
           type: "string"
+        },
+        width: {
+          type: "number"
+        },
+        height: {
+          type: "number"
         },
         keys: {
           type: "array",
@@ -153,6 +157,21 @@ export const setLayout = (layout: ConfigSchema["layouts"][0]) => {
     layouts[index] = layout;
   }
   store.set("layouts", layouts);
+};
+
+export const deleteLayout = (id: string) => {
+  const layouts = store.get("layouts");
+  const index = layouts.findIndex((item) => item.id === id);
+  if (index > -1) {
+    layouts.splice(index, 1);
+  }
+  store.set("layouts", layouts);
+};
+
+export const createImage = (id: string, fileName: string) => {
+  const images = store.get("images");
+  images.push({ id, fileName });
+  store.set("images", images);
 };
 
 export const setImages = (images: ConfigSchema["images"]) => {

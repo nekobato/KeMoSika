@@ -52,6 +52,8 @@ export type LayoutItemData = KeyboardKeyData | MouseData;
 export type LayoutData = {
   id: string;
   name: string;
+  width: number;
+  height: number;
   keys: LayoutItemData[];
 };
 

@@ -1,14 +1,16 @@
 <script setup lang="ts">
-import { PropType, ref } from "vue";
+import { PropType } from "vue";
 import * as EP from "element-plus";
 import { Icon } from "@iconify/vue";
 import KeyboardKeyImageInput from "./KeyboardKeyImageInput.vue";
 import { keyboardEventToElectronAccelerator } from "@/utils/key";
 import { KeyboardKeyData } from "@shared/types";
-import { saveImage } from "../../../../../main/utils/image";
 
 const props = defineProps({
-  keyData: Object as PropType<KeyboardKeyData>
+  keyData: {
+    type: Object as PropType<KeyboardKeyData>,
+    required: true
+  }
 });
 
 const emit = defineEmits(["change"]);
@@ -64,20 +66,19 @@ const onChangeImage = async (
   status: "keyDefault" | "keyActive",
   file: { path: string; name: string }
 ) => {
-  const imagePath = await window.ipc.invoke("image:save", {
+  const imageFileName = await window.ipc.invoke("image:save", {
     id: props.keyData.id,
-    status: status,
     imagePath: file.path
   });
 
-  console.log(imagePath);
+  console.log(imageFileName);
 
-  if (imagePath) {
+  if (imageFileName) {
     emit("change", {
       ...props.keyData,
       images: {
         ...props.keyData.images,
-        [status]: imagePath
+        [status]: imageFileName
       }
     });
   }
@@ -190,9 +191,9 @@ const onChangeImage = async (
       </EP.ElRow>
       <EP.ElDivider />
       <EP.ElRow>
-        <EP.ElCheckbox v-model="keyData.text.isVisible" label="Text" border />
+        <EP.ElCheckbox v-model="keyData.text?.isVisible" label="Text" border />
       </EP.ElRow>
-      <div v-if="keyData.text.isVisible">
+      <div v-if="keyData.text?.isVisible">
         <EP.ElFormItem label="Character">
           <EP.ElInput
             class="input-key"

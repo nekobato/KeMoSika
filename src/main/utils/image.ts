@@ -13,10 +13,15 @@ if (!fs.existsSync(imagePath)) {
 export function saveImage(imageId: string, imagePath: string) {
   const image = nativeImage.createFromPath(imagePath);
   const buffer = image.toPNG();
-  const filePath = path.join(userDataPath, "images", `${imageId}.png`);
+  const fileName = `${imageId}.png`;
+  const filePath = path.join(imagePath, fileName);
   fs.writeFileSync(filePath, buffer);
 
-  return filePath;
+  return fileName;
+}
+
+export function deleteImage(name: string) {
+  fs.unlinkSync(path.join(imagePath, name));
 }
 
 export function getImagePathList() {
