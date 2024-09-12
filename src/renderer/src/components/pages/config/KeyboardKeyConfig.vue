@@ -190,8 +190,8 @@ const onChangeImage = async (
         </EP.ElCol>
       </EP.ElRow>
       <EP.ElDivider />
-      <EP.ElRow>
-        <EP.ElCheckbox v-model="keyData.text?.isVisible" label="Text" border />
+      <EP.ElRow v-if="keyData.text">
+        <EP.ElCheckbox v-model="keyData.text.isVisible" label="Text" border />
       </EP.ElRow>
       <div v-if="keyData.text?.isVisible">
         <EP.ElFormItem label="Character">

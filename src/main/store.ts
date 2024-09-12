@@ -7,6 +7,10 @@ type ConfigSchema = {
     name: string;
     width: number;
     height: number;
+    background: {
+      color: string;
+      image: string;
+    };
     keys: LayoutItemData[];
   }[];
   images: LayoutItemImage[];
@@ -30,6 +34,17 @@ const schema: Schema<ConfigSchema> = {
         },
         height: {
           type: "number"
+        },
+        background: {
+          type: "object",
+          properties: {
+            color: {
+              type: "string"
+            },
+            image: {
+              type: "string"
+            }
+          }
         },
         keys: {
           type: "array",

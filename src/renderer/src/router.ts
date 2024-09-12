@@ -7,9 +7,9 @@ const routes = [
     component: () => import("./pages/index.vue")
   },
   {
-    path: "/config",
-    name: "Config",
-    component: () => import("./pages/config.vue")
+    path: "/edit",
+    name: "Edit",
+    component: () => import("./pages/edit.vue")
   },
   {
     path: "/visualizer",

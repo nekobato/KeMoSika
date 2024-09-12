@@ -26,6 +26,7 @@ const slots = defineSlots<{
   justify-content: center;
   align-items: center;
   cursor: pointer;
+  color: #454545;
 
   &:hover {
     background: #d4d4d4;
@@ -38,7 +39,6 @@ const slots = defineSlots<{
   align-items: center;
   width: 24px;
   height: 24px;
-  background: #333333;
 }
 
 .label {
@@ -48,7 +48,6 @@ const slots = defineSlots<{
   height: 100%;
   font-size: 18px;
   font-weight: bold;
-  color: #444444;
   padding: 0 16px;
 }
 </style>

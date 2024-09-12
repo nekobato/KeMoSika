@@ -4,10 +4,11 @@ import { keyCodeMap } from "@/utils/key";
 import { computed, ref } from "vue";
 import { useStore } from "../store";
 import KeyboardButton from "../components/KeyboardButton.vue";
-import router from "../router";
+import { useRouter } from "vue-router";
 import { onMounted } from "vue";
 import { KeyboardKeyData } from "@shared/types";
 
+const router = useRouter();
 const store = useStore();
 
 const downKeys = ref<string[]>([]);
@@ -38,7 +39,7 @@ window.ipc.on("input:keyup", (_, e: UiohookKeyboardEvent) => {
 });
 
 const back = () => {
-  router.push("/config");
+  router.back();
 };
 
 onMounted(() => {});

@@ -54,6 +54,10 @@ export type LayoutData = {
   name: string;
   width: number;
   height: number;
+  background: {
+    color: string;
+    image: string;
+  };
   keys: LayoutItemData[];
 };
 

@@ -1,17 +1,19 @@
 <script setup lang="ts">
-import KeyboardKeyConfig from "../components/pages/config/KeyboardKeyConfig.vue";
+import { KeyboardKeyData } from "@shared/types";
 import { nanoid } from "nanoid/non-secure";
-import { computed, nextTick, onUnmounted, ref, watch } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import Moveable from "vue3-moveable";
 import Selecto from "vue3-selecto";
 import KeyboardButton from "../components/KeyboardButton.vue";
 import ConfigLayout from "../components/layouts/ConfigLayout.vue";
+import KeyboardKeyConfig from "../components/pages/config/KeyboardKeyConfig.vue";
+import LayoutConfig from "../components/pages/config/LayoutConfig.vue";
 import { useStore } from "../store";
-import router from "../router";
-import { KeyboardKeyData } from "@shared/types";
-import { onMounted } from "vue";
-import LayoutSelector from "../components/pages/config/LayoutSelector.vue";
+import NNButton from "@/components/common/NNButton.vue";
+import { useRouter } from "vue-router";
+import { Icon } from "@iconify/vue";
 
+const router = useRouter();
 const store = useStore();
 const activeKeyIndexes = ref<number[]>([]);
 const previewRef = ref<HTMLDivElement>();
@@ -30,10 +32,6 @@ const keysCount = computed(() => keys.value?.length);
 const keyIdSelectors = computed(() => {
   return activeKeyIndexes.value.map((index) => `#${keys.value[index].id}`);
 });
-
-const startVisualization = () => {
-  router.push("/visualizer");
-};
 
 const addKey = () => {
   store.addKey({
@@ -66,8 +64,13 @@ const addKey = () => {
   });
 };
 
+const back = () => {
+  store.saveLayout();
+  router.push("/");
+};
+
 const onClickGroup = (e: any) => {
-  selectoRef.value.clickTarget(e.inputEvent, e.inputTarget);
+  selectoRef.value?.clickTarget(e.inputEvent, e.inputTarget);
 };
 
 const onDrag = (e: any) => {
@@ -133,8 +136,8 @@ const onRotateEnd = (e: any) => {
 const onSelectEnd = (e: any) => {
   if (e.isDragStartEnd) {
     e.inputEvent.preventDefault();
-    moveableRef.value.waitToChangeTarget().then(() => {
-      moveableRef.value.dragStart(e.inputEvent);
+    moveableRef.value?.waitToChangeTarget().then(() => {
+      moveableRef.value?.dragStart(e.inputEvent);
     });
   }
 
@@ -263,29 +266,21 @@ onUnmounted(() => {
           @select-end="onSelectEnd"
         />
       </div>
-
-      <LayoutSelector
-        class="layout-selector"
-        :layouts="store.layouts"
-        :activeLayoutIndex="store.activeLayoutIndex"
-        @change="store.changeActiveLayout"
-      />
+      <NNButton @click="back" class="button type-back">
+        <Icon class="icon" icon="mingcute:arrow-left-line" />
+      </NNButton>
       <button @click="addKey" class="button type-addkey">ADD KEY</button>
-      <button @click="startVisualization" class="button type-start">
-        START
-      </button>
     </div>
     <KeyboardKeyConfig
-      :keyData="
-        activeKeyIndexes.length > 0 ? keys[activeKeyIndexes[0]] : undefined
-      "
+      v-if="activeKeyIndexes.length > 0"
+      :keyData="keys[activeKeyIndexes[0]]"
       @change="onChangeInput"
       @keydown.stop
     />
     <LayoutConfig
       v-if="activeKeyIndexes.length === 0"
       :layout="layout"
-      @change="store.updateLayout"
+      @change="store.saveLayout"
     />
   </ConfigLayout>
 </template>
@@ -329,10 +324,15 @@ onUnmounted(() => {
     background: #cacaca;
   }
 
-  &.type-start {
-    bottom: 16px;
-    right: 0;
-    left: 0;
+  &.type-back {
+    top: 16px;
+    left: 16px;
+    width: 40px;
+
+    .icon {
+      width: 24px;
+      height: 24px;
+    }
   }
 
   &.type-addkey {

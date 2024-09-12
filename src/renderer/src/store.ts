@@ -73,6 +73,7 @@ export const useStore = defineStore("store", () => {
     activeLayout,
     init,
     addLayout,
+    saveLayout,
     addKey,
     updateKey,
     removeKeys,
