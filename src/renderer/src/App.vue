@@ -3,7 +3,6 @@ import { usePreferredColorScheme, useStorage } from "@vueuse/core";
 import { computed, onBeforeMount, onMounted } from "vue";
 import { RouterView } from "vue-router";
 import { useStore } from "./store";
-import { nanoid } from "nanoid/non-secure";
 
 const savedTheme = useStorage("theme", undefined);
 const preferredColor = usePreferredColorScheme();
@@ -17,10 +16,7 @@ const store = useStore();
 onBeforeMount(async () => {
   await store.init();
   if (!store.$state.layouts?.length) {
-    store.addLayout({
-      id: nanoid(),
-      name: "Layout 1"
-    });
+    store.addLayout();
   }
 });
 

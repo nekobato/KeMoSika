@@ -4,7 +4,7 @@ import * as EP from "element-plus";
 import { Icon } from "@iconify/vue";
 import KeyboardKeyImageInput from "./KeyboardKeyImageInput.vue";
 import { keyboardEventToElectronAccelerator } from "@/utils/key";
-import { KeyboardKeyData } from "@shared/types";
+import { imageType, KeyboardKeyData } from "@shared/types";
 
 const props = defineProps({
   keyData: {
@@ -13,7 +13,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(["change"]);
+const emit = defineEmits(["change", "openImageDialog"]);
 
 const onKeyDownShortcutInput = async (e: KeyboardEvent, index: number) => {
   e.preventDefault();
@@ -82,6 +82,10 @@ const onChangeImage = async (
       }
     });
   }
+};
+
+const openImageDialog = async (id: string, status: imageType) => {
+  emit("openImageDialog", { id, status });
 };
 </script>
 
@@ -266,6 +270,11 @@ const onChangeImage = async (
       </EP.ElRow>
       <EP.ElRow class="row image-upload" :gutter="8">
         <EP.ElCol :span="12">
+          <EP.ElButton
+            type="primary"
+            size="small"
+            @click="openImageDialog(props.keyData.id, 'keyDefault')"
+          />
           <KeyboardKeyImageInput
             label="Default"
             :value="keyData.images.keyDefault"

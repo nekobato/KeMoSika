@@ -20,16 +20,16 @@ const slots = defineSlots<{
   height: 40px;
   padding: 0 8px;
   border-radius: 20px;
-  background: #e6e6e6;
-  border: 2px solid #ebebeb;
+  background: #ece5d8;
   display: inline-flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
   color: #454545;
+  border: none;
 
   &:hover {
-    background: #d4d4d4;
+    background: #e5e5e5;
   }
 }
 

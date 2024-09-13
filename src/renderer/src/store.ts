@@ -1,7 +1,20 @@
 import { defineStore } from "pinia";
 import { LayoutData, LayoutItemData } from "@shared/types";
 import { computed, ref } from "vue";
-import { useManualRefHistory, useRefHistory } from "@vueuse/core";
+import { useManualRefHistory } from "@vueuse/core";
+import { nanoid } from "nanoid/non-secure";
+
+const defaultLayout: LayoutData = {
+  id: nanoid(),
+  name: "新しいレイアウト",
+  width: 800,
+  height: 400,
+  background: {
+    color: "#252525",
+    image: ""
+  },
+  keys: []
+};
 
 export const useStore = defineStore("store", () => {
   // $state
@@ -17,10 +30,9 @@ export const useStore = defineStore("store", () => {
     commit();
   };
 
-  const addLayout = async (layout: LayoutData) => {
-    const newLayout = { ...layout, keys: [] };
-    layouts.value.push(newLayout);
-    await window.ipc.invoke("layout:save", newLayout);
+  const addLayout = async () => {
+    layouts.value.push(defaultLayout);
+    await window.ipc.invoke("layout:save", defaultLayout);
   };
 
   const addKey = async (key: LayoutItemData) => {

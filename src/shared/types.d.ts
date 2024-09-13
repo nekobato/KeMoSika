@@ -48,6 +48,16 @@ export type MouseData = {
   };
 };
 
+export type imageType =
+  | "keyDefault"
+  | "keyActive"
+  | "mouseDefault"
+  | "mouseLeftClick"
+  | "mouseRightClick"
+  | "mouseMiddleClick"
+  | "mouseScrollUp"
+  | "mouseScrollDown";
+
 export type LayoutItemData = KeyboardKeyData | MouseData;
 export type LayoutData = {
   id: string;

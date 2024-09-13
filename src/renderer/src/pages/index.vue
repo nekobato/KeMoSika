@@ -2,7 +2,6 @@
 import { ref } from "vue";
 import { useStore } from "../store";
 import NNButton from "@/components/common/NNButton.vue";
-import { nanoid } from "nanoid/non-secure";
 import { Icon } from "@iconify/vue";
 import ConfigLayout from "@/components/layouts/ConfigLayout.vue";
 import KeyboardButton from "@/components/KeyboardButton.vue";
@@ -15,13 +14,7 @@ const store = useStore();
 const selectedLayoutIndex = ref(0);
 
 const addLayout = () => {
-  store.addLayout({
-    id: nanoid(),
-    name: "新しいレイアウト",
-    width: 800,
-    height: 400,
-    keys: []
-  });
+  store.addLayout();
 };
 
 const gotoEdit = () => {
@@ -58,7 +51,7 @@ const gotoVisualizer = () => {
         </button>
       </div>
     </div>
-    <ConfigLayout class="layout-preview">
+    <ConfigLayout class="layout-preview kmsk-dotted-background">
       <KeyboardButton
         v-for="key in store.$state.layouts[selectedLayoutIndex].keys"
         class="keyboard-key"
@@ -161,7 +154,6 @@ const gotoVisualizer = () => {
   position: relative;
   width: 100%;
   height: 100%;
-  background-color: #252525;
 
   .actions {
     position: absolute;
