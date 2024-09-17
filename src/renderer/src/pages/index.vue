@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { useStore } from "../store";
 import NNButton from "@/components/common/NNButton.vue";
 import { Icon } from "@iconify/vue";
@@ -7,11 +7,32 @@ import ConfigLayout from "@/components/layouts/ConfigLayout.vue";
 import KeyboardButton from "@/components/KeyboardButton.vue";
 import { KeyboardKeyData } from "@shared/types";
 import { useRouter } from "vue-router";
+import Header from "@/components/Header.vue";
+import Mouse from "@/components/Mouse.vue";
 
 const router = useRouter();
 const store = useStore();
 
 const selectedLayoutIndex = ref(0);
+
+const selectedLayout = computed(() => {
+  return store.$state.layouts[selectedLayoutIndex.value];
+});
+
+const layoutStyle = computed(() => {
+  return {
+    width: `${selectedLayout.value?.width}px`,
+    height: `${selectedLayout.value?.height}px`
+  };
+});
+
+const keys = computed<KeyboardKeyData[]>(() =>
+  selectedLayout.value?.keys.filter((key) => key.type === "key")
+);
+
+const mouses = computed(() => {
+  return selectedLayout.value?.keys.filter((key) => key.type === "mouse");
+});
 
 const addLayout = () => {
   store.addLayout();
@@ -27,53 +48,61 @@ const gotoVisualizer = () => {
 </script>
 
 <template>
-  <div class="container">
-    <div class="list-column">
-      <div class="layout-list">
-        <label
-          class="list-item"
-          v-for="(layout, index) in store.$state.layouts"
-          :class="{
-            selected: selectedLayoutIndex === index
-          }"
-        >
-          <input
-            class="radio"
-            type="radio"
-            key="layout"
-            :value="index"
-            v-model="selectedLayoutIndex"
-          />
-          <span class="label">{{ layout.name }}</span>
-        </label>
-        <button class="add-button" @click="addLayout">
-          追加<Icon icon="mingcute:file-new-line" />
-        </button>
+  <ConfigLayout class="layout-preview kmsk-dotted-background">
+    <Header />
+    <div class="container">
+      <div class="list-column">
+        <div class="layout-list">
+          <label
+            class="list-item"
+            v-for="(layout, index) in store.$state.layouts"
+            :class="{
+              selected: selectedLayoutIndex === index
+            }"
+          >
+            <input
+              class="radio"
+              type="radio"
+              key="layout"
+              :value="index"
+              v-model="selectedLayoutIndex"
+            />
+            <span class="label">{{ layout.name }}</span>
+          </label>
+          <button class="add-button" @click="addLayout">
+            追加<Icon icon="mingcute:file-new-line" />
+          </button>
+        </div>
+      </div>
+      <div class="preview-container">
+        <div class="padding-area">
+          <div class="preview kmsk-dotted-background" :style="layoutStyle">
+            <KeyboardButton
+              v-for="key in keys"
+              class="keyboard-key"
+              :key-data="key as KeyboardKeyData"
+              :is-down="false"
+            />
+            <Mouse v-for="mouse in mouses" :data="mouse" />
+          </div>
+          <div class="actions">
+            <NNButton @click="gotoEdit">
+              <template #icon>
+                <Icon icon="mingcute:edit-line" />
+              </template>
+              <span>編集</span>
+            </NNButton>
+            <NNButton @click="gotoVisualizer">
+              <template #icon>
+                <Icon icon="mingcute:eye-line" />
+              </template>
+              <span>開始</span>
+            </NNButton>
+          </div>
+        </div>
       </div>
     </div>
-    <ConfigLayout class="layout-preview kmsk-dotted-background">
-      <KeyboardButton
-        v-for="key in store.$state.layouts[selectedLayoutIndex].keys"
-        class="keyboard-key"
-        :key-data="key as KeyboardKeyData"
-        :is-down="false"
-      />
-      <div class="actions">
-        <NNButton @click="gotoEdit">
-          <template #icon>
-            <Icon icon="mingcute:edit-line" />
-          </template>
-          <span>編集</span>
-        </NNButton>
-        <NNButton @click="gotoVisualizer">
-          <template #icon>
-            <Icon icon="mingcute:eye-line" />
-          </template>
-          <span>開始</span>
-        </NNButton>
-      </div>
-    </ConfigLayout>
-  </div>
+  </ConfigLayout>
 </template>
 
 <style lang="scss" scoped>
@@ -82,11 +111,32 @@ const gotoVisualizer = () => {
   height: 100%;
   display: grid;
   grid-template-columns: 240px 1fr;
+  overflow: hidden;
 
   .list-column {
     height: 100%;
     background-color: #252525;
   }
+
+  .preview-container {
+    position: relative;
+    background-color: #e5e5e5;
+    overflow: hidden;
+  }
+
+  .preview {
+    flex: 0 0 auto;
+    position: relative;
+  }
+}
+
+.padding-area {
+  overflow: scroll;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .layout-list {
@@ -156,7 +206,7 @@ const gotoVisualizer = () => {
   height: 100%;
 
   .actions {
-    position: absolute;
+    position: fixed;
     bottom: 16px;
     right: 16px;
     display: flex;

@@ -3,7 +3,7 @@ import { computed, PropType } from "vue";
 import { KeyboardKeyData } from "@shared/types";
 
 const props = defineProps({
-  keyData: Object as PropType<KeyboardKeyData>,
+  keyData: { type: Object as PropType<KeyboardKeyData>, required: true },
   isDown: {
     type: Boolean,
     required: true
@@ -21,12 +21,14 @@ const buttonStyle = computed(() => {
 });
 
 const textStyle = computed(() => {
-  return {
-    left: `${props.keyData.text.x}px`,
-    top: `${props.keyData.text.y}px`,
-    fontSize: `${props.keyData.text.size}px`,
-    color: props.keyData.text.color
-  };
+  return props.keyData.text
+    ? {
+        left: `${props.keyData.text.x}px`,
+        top: `${props.keyData.text.y}px`,
+        fontSize: `${props.keyData.text.size}px`,
+        color: props.keyData.text.color
+      }
+    : {};
 });
 </script>
 
@@ -34,9 +36,9 @@ const textStyle = computed(() => {
   <button class="key" :class="{ down: props.isDown }" :style="buttonStyle">
     <span
       class="text"
-      v-show="props.keyData.text.isVisible"
+      v-show="props.keyData.text?.isVisible"
       :style="textStyle"
-      >{{ props.keyData.text.character }}</span
+      >{{ props.keyData.text?.character }}</span
     >
   </button>
 </template>

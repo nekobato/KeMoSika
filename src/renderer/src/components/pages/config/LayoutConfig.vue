@@ -10,6 +10,7 @@ const props = defineProps({
 const emit = defineEmits(["change"]);
 
 const onChangeInput = (key: string, value: any) => {
+  console.log(key, value);
   switch (key) {
     case "name":
     case "width":
@@ -23,16 +24,11 @@ const onChangeInput = (key: string, value: any) => {
 };
 </script>
 <template>
-  <section class="keyboard-key-config" v-if="layout">
-    <EP.ElForm class="form" :model="layout" label-width="auto">
+  <section class="keyboard-key-config" v-if="props.layout">
+    <EP.ElForm class="form" :model="props.layout" label-width="auto">
       <EP.ElRow>
-        <EP.ElFormItem label="Layout Name">
-          <EP.ElInput
-            v-model="layout.name"
-            size="small"
-            placeholder="Layout Name"
-            @change="onChangeInput('name', $event)"
-          />
+        <EP.ElFormItem label="レイアウト名">
+          <EP.ElInput class="name" placeholder="おなまえ" />
         </EP.ElFormItem>
       </EP.ElRow>
       <EP.ElRow>
@@ -41,11 +37,12 @@ const onChangeInput = (key: string, value: any) => {
             <EP.ElInputNumber
               class="input-bounds"
               size="small"
-              v-model="layout.width"
-              :min="0"
-              :max="999999"
+              v-model="props.layout.width"
+              :min="40"
+              :max="9999"
               :step="1"
               :controls="false"
+              placeholder="ヨコ"
               @change="onChangeInput('width', $event)"
             />
           </EP.ElFormItem>
@@ -55,11 +52,12 @@ const onChangeInput = (key: string, value: any) => {
             <EP.ElInputNumber
               class="input-bounds"
               size="small"
-              v-model="layout.height"
-              :min="0"
-              :max="999999"
+              v-model="props.layout.height"
+              :min="40"
+              :max="9999"
               :step="1"
               :controls="false"
+              placeholder="タテ"
               @change="onChangeInput('height', $event)"
             />
           </EP.ElFormItem>
@@ -71,20 +69,24 @@ const onChangeInput = (key: string, value: any) => {
 
 <style scoped lang="scss">
 .keyboard-key-config {
-  position: absolute;
-  top: 0;
+  position: fixed;
+  top: 40px;
   right: 0;
   display: flex;
   justify-content: center;
   align-items: flex-start;
   height: 100%;
-  min-width: 320px;
+  width: 320px;
   background-color: #252525;
   overflow-y: scroll;
   padding: 16px;
 }
 .form {
   width: 100%;
+
+  .name {
+    width: 222px;
+  }
 }
 .keymap-group {
   padding: 0 0 16px;

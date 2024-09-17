@@ -24,15 +24,9 @@ app.disableHardwareAcceleration();
 
 let win: BrowserWindow | null;
 
-function setInputMonitor() {
-  uIOhook.on("keydown", (event) => {
-    win?.webContents.send("input:keydown", event);
-  });
-  uIOhook.on("keyup", (event) => {
-    win?.webContents.send("input:keyup", event);
-  });
-  uIOhook.start();
-}
+uIOhook.on("input", (event) => {
+  win?.webContents.send("input", event);
+});
 
 function setMenu() {
   const template: (MenuItemConstructorOptions | MenuItem)[] = [
@@ -78,7 +72,9 @@ function createWindow() {
     frame: true,
     transparent: false,
     show: true,
-    roundedCorners: true
+    titleBarStyle: "hidden",
+    titleBarOverlay: true,
+    trafficLightPosition: { x: 12, y: 12 }
   });
 
   win.webContents.on("did-finish-load", () => {
@@ -137,7 +133,15 @@ app
   .then(setMenu)
   .then(createWindow)
   .then(() => {
-    setInputMonitor();
+    ipcMain.handle("uiohook:start", async () => {
+      uIOhook.start();
+      return true;
+    });
+
+    ipcMain.handle("uiohook:stop", async () => {
+      uIOhook.stop();
+      return true;
+    });
 
     ipcMain.handle("config:get", async () => {
       return store.getStore();

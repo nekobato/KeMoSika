@@ -295,14 +295,14 @@ const openImageDialog = async (id: string, status: imageType) => {
 
 <style scoped lang="scss">
 .keyboard-key-config {
-  position: absolute;
-  top: 0;
+  position: fixed;
+  top: 40px;
   right: 0;
   display: flex;
   justify-content: center;
   align-items: flex-start;
   height: 100%;
-  min-width: 320px;
+  width: 320px;
   background-color: #252525;
   overflow-y: scroll;
   padding: 16px;

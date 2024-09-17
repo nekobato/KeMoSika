@@ -80,3 +80,11 @@ export type CanvasSettings = {
   width: number;
   height: number;
 };
+
+export type MouseState = {
+  x: number;
+  y: number;
+  buttons: number[];
+  type: number;
+  amount: number;
+};

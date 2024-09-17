@@ -64,6 +64,12 @@ export const useStore = defineStore("store", () => {
     capacity: 50
   });
 
+  const updateLayout = async (layout: LayoutData) => {
+    layouts.value[activeLayoutIndex.value] = layout;
+    commit();
+    saveLayout();
+  };
+
   const saveLayout = async () => {
     await window.ipc.invoke(
       "layout:save",
@@ -85,6 +91,7 @@ export const useStore = defineStore("store", () => {
     activeLayout,
     init,
     addLayout,
+    updateLayout,
     saveLayout,
     addKey,
     updateKey,

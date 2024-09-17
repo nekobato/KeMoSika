@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { KeyboardKeyData } from "@shared/types";
+import { KeyboardKeyData, LayoutData } from "@shared/types";
 import { nanoid } from "nanoid/non-secure";
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import Moveable from "vue3-moveable";
@@ -10,10 +10,9 @@ import KeyboardKeyConfig from "../components/pages/config/KeyboardKeyConfig.vue"
 import LayoutConfig from "../components/pages/config/LayoutConfig.vue";
 import { useStore } from "../store";
 import NNButton from "@/components/common/NNButton.vue";
-import { useRouter } from "vue-router";
-import { Icon } from "@iconify/vue";
+import Header from "@/components/Header.vue";
+import Mouse from "@/components/Mouse.vue";
 
-const router = useRouter();
 const store = useStore();
 const activeKeyIndexes = ref<number[]>([]);
 const previewRef = ref<HTMLDivElement>();
@@ -23,14 +22,29 @@ const selectoRef = ref<Selecto>();
 const layout = computed(
   () => store.$state.layouts[store.$state.activeLayoutIndex]
 );
+const items = computed(
+  () => store.$state.layouts[store.$state.activeLayoutIndex]?.keys
+);
 const keys = computed<KeyboardKeyData[]>(() =>
   store.$state.layouts[store.$state.activeLayoutIndex]?.keys.filter(
     (key) => key.type === "key"
   )
 );
+const mouses = computed(() => {
+  return store.$state.layouts[store.$state.activeLayoutIndex]?.keys.filter(
+    (key) => key.type === "mouse"
+  );
+});
 const keysCount = computed(() => keys.value?.length);
 const keyIdSelectors = computed(() => {
   return activeKeyIndexes.value.map((index) => `#${keys.value[index].id}`);
+});
+
+const layoutStyle = computed(() => {
+  return {
+    width: `${layout.value?.width}px`,
+    height: `${layout.value?.height}px`
+  };
 });
 
 const addKey = () => {
@@ -64,9 +78,26 @@ const addKey = () => {
   });
 };
 
-const back = () => {
-  store.saveLayout();
-  router.push("/");
+const addMouse = () => {
+  store.addKey({
+    id: `mouse-${nanoid()}`,
+    type: "mouse",
+    x: 0,
+    y: 0,
+    width: 48,
+    height: 48,
+    rotation: 0,
+    images: {
+      keyDefault: "",
+      keyActive: "",
+      mouseDefault: "",
+      mouseLeftClick: "",
+      mouseMiddleClick: "",
+      mouseRightClick: "",
+      mouseScrollUp: "",
+      mouseScrollDown: ""
+    }
+  });
 };
 
 const onClickGroup = (e: any) => {
@@ -142,16 +173,20 @@ const onSelectEnd = (e: any) => {
   }
 
   const selected: HTMLDivElement[] = e.selected;
-  const selectedKeys = keys.value.filter((key) =>
+  const selectedItems = items.value.filter((key) =>
     selected.some((el) => el.id === key.id)
   );
 
-  activeKeyIndexes.value = selectedKeys.map((key) => keys.value.indexOf(key));
+  activeKeyIndexes.value = selectedItems.map((key) => keys.value.indexOf(key));
 };
 
 const onChangeInput = (keyData: KeyboardKeyData) => {
-  console.log("onChangeInput", keyData);
   store.updateKey(keyData);
+};
+
+const onChangeLayout = (layout: LayoutData) => {
+  console.log(layout);
+  store.updateLayout(layout);
 };
 
 const onKeyDown = (e: KeyboardEvent) => {
@@ -159,8 +194,10 @@ const onKeyDown = (e: KeyboardEvent) => {
 
   // delete key
   if (e.key === "Delete" || e.key === "Backspace") {
-    store.removeKeys(activeKeyIndexes.value);
-    activeKeyIndexes.value = [];
+    if (activeKeyIndexes.value.length > 0) {
+      store.removeKeys(activeKeyIndexes.value);
+      activeKeyIndexes.value = [];
+    }
   }
 
   // undo
@@ -183,6 +220,9 @@ const onKeyDown = (e: KeyboardEvent) => {
 
   // move
   if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+    if (activeKeyIndexes.value.length === 0) {
+      return;
+    }
     let move = e.key === "ArrowUp" ? -1 : 1;
     move *= e.shiftKey ? 10 : 1;
     activeKeyIndexes.value.forEach((index) => {
@@ -194,6 +234,9 @@ const onKeyDown = (e: KeyboardEvent) => {
   }
 
   if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+    if (activeKeyIndexes.value.length === 0) {
+      return;
+    }
     let move = e.key === "ArrowLeft" ? -1 : 1;
     move *= e.shiftKey ? 10 : 1;
     activeKeyIndexes.value.forEach((index) => {
@@ -223,14 +266,24 @@ onUnmounted(() => {
 
 <template>
   <ConfigLayout>
+    <Header />
     <div class="preview" ref="previewRef" v-if="layout">
-      <div id="layout-area" class="container">
+      <div
+        id="layout-area"
+        class="container kmsk-dotted-background"
+        :style="layoutStyle"
+      >
         <KeyboardButton
           v-for="key in keys"
-          class="keyboard-key configurable-key"
+          class="keyboard-key configurable"
           :id="key.id"
           :key-data="key"
           :is-down="false"
+        />
+        <Mouse
+          class="mouse configurable"
+          v-for="mouse in mouses"
+          :data="mouse"
         />
         <Moveable
           ref="moveableRef"
@@ -258,7 +311,7 @@ onUnmounted(() => {
           ref="selectoRef"
           :container="previewRef"
           :drag-container="previewRef"
-          :selectable-targets="['#layout-area .configurable-key']"
+          :selectable-targets="['#layout-area .configurable']"
           :selectBy-click="true"
           :select-from-inside="false"
           :continue-select="false"
@@ -266,10 +319,10 @@ onUnmounted(() => {
           @select-end="onSelectEnd"
         />
       </div>
-      <NNButton @click="back" class="button type-back">
-        <Icon class="icon" icon="mingcute:arrow-left-line" />
-      </NNButton>
-      <button @click="addKey" class="button type-addkey">ADD KEY</button>
+      <NNButton @click="addKey" class="button type-addkey">ADD KEY</NNButton>
+      <NNButton @click="addMouse" class="button type-addmouse"
+        >ADD MOUSE</NNButton
+      >
     </div>
     <KeyboardKeyConfig
       v-if="activeKeyIndexes.length > 0"
@@ -280,7 +333,8 @@ onUnmounted(() => {
     <LayoutConfig
       v-if="activeKeyIndexes.length === 0"
       :layout="layout"
-      @change="store.saveLayout"
+      @change="onChangeLayout"
+      @keydown.stop
     />
   </ConfigLayout>
 </template>
@@ -294,59 +348,38 @@ onUnmounted(() => {
 }
 .preview {
   position: relative;
-  width: 100%;
-  height: 100%;
+  min-width: 100%;
+  min-height: 100%;
+  overflow: scroll;
+  padding: 80px;
+  padding-right: calc(80px + 320px);
+  background-color: #e5e5e5;
 }
 
-.start-button {
-  position: absolute;
-  bottom: 16px;
-  right: 16px;
-}
 .button {
+  position: fixed;
   width: 160px;
-  position: absolute;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 40px;
-  background: #e6e6e6;
-  border: 2px solid #e6e6e6;
-  padding: 0 24px;
-  color: #444444;
-  border-radius: 20px;
-  cursor: pointer;
-  font-size: 18px;
-  font-weight: bold;
-  margin: auto;
-
-  &:hover {
-    background: #cacaca;
-  }
 
   &.type-back {
     top: 16px;
     left: 16px;
     width: 40px;
-
-    .icon {
-      width: 24px;
-      height: 24px;
-    }
   }
 
   &.type-addkey {
     bottom: 16px;
     left: 16px;
   }
+  &.type-addmouse {
+    bottom: 16px;
+    left: 180px;
+  }
 }
 
 .container {
   position: relative;
-  width: 100%;
-  height: 100%;
 }
-.configurable-key {
+.configurable {
   cursor: grab;
 
   &.modifying {
