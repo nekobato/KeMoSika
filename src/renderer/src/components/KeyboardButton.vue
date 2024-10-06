@@ -5,8 +5,7 @@ import { KeyboardKeyData } from "@shared/types";
 const props = defineProps({
   keyData: { type: Object as PropType<KeyboardKeyData>, required: true },
   isDown: {
-    type: Boolean,
-    required: true
+    type: Boolean
   }
 });
 

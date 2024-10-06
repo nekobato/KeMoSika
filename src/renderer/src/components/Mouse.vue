@@ -7,11 +7,13 @@ const props = defineProps({
   states: { type: Object as PropType<MouseState> }
 });
 
-// computed mouse move degree
 const mouseMoveDegreeStyle = computed(() => {
   if (!props.states) return {};
   return {
-    transform: `rotate(${Math.atan2(props.states.y, props.states.x)}dev)`
+    transform: `rotate(${Math.atan2(
+      props.states.to.y - props.states.from.y,
+      props.states.to.x - props.states.from.x
+    )}rad)`
   };
 });
 
@@ -30,10 +32,9 @@ const buttonStyle = computed(() => {
   <div class="mouse-container" :style="buttonStyle">
     <div class="mouse">
       <div class="mouse-body"></div>
-      <div class="mouse-head"></div>
     </div>
-    <div class="pointer-ring">
-      <div class="pointer" :style="mouseMoveDegreeStyle"></div>
+    <div class="pointer-ring" :style="mouseMoveDegreeStyle">
+      <div class="pointer"></div>
     </div>
   </div>
 </template>
@@ -41,12 +42,14 @@ const buttonStyle = computed(() => {
 <style scoped>
 .mouse-container {
   position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .mouse {
   position: absolute;
   transform-origin: 50% 50%;
-  background: #000;
   border-radius: 50%;
   display: flex;
   justify-content: center;
@@ -54,19 +57,10 @@ const buttonStyle = computed(() => {
 }
 
 .mouse-body {
-  width: 20px;
-  height: 40px;
-  background: #000;
-  border-radius: 10px;
-}
-
-.mouse-head {
   width: 40px;
-  height: 40px;
-  background: #000;
-  border-radius: 50%;
-  position: absolute;
-  top: -20px;
+  height: 80px;
+  background: #888888;
+  border-radius: 8px;
 }
 
 .pointer-ring {
@@ -78,13 +72,18 @@ const buttonStyle = computed(() => {
   display: flex;
   justify-content: center;
   align-items: center;
+  border: 1px solid #fff;
+  border-radius: 50%;
 }
 
 .pointer {
-  width: 10px;
-  height: 10px;
-  background: #000;
+  width: 16px;
+  height: 16px;
+  background: #fff;
   border-radius: 50%;
   transform-origin: 50% 50%;
+  position: absolute;
+  top: calc(50% - 8px);
+  left: calc(100% - 8px);
 }
 </style>

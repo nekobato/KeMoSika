@@ -13,15 +13,22 @@ import { useRouter } from "vue-router";
 import { onMounted } from "vue";
 import { KeyboardKeyData } from "@shared/types";
 import { onBeforeUnmount } from "vue";
+import Mouse from "../components/Mouse.vue";
 
 const router = useRouter();
 const store = useStore();
 
 const downKeys = ref<string[]>([]);
 const mouseStates = ref({
-  x: 0,
-  y: 0,
-  buttons: [] as unknown[],
+  from: {
+    x: 0,
+    y: 0
+  },
+  to: {
+    x: 0,
+    y: 0
+  },
+  buttons: [] as number[],
   type: 0,
   amount: 0
 });
@@ -31,6 +38,12 @@ const keys = computed<KeyboardKeyData[]>(() =>
     (key) => key.type === "key"
   )
 );
+
+const mouses = computed(() => {
+  return store.$state.layouts[store.$state.activeLayoutIndex]?.keys.filter(
+    (key) => key.type === "mouse"
+  );
+});
 
 const isDown = (codes: string[]) => {
   return codes.some((code) => downKeys.value.includes(code));
@@ -50,7 +63,7 @@ window.ipc.on(
         );
         break;
       case InputEventType.EVENT_MOUSE_PRESSED:
-        mouseStates.value.buttons.push(e.button);
+        mouseStates.value.buttons.push(e.button as number);
         break;
       case InputEventType.EVENT_MOUSE_RELEASED:
         mouseStates.value.buttons = mouseStates.value.buttons.filter(
@@ -58,8 +71,11 @@ window.ipc.on(
         );
         break;
       case InputEventType.EVENT_MOUSE_MOVED:
-        mouseStates.value.x = e.x;
-        mouseStates.value.y = e.y;
+        console.log(e);
+        mouseStates.value.from.x = mouseStates.value.to.x;
+        mouseStates.value.from.y = mouseStates.value.to.y;
+        mouseStates.value.to.x = e.x;
+        mouseStates.value.to.y = e.y;
         break;
       case InputEventType.EVENT_MOUSE_WHEEL:
         mouseStates.value.amount = e.amount;
@@ -88,11 +104,7 @@ onBeforeUnmount(async () => {
       :key-data="keyData"
       :is-down="isDown(keyData.codeMap)"
     />
-    <Mouse
-      :x="mouseStates.x"
-      :y="mouseStates.y"
-      :buttons="mouseStates.buttons"
-    />
+    <Mouse v-for="mouse in mouses" :data="mouse" :states="mouseStates" />
     <button @click="back" class="button type-back">BACK</button>
   </div>
 </template>

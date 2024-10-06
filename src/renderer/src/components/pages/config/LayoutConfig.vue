@@ -25,10 +25,19 @@ const onChangeInput = (key: string, value: any) => {
 </script>
 <template>
   <section class="keyboard-key-config" v-if="props.layout">
-    <EP.ElForm class="form" :model="props.layout" label-width="auto">
+    <EP.ElForm
+      class="form"
+      :v-model="props.layout"
+      label-width="auto"
+      @change="onChangeInput('name', $event)"
+    >
       <EP.ElRow>
         <EP.ElFormItem label="レイアウト名">
-          <EP.ElInput class="name" placeholder="おなまえ" />
+          <EP.ElInput
+            class="name"
+            placeholder="おなまえ"
+            v-model="props.layout.name"
+          />
         </EP.ElFormItem>
       </EP.ElRow>
       <EP.ElRow>
@@ -104,7 +113,7 @@ const onChangeInput = (key: string, value: any) => {
   }
 }
 .input-bounds {
-  width: 64px;
+  width: 100px;
 }
 .formitem {
   &.rotation {

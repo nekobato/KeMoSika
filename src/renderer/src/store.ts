@@ -35,13 +35,26 @@ export const useStore = defineStore("store", () => {
     await window.ipc.invoke("layout:save", defaultLayout);
   };
 
-  const addKey = async (key: LayoutItemData) => {
+  const updateLayout = async (layout: LayoutData) => {
+    layouts.value[activeLayoutIndex.value] = layout;
+    commit();
+    saveLayout();
+  };
+
+  const saveLayout = async () => {
+    await window.ipc.invoke(
+      "layout:save",
+      JSON.parse(JSON.stringify(activeLayout.value))
+    );
+  };
+
+  const addItem = async (key: LayoutItemData) => {
     layouts.value[activeLayoutIndex.value].keys.push(key);
     commit();
     saveLayout();
   };
 
-  const updateKey = async (key: LayoutItemData) => {
+  const updateItem = async (key: LayoutItemData) => {
     const index = activeLayout.value.keys.findIndex((k) => k.id === key.id);
     layouts.value[activeLayoutIndex.value].keys[index] = key;
     commit();
@@ -49,7 +62,7 @@ export const useStore = defineStore("store", () => {
     console.log("updateKey", history.value);
   };
 
-  const removeKeys = async (keyIndexes: number[]) => {
+  const removeItems = async (keyIndexes: number[]) => {
     layouts.value[activeLayoutIndex.value].keys =
       activeLayout.value.keys.filter((_, index) => !keyIndexes.includes(index));
     // await window.ipc.invoke("set:config", {
@@ -63,19 +76,6 @@ export const useStore = defineStore("store", () => {
     clone: true,
     capacity: 50
   });
-
-  const updateLayout = async (layout: LayoutData) => {
-    layouts.value[activeLayoutIndex.value] = layout;
-    commit();
-    saveLayout();
-  };
-
-  const saveLayout = async () => {
-    await window.ipc.invoke(
-      "layout:save",
-      JSON.parse(JSON.stringify(activeLayout.value))
-    );
-  };
 
   const changeActiveLayout = (index: number) => {
     activeLayoutIndex.value = index;
@@ -93,9 +93,9 @@ export const useStore = defineStore("store", () => {
     addLayout,
     updateLayout,
     saveLayout,
-    addKey,
-    updateKey,
-    removeKeys,
+    addItem,
+    updateItem,
+    removeItems,
     changeActiveLayout
   };
 });

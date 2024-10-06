@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { KeyboardKeyData, LayoutData } from "@shared/types";
+import { KeyboardKeyData, LayoutData, LayoutItemData } from "@shared/types";
 import { nanoid } from "nanoid/non-secure";
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import Moveable from "vue3-moveable";
@@ -25,6 +25,11 @@ const layout = computed(
 const items = computed(
   () => store.$state.layouts[store.$state.activeLayoutIndex]?.keys
 );
+const itemsCount = computed(() => items.value?.length);
+const itemIdSelectors = computed(() => {
+  return activeKeyIndexes.value.map((index) => `#${items.value[index].id}`);
+});
+
 const keys = computed<KeyboardKeyData[]>(() =>
   store.$state.layouts[store.$state.activeLayoutIndex]?.keys.filter(
     (key) => key.type === "key"
@@ -35,10 +40,6 @@ const mouses = computed(() => {
     (key) => key.type === "mouse"
   );
 });
-const keysCount = computed(() => keys.value?.length);
-const keyIdSelectors = computed(() => {
-  return activeKeyIndexes.value.map((index) => `#${keys.value[index].id}`);
-});
 
 const layoutStyle = computed(() => {
   return {
@@ -48,7 +49,7 @@ const layoutStyle = computed(() => {
 });
 
 const addKey = () => {
-  store.addKey({
+  store.addItem({
     id: `key-${nanoid()}`,
     type: "key",
     codeMap: ["A"],
@@ -79,7 +80,7 @@ const addKey = () => {
 };
 
 const addMouse = () => {
-  store.addKey({
+  store.addItem({
     id: `mouse-${nanoid()}`,
     type: "mouse",
     x: 0,
@@ -105,62 +106,61 @@ const onClickGroup = (e: any) => {
 };
 
 const onDrag = (e: any) => {
-  const key = keys.value.find((key) => key.id === e.target.id);
-  if (key) {
-    key.x = e.left;
-    key.y = e.top;
+  const item = items.value.find((item) => item.id === e.target.id);
+  if (item) {
+    item.x = e.left;
+    item.y = e.top;
   }
 };
 
 const onDragStart = (e: any) => {
-  const key = keys.value.find((key) => key.id === e.target.id);
-  if (key) {
-    // key.isModifying = true;
+  const item = items.value.find((item) => item.id === e.target.id);
+  if (item) {
+    // item.isModifying = true;
   }
 };
 
 const onDragEnd = (e: any) => {
-  const key = keys.value.find((key) => key.id === e.target.id);
+  const item = items.value.find((item) => item.id === e.target.id);
 
-  if (key) {
-    store.updateKey(key);
+  if (item) {
+    store.updateItem(item);
   }
 };
 
 const onDragGroup = (e: any) => {
   e.events.forEach((ev: any) => {
-    const key = keys.value.find((key) => key.id === ev.target.id);
-    if (key) {
-      key.x = ev.left;
-      key.y = ev.top;
+    const item = items.value.find((item) => item.id === ev.target.id);
+    if (item) {
+      item.x = ev.left;
+      item.y = ev.top;
     }
   });
 };
 
 const onRotate = (e: any) => {
   e.inputEvent.preventDefault();
-  const key = keys.value.find((key) => key.id === e.target.id);
-  if (key) {
-    key.rotation = (e.beforeRotate + e.rotate) % 360;
+  const item = items.value.find((item) => item.id === e.target.id);
+  if (item) {
+    item.rotation = (e.beforeRotate + e.rotate) % 360;
   }
 };
 
 const onRotateGroup = (e: any) => {
   e.events.forEach((ev: any) => {
-    const key = keys.value.find((key) => key.id === ev.target.id);
-    if (key) {
-      // key.x = ev.left;
-      // key.y = ev.top;
-      key.rotation = (ev.beforeRotate + ev.rotate) % 360;
+    const item = items.value.find((item) => item.id === ev.target.id);
+    if (item) {
+      // item.x = ev.left;
+      // item.y = ev.top;
+      item.rotation = (ev.beforeRotate + ev.rotate) % 360;
     }
   });
 };
 
 const onRotateEnd = (e: any) => {
-  console.log(e);
-  const key = keys.value.find((key) => key.id === e.target.id);
-  if (key) {
-    store.updateKey(key);
+  const item = items.value.find((item) => item.id === e.target.id);
+  if (item) {
+    store.updateItem(item);
   }
 };
 
@@ -173,15 +173,17 @@ const onSelectEnd = (e: any) => {
   }
 
   const selected: HTMLDivElement[] = e.selected;
-  const selectedItems = items.value.filter((key) =>
-    selected.some((el) => el.id === key.id)
+  const selectedItems = items.value.filter((item) =>
+    selected.some((el) => el.id === item.id)
   );
 
-  activeKeyIndexes.value = selectedItems.map((key) => keys.value.indexOf(key));
+  activeKeyIndexes.value = selectedItems.map((item) =>
+    items.value.indexOf(item)
+  );
 };
 
-const onChangeInput = (keyData: KeyboardKeyData) => {
-  store.updateKey(keyData);
+const onChangeInput = (keyData: LayoutItemData) => {
+  store.updateItem(keyData);
 };
 
 const onChangeLayout = (layout: LayoutData) => {
@@ -195,7 +197,7 @@ const onKeyDown = (e: KeyboardEvent) => {
   // delete key
   if (e.key === "Delete" || e.key === "Backspace") {
     if (activeKeyIndexes.value.length > 0) {
-      store.removeKeys(activeKeyIndexes.value);
+      store.removeItems(activeKeyIndexes.value);
       activeKeyIndexes.value = [];
     }
   }
@@ -226,7 +228,7 @@ const onKeyDown = (e: KeyboardEvent) => {
     let move = e.key === "ArrowUp" ? -1 : 1;
     move *= e.shiftKey ? 10 : 1;
     activeKeyIndexes.value.forEach((index) => {
-      keys.value[index].y += move;
+      items.value[index].y += move;
     });
     nextTick(() => {
       moveableRef.value?.updateRect();
@@ -240,7 +242,7 @@ const onKeyDown = (e: KeyboardEvent) => {
     let move = e.key === "ArrowLeft" ? -1 : 1;
     move *= e.shiftKey ? 10 : 1;
     activeKeyIndexes.value.forEach((index) => {
-      keys.value[index].x += move;
+      items.value[index].x += move;
     });
     nextTick(() => {
       moveableRef.value?.updateRect();
@@ -248,7 +250,7 @@ const onKeyDown = (e: KeyboardEvent) => {
   }
 };
 
-watch(keysCount, async () => {
+watch(itemsCount, async () => {
   nextTick(() => {
     moveableRef.value?.updateSelectors();
     moveableRef.value?.updateRect();
@@ -274,27 +276,29 @@ onUnmounted(() => {
         :style="layoutStyle"
       >
         <KeyboardButton
+          class="configurable"
           v-for="key in keys"
-          class="keyboard-key configurable"
+          :key="key.id"
           :id="key.id"
           :key-data="key"
-          :is-down="false"
         />
         <Mouse
-          class="mouse configurable"
+          class="configurable"
           v-for="mouse in mouses"
+          :key="mouse.id"
+          :id="mouse.id"
           :data="mouse"
         />
         <Moveable
           ref="moveableRef"
-          :target="keyIdSelectors"
+          :target="itemIdSelectors"
           :draggable="true"
           :scalable="false"
           :rotatable="true"
           :roundable="false"
           :snappable="true"
           :origin="false"
-          :element-guidelines="keyIdSelectors"
+          :element-guidelines="itemIdSelectors"
           :stop-propagation="true"
           :throttle-rotate="1"
           :throttle-drag="1"
@@ -325,8 +329,10 @@ onUnmounted(() => {
       >
     </div>
     <KeyboardKeyConfig
-      v-if="activeKeyIndexes.length > 0"
-      :keyData="keys[activeKeyIndexes[0]]"
+      v-if="
+        activeKeyIndexes.length > 0 && items[activeKeyIndexes[0]].type === 'key'
+      "
+      :keyData="items[activeKeyIndexes[0]] as KeyboardKeyData"
       @change="onChangeInput"
       @keydown.stop
     />

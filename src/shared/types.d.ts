@@ -82,8 +82,14 @@ export type CanvasSettings = {
 };
 
 export type MouseState = {
-  x: number;
-  y: number;
+  from: {
+    x: number;
+    y: number;
+  };
+  to: {
+    x: number;
+    y: number;
+  };
   buttons: number[];
   type: number;
   amount: number;

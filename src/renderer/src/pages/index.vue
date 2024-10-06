@@ -51,29 +51,6 @@ const gotoVisualizer = () => {
   <ConfigLayout class="layout-preview kmsk-dotted-background">
     <Header />
     <div class="container">
-      <div class="list-column">
-        <div class="layout-list">
-          <label
-            class="list-item"
-            v-for="(layout, index) in store.$state.layouts"
-            :class="{
-              selected: selectedLayoutIndex === index
-            }"
-          >
-            <input
-              class="radio"
-              type="radio"
-              key="layout"
-              :value="index"
-              v-model="selectedLayoutIndex"
-            />
-            <span class="label">{{ layout.name }}</span>
-          </label>
-          <button class="add-button" @click="addLayout">
-            追加<Icon icon="mingcute:file-new-line" />
-          </button>
-        </div>
-      </div>
       <div class="preview-container">
         <div class="padding-area">
           <div class="preview kmsk-dotted-background" :style="layoutStyle">
@@ -101,6 +78,29 @@ const gotoVisualizer = () => {
           </div>
         </div>
       </div>
+      <div class="list-column">
+        <div class="layout-list">
+          <label
+            class="list-item"
+            v-for="(layout, index) in store.$state.layouts"
+            :class="{
+              selected: selectedLayoutIndex === index
+            }"
+          >
+            <input
+              class="radio"
+              type="radio"
+              key="layout"
+              :value="index"
+              v-model="selectedLayoutIndex"
+            />
+            <span class="label">{{ layout.name }}</span>
+          </label>
+          <button class="add-button" @click="addLayout">
+            追加<Icon icon="mingcute:file-new-line" />
+          </button>
+        </div>
+      </div>
     </div>
   </ConfigLayout>
 </template>
@@ -110,7 +110,7 @@ const gotoVisualizer = () => {
   width: 100%;
   height: 100%;
   display: grid;
-  grid-template-columns: 240px 1fr;
+  grid-template-columns: 1fr 320px;
   overflow: hidden;
 
   .list-column {
@@ -181,7 +181,7 @@ const gotoVisualizer = () => {
   align-items: center;
   justify-content: flex-start;
   padding: 8px 16px;
-  margin: auto auto 0 auto;
+  margin: auto auto 56px auto;
   cursor: pointer;
   border-radius: 8px;
   border: none;
