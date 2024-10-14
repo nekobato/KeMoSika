@@ -4,7 +4,7 @@ import * as EP from "element-plus";
 import { Icon } from "@iconify/vue";
 import KeyboardKeyImageInput from "./KeyboardKeyImageInput.vue";
 import { keyboardEventToElectronAccelerator } from "@/utils/key";
-import { imageType, KeyboardKeyData } from "@shared/types";
+import { KeyboardKeyData } from "@shared/types";
 
 const props = defineProps({
   keyData: {
@@ -61,37 +61,11 @@ const onChangeInput = (key: string, value: any) => {
       break;
   }
 };
-
-const onChangeImage = async (
-  status: "keyDefault" | "keyActive",
-  file: { path: string; name: string }
-) => {
-  const imageFileName = await window.ipc.invoke("image:save", {
-    id: props.keyData.id,
-    imagePath: file.path
-  });
-
-  console.log(imageFileName);
-
-  if (imageFileName) {
-    emit("change", {
-      ...props.keyData,
-      images: {
-        ...props.keyData.images,
-        [status]: imageFileName
-      }
-    });
-  }
-};
-
-const openImageDialog = async (id: string, status: imageType) => {
-  emit("openImageDialog", { id, status });
-};
 </script>
 
 <template>
   <section class="keyboard-key-config">
-    <EP.ElForm class="form" :model="keyData" label-width="auto" v-if="keyData">
+    <EP.ElForm class="form" :model="keyData" label-width="auto">
       <div class="keymap-group">
         <EP.ElTag
           class="keymap"
@@ -270,23 +244,10 @@ const openImageDialog = async (id: string, status: imageType) => {
       </EP.ElRow>
       <EP.ElRow class="row image-upload" :gutter="8">
         <EP.ElCol :span="12">
-          <EP.ElButton
-            type="primary"
-            size="small"
-            @click="openImageDialog(props.keyData.id, 'keyDefault')"
-          />
-          <KeyboardKeyImageInput
-            label="Default"
-            :value="keyData.images.keyDefault"
-            @change="onChangeImage('keyDefault', $event)"
-          />
+          <img src="/src/assets/images/key_active.png" />
         </EP.ElCol>
         <EP.ElCol :span="12">
-          <KeyboardKeyImageInput
-            label="Active"
-            :value="keyData.images.keyActive"
-            @change="onChangeImage('keyActive', $event)"
-          />
+          <img src="/src/assets/images/key_active.png" />
         </EP.ElCol>
       </EP.ElRow>
     </EP.ElForm>

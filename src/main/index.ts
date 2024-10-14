@@ -14,7 +14,7 @@ import { uIOhook } from "uiohook-napi";
 import * as statics from "./static";
 import * as store from "./store";
 import { initSentry } from "./utils/sentry";
-import { deleteImage, getImagePathList, saveImage } from "./utils/image";
+import { deleteImage, imagePath, saveImage } from "./utils/image";
 import { nanoid } from "nanoid/non-secure";
 
 initSentry();
@@ -183,7 +183,9 @@ app
     });
 
     ipcMain.handle("image:list", async () => {
-      return getImagePathList();
+      return store.getStore().images.map((image) => {
+        return { ...image, path: path.join(imagePath, image.fileName) };
+      });
     });
 
     protocol.handle("media", (req) => {

@@ -19,11 +19,13 @@ const backHome = () => {
     <button class="nn-button type-ghost exit" v-if="canBack" @click="backHome">
       <Icon icon="mingcute:home-4-line" class="nn-icon size-xsmall" />
     </button>
+    <slot />
   </div>
 </template>
 
 <style lang="scss" scoped>
 .window-header {
+  position: relative;
   display: flex;
   flex: 1 0 auto;
   align-items: center;

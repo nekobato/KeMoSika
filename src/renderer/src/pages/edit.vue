@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { KeyboardKeyData, LayoutData, LayoutItemData } from "@shared/types";
+import {
+  KeyboardKeyData,
+  LayoutData,
+  LayoutItemData,
+  MouseData
+} from "@shared/types";
 import { nanoid } from "nanoid/non-secure";
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import Moveable from "vue3-moveable";
@@ -7,17 +12,23 @@ import Selecto from "vue3-selecto";
 import KeyboardButton from "../components/KeyboardButton.vue";
 import ConfigLayout from "../components/layouts/ConfigLayout.vue";
 import KeyboardKeyConfig from "../components/pages/config/KeyboardKeyConfig.vue";
+import MouseConfig from "../components/pages/config/MouseConfig.vue";
 import LayoutConfig from "../components/pages/config/LayoutConfig.vue";
 import { useStore } from "../store";
 import NNButton from "@/components/common/NNButton.vue";
 import Header from "@/components/Header.vue";
 import Mouse from "@/components/Mouse.vue";
+import { Icon } from "@iconify/vue";
+import { useRouter } from "vue-router";
 
+const router = useRouter();
 const store = useStore();
 const activeKeyIndexes = ref<number[]>([]);
 const previewRef = ref<HTMLDivElement>();
 const moveableRef = ref<Moveable>();
 const selectoRef = ref<Selecto>();
+
+const tool = ref("move");
 
 const layout = computed(
   () => store.$state.layouts[store.$state.activeLayoutIndex]
@@ -100,6 +111,26 @@ const addMouse = () => {
     }
   });
 };
+
+const selectedKeyHead = computed(() => {
+  if (
+    activeKeyIndexes.value.length === 0 ||
+    items.value[activeKeyIndexes.value[0]].type !== "key"
+  ) {
+    return null;
+  }
+  return items.value[activeKeyIndexes.value[0]] as KeyboardKeyData;
+});
+
+const selectedMouseHead = computed(() => {
+  if (
+    activeKeyIndexes.value.length === 0 ||
+    items.value[activeKeyIndexes.value[0]].type !== "mouse"
+  ) {
+    return null;
+  }
+  return items.value[activeKeyIndexes.value[0]] as MouseData;
+});
 
 const onClickGroup = (e: any) => {
   selectoRef.value?.clickTarget(e.inputEvent, e.inputTarget);
@@ -250,6 +281,14 @@ const onKeyDown = (e: KeyboardEvent) => {
   }
 };
 
+const changeTool = (newTool: string) => {
+  tool.value = newTool;
+};
+
+const gotoImageManager = () => {
+  router.push("/image");
+};
+
 watch(itemsCount, async () => {
   nextTick(() => {
     moveableRef.value?.updateSelectors();
@@ -268,11 +307,32 @@ onUnmounted(() => {
 
 <template>
   <ConfigLayout>
-    <Header />
+    <Header>
+      <div class="tools">
+        <button
+          class="nn-button type-ghost"
+          @click="changeTool('move')"
+          :class="{ enabled: tool === 'move' }"
+        >
+          <Icon icon="mingcute:move-line" class="nn-icon size-xsmall" />
+        </button>
+        <button
+          class="nn-button type-ghost"
+          @click="changeTool('select')"
+          :class="{ enabled: tool === 'select' }"
+        >
+          <Icon icon="mingcute:cursor-2-line" class="nn-icon size-xsmall" />
+        </button>
+        <button class="nn-button type-ghost" @click="gotoImageManager">
+          <Icon icon="mingcute:pic-line" class="nn-icon size-xsmall" />
+        </button>
+      </div>
+    </Header>
     <div class="preview" ref="previewRef" v-if="layout">
       <div
         id="layout-area"
         class="container kmsk-dotted-background"
+        :class="tool"
         :style="layoutStyle"
       >
         <KeyboardButton
@@ -329,10 +389,14 @@ onUnmounted(() => {
       >
     </div>
     <KeyboardKeyConfig
-      v-if="
-        activeKeyIndexes.length > 0 && items[activeKeyIndexes[0]].type === 'key'
-      "
-      :keyData="items[activeKeyIndexes[0]] as KeyboardKeyData"
+      v-if="selectedKeyHead"
+      :keyData="selectedKeyHead"
+      @change="onChangeInput"
+      @keydown.stop
+    />
+    <MouseConfig
+      v-if="selectedMouseHead"
+      :mouseData="selectedMouseHead"
       @change="onChangeInput"
       @keydown.stop
     />
@@ -384,6 +448,14 @@ onUnmounted(() => {
 
 .container {
   position: relative;
+
+  &.move {
+    cursor: move;
+  }
+
+  &.select {
+    cursor: default;
+  }
 }
 .configurable {
   cursor: grab;
@@ -396,5 +468,28 @@ onUnmounted(() => {
   position: absolute;
   top: 16px;
   left: 16px;
+}
+.tools {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+
+  .nn-button {
+    width: 40px;
+    height: 24px;
+    padding: 0;
+    min-height: auto;
+    -webkit-app-region: no-drag;
+
+    &.enabled {
+      background-color: #252525;
+    }
+  }
 }
 </style>

@@ -20,6 +20,7 @@ export const useStore = defineStore("store", () => {
   // $state
   const activeLayoutIndex = ref<number>(0);
   const layouts = ref<LayoutData[]>([]);
+  const imaages = ref<string[]>([]);
 
   const activeLayout = computed(() => {
     return layouts.value[activeLayoutIndex.value];

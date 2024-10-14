@@ -12,6 +12,11 @@ const routes = [
     component: () => import("./pages/edit.vue")
   },
   {
+    path: "/image",
+    name: "Image",
+    component: () => import("./pages/image.vue")
+  },
+  {
     path: "/visualizer",
     name: "Visualizer",
     component: () => import("./pages/visualizer.vue")

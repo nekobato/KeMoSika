@@ -14,9 +14,6 @@ importers:
       node-gyp-build:
         specifier: ^4.8.1
         version: 4.8.1
-      pinia-undo:
-        specifier: ^0.2.4
-        version: 0.2.4(pinia@2.1.7(typescript@5.5.3)(vue@3.4.31(typescript@5.5.3)))
       uiohook-napi:
         specifier: ^1.5.4
         version: 1.5.4
@@ -36,6 +33,9 @@ importers:
       '@vueuse/core':
         specifier: ^10.11.0
         version: 10.11.0(vue@3.4.31(typescript@5.5.3))
+      dotenv:
+        specifier: ^16.4.5
+        version: 16.4.5
       electron:
         specifier: ^31.1.0
         version: 31.1.0
@@ -1678,6 +1678,10 @@ packages:
   dotenv-expand@5.1.0:
     resolution: {integrity: sha512-YXQl1DSa4/PQyRfgrv6aoNjhasp/p4qs9FjJ4q4cQk+8m4r6k4ZSiEyytKG8f8W9gi8WsQtIObNmKd+tMzNTmA==}
 
+  dotenv@16.4.5:
+    resolution: {integrity: sha512-ZmdL2rui+eB2YwhsWzjInR8LldtZHGDoQ1ugH85ppHKwpUHL7j7rN0Ti9NCnGiQbhaZ11FpR+7ao1dNsmduNUg==}
+    engines: {node: '>=12'}
+
   dotenv@9.0.2:
     resolution: {integrity: sha512-I9OvvrHp4pIARv4+x9iuewrWycX6CcZtoAu1XrzPxc5UygMJXJZYmBsynku8IkrJwgypE5DGNjDPmPRhDCptUg==}
     engines: {node: '>=10'}
@@ -2607,11 +2611,6 @@ packages:
     resolution: {integrity: sha512-udgsAY+fTnvv7kI7aaxbqwWNb0AHiB0qBO89PZKPkoTmGOgdbrHDKD+0B2X4uTfJ/FT1R09r9gTsjUjNJotuog==}
     engines: {node: '>=0.10.0'}
 
-  pinia-undo@0.2.4:
-    resolution: {integrity: sha512-czb1fOkTBWJPYkjNTVsGa6x8drL8Kwu9pA6Vldn7pulg3Gc4G17AF5+b01uogH1g00p11T5xQt+3hnRWy4ipkQ==}
-    peerDependencies:
-      pinia: ^2.0.0
-
   pinia@2.1.7:
     resolution: {integrity: sha512-+C2AHFtcFqjPih0zpYuvof37SFxMQ7OEG2zV9jRI12i9BOy3YQVAHwdKtyyc8pDcDyIc33WCIsZaCFWU7WWxGQ==}
     peerDependencies:
@@ -3070,9 +3069,6 @@ packages:
 
   undici-types@5.26.5:
     resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
-
-  undo-stacker@0.2.1:
-    resolution: {integrity: sha512-wEFIuUlJtSB0Rt/LBxPqiZqKN2AMKqjdYIr2VTIPUPOEZxAOVE4zVY+z2b2yPBL1NvLW+Sm/kbCaqeWlINPZNA==}
 
   universalify@0.1.2:
     resolution: {integrity: sha512-rBJeI5CXAlmy1pV+617WB9J63U6XcazHHF2f2dbJix4XzpUF0RS3Zbj0FGIOCAva5P/d/GBOYaACQ1w+0azUkg==}
@@ -5234,6 +5230,8 @@ snapshots:
 
   dotenv-expand@5.1.0: {}
 
+  dotenv@16.4.5: {}
+
   dotenv@9.0.2: {}
 
   eastasianwidth@0.2.0: {}
@@ -6235,11 +6233,6 @@ snapshots:
 
   pify@2.3.0: {}
 
-  pinia-undo@0.2.4(pinia@2.1.7(typescript@5.5.3)(vue@3.4.31(typescript@5.5.3))):
-    dependencies:
-      pinia: 2.1.7(typescript@5.5.3)(vue@3.4.31(typescript@5.5.3))
-      undo-stacker: 0.2.1
-
   pinia@2.1.7(typescript@5.5.3)(vue@3.4.31(typescript@5.5.3)):
     dependencies:
       '@vue/devtools-api': 6.6.3
@@ -6761,8 +6754,6 @@ snapshots:
       node-gyp-build: 4.8.1
 
   undici-types@5.26.5: {}
-
-  undo-stacker@0.2.1: {}
 
   universalify@0.1.2: {}
 

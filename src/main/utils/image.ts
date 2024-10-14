@@ -8,10 +8,20 @@ export const imagePath = path.join(userDataPath, "images");
 
 if (!fs.existsSync(imagePath)) {
   fs.mkdirSync(imagePath);
+  // copy default images to imagePath
+  const defaultImagePath = path.resolve("../../resoures/images");
+  console.log("defaultImagePath", defaultImagePath);
+  const files = fs.readdirSync(defaultImagePath);
+  files.forEach((file) => {
+    fs.copyFileSync(
+      path.join(defaultImagePath, file),
+      path.join(imagePath, file)
+    );
+  });
 }
 
-export function saveImage(imageId: string, imagePath: string) {
-  const image = nativeImage.createFromPath(imagePath);
+export function saveImage(imageId: string, targetImagePath: string) {
+  const image = nativeImage.createFromPath(targetImagePath);
   const buffer = image.toPNG();
   const fileName = `${imageId}.png`;
   const filePath = path.join(imagePath, fileName);
