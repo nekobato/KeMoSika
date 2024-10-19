@@ -1,25 +1,24 @@
 <script setup lang="ts">
 import { Icon } from "@iconify/vue";
-import { computed } from "vue";
-import { useRouter } from "vue-router";
 
-const router = useRouter();
-
-const canBack = computed(() => {
-  return router.currentRoute.value.path !== "/";
+const props = defineProps({
+  icon: {
+    type: String,
+    required: true
+  },
+  text: {
+    type: String,
+    required: true
+  }
 });
-
-const backHome = () => {
-  router.push("/");
-};
 </script>
 
 <template>
   <div class="window-header">
-    <button class="nn-button type-ghost exit" v-if="canBack" @click="backHome">
-      <Icon icon="mingcute:home-4-line" class="nn-icon size-xsmall" />
+    <button class="nn-button type-ghost">
+      <Icon :icon="props.icon" class="nn-icon size-small" />
+      <span>{{ props.text }}</span>
     </button>
-    <slot />
   </div>
 </template>
 

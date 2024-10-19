@@ -16,7 +16,9 @@ const store = useStore();
 const selectedLayoutIndex = ref(0);
 
 const selectedLayout = computed(() => {
-  return store.$state.layouts[selectedLayoutIndex.value];
+  return store.$state.layouts?.length
+    ? store.$state.layouts[selectedLayoutIndex.value]
+    : undefined;
 });
 
 const layoutStyle = computed(() => {
@@ -38,22 +40,54 @@ const addLayout = () => {
   store.addLayout();
 };
 
+const deleteLayout = () => {
+  store.deleteLayout(selectedLayoutIndex.value);
+};
+
 const gotoEdit = () => {
-  router.push("/edit");
+  router.push(`/edit/${store.$state.layouts[selectedLayoutIndex.value].id}`);
 };
 
 const gotoVisualizer = () => {
-  router.push("/visualizer");
+  router.push(
+    `/visualizer/${store.$state.layouts[selectedLayoutIndex.value].id}`
+  );
 };
 </script>
 
 <template>
   <ConfigLayout class="layout-preview kmsk-dotted-background">
-    <Header />
+    <Header>
+      <div class="tools">
+        <div class="center-group">
+          <button class="nn-button type-ghost" @click="addLayout">
+            <Icon icon="mingcute:file-new-line" class="nn-icon size-xsmall" />
+          </button>
+          <button class="nn-button type-ghost" @click="gotoEdit">
+            <Icon icon="mingcute:edit-line" class="nn-icon size-xsmall" />
+          </button>
+          <button class="nn-button type-ghost" @click="deleteLayout">
+            <Icon icon="mingcute:delete-2-line" class="nn-icon size-xsmall" />
+          </button>
+        </div>
+        <div class="right-group">
+          <button
+            class="nn-button type-ghost visualize"
+            @click="gotoVisualizer"
+          >
+            <Icon icon="mingcute:eye-line" class="nn-icon size-xsmall" />
+          </button>
+        </div>
+      </div>
+    </Header>
     <div class="container">
       <div class="preview-container">
         <div class="padding-area">
-          <div class="preview kmsk-dotted-background" :style="layoutStyle">
+          <div
+            class="preview kmsk-dotted-background"
+            v-if="selectedLayout"
+            :style="layoutStyle"
+          >
             <KeyboardButton
               v-for="key in keys"
               class="keyboard-key"
@@ -61,20 +95,6 @@ const gotoVisualizer = () => {
               :is-down="false"
             />
             <Mouse v-for="mouse in mouses" :data="mouse" />
-          </div>
-          <div class="actions">
-            <NNButton @click="gotoEdit">
-              <template #icon>
-                <Icon icon="mingcute:edit-line" />
-              </template>
-              <span>編集</span>
-            </NNButton>
-            <NNButton @click="gotoVisualizer">
-              <template #icon>
-                <Icon icon="mingcute:eye-line" />
-              </template>
-              <span>開始</span>
-            </NNButton>
           </div>
         </div>
       </div>
@@ -96,9 +116,6 @@ const gotoVisualizer = () => {
             />
             <span class="label">{{ layout.name }}</span>
           </label>
-          <button class="add-button" @click="addLayout">
-            追加<Icon icon="mingcute:file-new-line" />
-          </button>
         </div>
       </div>
     </div>
@@ -204,13 +221,42 @@ const gotoVisualizer = () => {
   position: relative;
   width: 100%;
   height: 100%;
+}
 
-  .actions {
-    position: fixed;
-    bottom: 16px;
-    right: 16px;
-    display: flex;
-    gap: 16px;
+.tools {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+
+  .center-group {
+    position: absolute;
+    top: 0;
+    margin: 0 auto;
+    height: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+
+  .right-group {
+    margin: 0 8px 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+
+  .nn-button {
+    margin: auto;
+    width: 40px;
+    height: 24px;
+    padding: 0;
+    min-height: auto;
+    -webkit-app-region: no-drag;
   }
 }
 </style>

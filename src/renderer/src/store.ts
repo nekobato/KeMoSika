@@ -42,6 +42,12 @@ export const useStore = defineStore("store", () => {
     saveLayout();
   };
 
+  const deleteLayout = async (index: number) => {
+    layouts.value.splice(index, 1);
+    commit();
+    saveLayout();
+  };
+
   const saveLayout = async () => {
     await window.ipc.invoke(
       "layout:save",
@@ -92,6 +98,7 @@ export const useStore = defineStore("store", () => {
     activeLayout,
     init,
     addLayout,
+    deleteLayout,
     updateLayout,
     saveLayout,
     addItem,

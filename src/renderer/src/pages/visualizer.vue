@@ -9,13 +9,14 @@ import { keyCodeMap } from "@/utils/key";
 import { computed, ref } from "vue";
 import { useStore } from "../store";
 import KeyboardButton from "../components/KeyboardButton.vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { onMounted } from "vue";
-import { KeyboardKeyData } from "@shared/types";
+import { KeyboardKeyData, LayoutData, MouseData } from "@shared/types";
 import { onBeforeUnmount } from "vue";
 import Mouse from "../components/Mouse.vue";
 
 const router = useRouter();
+const route = useRoute();
 const store = useStore();
 
 const downKeys = ref<string[]>([]);
@@ -33,16 +34,18 @@ const mouseStates = ref({
   amount: 0
 });
 
-const keys = computed<KeyboardKeyData[]>(() =>
-  store.$state.layouts[store.$state.activeLayoutIndex]?.keys.filter(
-    (key) => key.type === "key"
-  )
+const layout = computed<LayoutData | undefined>(() => {
+  return store.$state.layouts.find(
+    (layout) => layout.id === route.params.layoutId
+  );
+});
+
+const keys = computed<KeyboardKeyData[] | undefined>(() =>
+  layout.value?.keys.filter((key) => key.type === "key")
 );
 
-const mouses = computed(() => {
-  return store.$state.layouts[store.$state.activeLayoutIndex]?.keys.filter(
-    (key) => key.type === "mouse"
-  );
+const mouses = computed<MouseData[] | undefined>(() => {
+  return layout.value?.keys.filter((key) => key.type === "mouse");
 });
 
 const isDown = (codes: string[]) => {

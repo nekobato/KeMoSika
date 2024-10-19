@@ -19,8 +19,9 @@ import NNButton from "@/components/common/NNButton.vue";
 import Header from "@/components/Header.vue";
 import Mouse from "@/components/Mouse.vue";
 import { Icon } from "@iconify/vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
+const route = useRoute();
 const router = useRouter();
 const store = useStore();
 const activeKeyIndexes = ref<number[]>([]);
@@ -30,26 +31,22 @@ const selectoRef = ref<Selecto>();
 
 const tool = ref("move");
 
-const layout = computed(
-  () => store.$state.layouts[store.$state.activeLayoutIndex]
+const layout = computed<LayoutData | undefined>(() =>
+  store.$state.layouts.find((layout) => layout.id === route.params.layoutId)
 );
-const items = computed(
-  () => store.$state.layouts[store.$state.activeLayoutIndex]?.keys
-);
-const itemsCount = computed(() => items.value?.length);
+const items = computed(() => (layout.value ? layout.value.keys : []));
+const itemsCount = computed(() => (items.value ? items.value.length : 0));
 const itemIdSelectors = computed(() => {
-  return activeKeyIndexes.value.map((index) => `#${items.value[index].id}`);
+  return activeKeyIndexes.value.map((index) =>
+    items.value ? `#${items.value[index].id}` : ""
+  );
 });
 
 const keys = computed<KeyboardKeyData[]>(() =>
-  store.$state.layouts[store.$state.activeLayoutIndex]?.keys.filter(
-    (key) => key.type === "key"
-  )
+  items.value.filter((key) => key.type === "key")
 );
 const mouses = computed(() => {
-  return store.$state.layouts[store.$state.activeLayoutIndex]?.keys.filter(
-    (key) => key.type === "mouse"
-  );
+  return items.value.filter((key) => key.type === "mouse");
 });
 
 const layoutStyle = computed(() => {
@@ -112,24 +109,20 @@ const addMouse = () => {
   });
 };
 
+const selectedItemHead = computed(() =>
+  items.value?.length ? items.value[activeKeyIndexes.value[0]] : undefined
+);
+
 const selectedKeyHead = computed(() => {
-  if (
-    activeKeyIndexes.value.length === 0 ||
-    items.value[activeKeyIndexes.value[0]].type !== "key"
-  ) {
-    return null;
-  }
-  return items.value[activeKeyIndexes.value[0]] as KeyboardKeyData;
+  return selectedItemHead.value?.type === "key"
+    ? (selectedItemHead.value as KeyboardKeyData)
+    : undefined;
 });
 
 const selectedMouseHead = computed(() => {
-  if (
-    activeKeyIndexes.value.length === 0 ||
-    items.value[activeKeyIndexes.value[0]].type !== "mouse"
-  ) {
-    return null;
-  }
-  return items.value[activeKeyIndexes.value[0]] as MouseData;
+  return selectedItemHead.value?.type === "mouse"
+    ? (selectedItemHead.value as MouseData)
+    : undefined;
 });
 
 const onClickGroup = (e: any) => {
@@ -137,7 +130,7 @@ const onClickGroup = (e: any) => {
 };
 
 const onDrag = (e: any) => {
-  const item = items.value.find((item) => item.id === e.target.id);
+  const item = items.value?.find((item) => item.id === e.target.id);
   if (item) {
     item.x = e.left;
     item.y = e.top;
@@ -145,14 +138,14 @@ const onDrag = (e: any) => {
 };
 
 const onDragStart = (e: any) => {
-  const item = items.value.find((item) => item.id === e.target.id);
+  const item = items.value?.find((item) => item.id === e.target.id);
   if (item) {
     // item.isModifying = true;
   }
 };
 
 const onDragEnd = (e: any) => {
-  const item = items.value.find((item) => item.id === e.target.id);
+  const item = items.value?.find((item) => item.id === e.target.id);
 
   if (item) {
     store.updateItem(item);
@@ -161,7 +154,7 @@ const onDragEnd = (e: any) => {
 
 const onDragGroup = (e: any) => {
   e.events.forEach((ev: any) => {
-    const item = items.value.find((item) => item.id === ev.target.id);
+    const item = items.value?.find((item) => item.id === ev.target.id);
     if (item) {
       item.x = ev.left;
       item.y = ev.top;
@@ -171,7 +164,7 @@ const onDragGroup = (e: any) => {
 
 const onRotate = (e: any) => {
   e.inputEvent.preventDefault();
-  const item = items.value.find((item) => item.id === e.target.id);
+  const item = items.value?.find((item) => item.id === e.target.id);
   if (item) {
     item.rotation = (e.beforeRotate + e.rotate) % 360;
   }
@@ -179,7 +172,7 @@ const onRotate = (e: any) => {
 
 const onRotateGroup = (e: any) => {
   e.events.forEach((ev: any) => {
-    const item = items.value.find((item) => item.id === ev.target.id);
+    const item = items.value?.find((item) => item.id === ev.target.id);
     if (item) {
       // item.x = ev.left;
       // item.y = ev.top;
@@ -189,7 +182,7 @@ const onRotateGroup = (e: any) => {
 };
 
 const onRotateEnd = (e: any) => {
-  const item = items.value.find((item) => item.id === e.target.id);
+  const item = items.value?.find((item) => item.id === e.target.id);
   if (item) {
     store.updateItem(item);
   }
@@ -204,13 +197,15 @@ const onSelectEnd = (e: any) => {
   }
 
   const selected: HTMLDivElement[] = e.selected;
-  const selectedItems = items.value.filter((item) =>
+  const selectedItems = items.value?.filter((item) =>
     selected.some((el) => el.id === item.id)
   );
 
-  activeKeyIndexes.value = selectedItems.map((item) =>
-    items.value.indexOf(item)
-  );
+  if (selectedItems?.length) {
+    activeKeyIndexes.value = selectedItems
+      .map((item) => items.value?.indexOf(item))
+      .filter((item) => item !== undefined);
+  }
 };
 
 const onChangeInput = (keyData: LayoutItemData) => {
@@ -472,8 +467,6 @@ onUnmounted(() => {
 .tools {
   position: absolute;
   top: 0;
-  right: 0;
-  left: 0;
   height: 100%;
   display: flex;
   align-items: center;
