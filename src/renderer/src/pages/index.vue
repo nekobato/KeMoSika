@@ -99,6 +99,32 @@ const gotoVisualizer = () => {
         </div>
       </div>
       <div class="list-column">
+        <h3 class="category-title">カスタム</h3>
+        <div class="layout-list">
+          <label
+            class="list-item"
+            v-for="(layout, index) in store.$state.layouts"
+            :class="{
+              selected: selectedLayoutIndex === index
+            }"
+          >
+            <input
+              class="radio"
+              type="radio"
+              key="layout"
+              :value="index"
+              v-model="selectedLayoutIndex"
+            />
+            <span class="label">{{ layout.name }}</span>
+          </label>
+        </div>
+        <div class="bottom-actions">
+          <button class="nn-button">
+            <Icon icon="mingcute:file-new-line" class="nn-icon size-xsmall" />
+            <span>新しいレイアウト</span>
+          </button>
+        </div>
+        <h3 class="category-title">テンプレート</h3>
         <div class="layout-list">
           <label
             class="list-item"
@@ -133,6 +159,7 @@ const gotoVisualizer = () => {
   .list-column {
     height: 100%;
     background-color: #252525;
+    overflow-y: scroll;
   }
 
   .preview-container {
@@ -162,8 +189,6 @@ const gotoVisualizer = () => {
   gap: 8px;
   padding: 16px;
   flex-wrap: nowrap;
-  overflow-y: scroll;
-  height: 100%;
 
   .list-item {
     display: inline-flex;
