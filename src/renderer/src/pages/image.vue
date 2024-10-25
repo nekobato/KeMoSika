@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import ConfigLayout from "@/components/layouts/ConfigLayout.vue";
 import Header from "@/components/Header.vue";
 import { LayoutItemImage } from "@shared/types";

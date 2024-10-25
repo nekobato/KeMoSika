@@ -1,27 +1,25 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 import { LayoutItemImage } from "@shared/types";
 
 type ImageData = LayoutItemImage & {
   path: string;
 };
 
+const props = defineProps<{
+  selectedIndex: number;
+  images: ImageData[];
+}>();
+const emit = defineEmits(["change", "update"]);
+
 const isDragOver = ref(false);
-const images = ref<ImageData[]>([]);
 
 const saveImage = async (imagePath: string) => {
   try {
     await window.ipc.invoke("image:save", { imagePath });
+    emit("update");
   } catch (error) {
     console.error("Failed to save image:", error);
-  }
-};
-
-const fetchImages = async () => {
-  try {
-    images.value = await window.ipc.invoke("image:list");
-  } catch (error) {
-    console.error("Failed to fetch images:", error);
   }
 };
 
@@ -34,7 +32,6 @@ const onDrop = async (e: DragEvent) => {
   const imagePath = e.dataTransfer?.files[0].path;
   if (imagePath) {
     await saveImage(imagePath);
-    await fetchImages();
   }
 };
 
@@ -42,9 +39,9 @@ const onDragLeave = (_: DragEvent) => {
   isDragOver.value = false;
 };
 
-onMounted(() => {
-  fetchImages();
-});
+const selectImage = (index: number) => {
+  emit("change", index);
+};
 </script>
 
 <template>
@@ -55,7 +52,12 @@ onMounted(() => {
     @drop.prevent="onDrop"
     @dragleave.prevent="onDragLeave"
   >
-    <div class="image-list-item" v-for="image in images" :key="image.id">
+    <div
+      class="image-list-item"
+      v-for="(image, index) in props.images"
+      :key="image.id"
+      @click="selectImage(index)"
+    >
       <img class="image" :src="`media://${image.path}`" />
     </div>
   </div>
