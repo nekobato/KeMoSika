@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { useStore } from "../store";
-import NNButton from "@/components/common/NNButton.vue";
 import { Icon } from "@iconify/vue";
 import ConfigLayout from "@/components/layouts/ConfigLayout.vue";
 import KeyboardButton from "@/components/KeyboardButton.vue";
@@ -40,8 +39,8 @@ const addLayout = () => {
   store.addLayout();
 };
 
-const deleteLayout = () => {
-  store.deleteLayout(selectedLayoutIndex.value);
+const deleteLayout = (index: number) => {
+  store.deleteLayout(index);
 };
 
 const gotoEdit = () => {
@@ -57,29 +56,7 @@ const gotoVisualizer = () => {
 
 <template>
   <ConfigLayout class="layout-preview kmsk-dotted-background">
-    <Header>
-      <div class="tools">
-        <div class="center-group">
-          <button class="nn-button type-ghost" @click="addLayout">
-            <Icon icon="mingcute:file-new-line" class="nn-icon size-xsmall" />
-          </button>
-          <button class="nn-button type-ghost" @click="gotoEdit">
-            <Icon icon="mingcute:edit-line" class="nn-icon size-xsmall" />
-          </button>
-          <button class="nn-button type-ghost" @click="deleteLayout">
-            <Icon icon="mingcute:delete-2-line" class="nn-icon size-xsmall" />
-          </button>
-        </div>
-        <div class="right-group">
-          <button
-            class="nn-button type-ghost visualize"
-            @click="gotoVisualizer"
-          >
-            <Icon icon="mingcute:eye-line" class="nn-icon size-xsmall" />
-          </button>
-        </div>
-      </div>
-    </Header>
+    <Header />
     <div class="container">
       <div class="preview-container">
         <div class="padding-area">
@@ -96,6 +73,19 @@ const gotoVisualizer = () => {
             />
             <Mouse v-for="mouse in mouses" :data="mouse" />
           </div>
+        </div>
+        <div class="float-actions">
+          <button class="nn-button type-ghost edit" @click="gotoEdit">
+            <Icon icon="mingcute:edit-line" class="nn-icon size-small" />
+            <span class="label">編集</span>
+          </button>
+          <button
+            class="nn-button type-ghost visualize"
+            @click="gotoVisualizer"
+          >
+            <Icon icon="mingcute:eye-line" class="nn-icon size-small" />
+            <span class="label">可視化開始</span>
+          </button>
         </div>
       </div>
       <div class="list-column">
@@ -116,6 +106,12 @@ const gotoVisualizer = () => {
               v-model="selectedLayoutIndex"
             />
             <span class="label">{{ layout.name }}</span>
+            <button
+              class="nn-button type-ghost size-xsmall delete-button"
+              @click.stop="deleteLayout(index)"
+            >
+              <Icon icon="mingcute:delete-2-line" class="nn-icon size-xsmall" />
+            </button>
           </label>
         </div>
         <div class="bottom-actions">
@@ -174,6 +170,39 @@ const gotoVisualizer = () => {
   }
 }
 
+.float-actions {
+  position: absolute;
+  bottom: 24px;
+  left: 0;
+  right: 0;
+  width: 320px;
+  display: inline-flex;
+  margin: auto;
+  /* glassmorphic */
+  background: rgba(45, 57, 62, 0.5);
+  border-radius: 8px;
+  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(45, 57, 62, 0.16);
+
+  .nn-button {
+    width: 50%;
+    &:not(:first-of-type) {
+      border-left: 1px solid rgba(45, 57, 62, 0.16);
+    }
+
+    .nn-icon {
+      flex: 0 0 auto;
+      margin: auto auto auto 0;
+    }
+
+    .label {
+      flex: 0 0 auto;
+      font-size: 14px;
+    }
+  }
+}
+
 .padding-area {
   overflow: scroll;
   width: 100%;
@@ -181,6 +210,11 @@ const gotoVisualizer = () => {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.category-title {
+  font-size: 20px;
+  margin: 16px auto auto 16px;
 }
 
 .layout-list {
@@ -199,6 +233,10 @@ const gotoVisualizer = () => {
 
     &:hover {
       background-color: var(--color-white-t1);
+
+      .delete-button {
+        visibility: visible;
+      }
     }
 
     &.selected {
@@ -209,6 +247,14 @@ const gotoVisualizer = () => {
     .label {
       font-size: 16px;
       font-weight: bold;
+    }
+
+    .delete-button {
+      position: absolute;
+      right: 20px;
+      height: 32px;
+      margin: auto 0 auto auto;
+      visibility: hidden;
     }
   }
 }
