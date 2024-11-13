@@ -27,14 +27,13 @@ const backHome = () => {
 .window-header {
   position: relative;
   display: flex;
-  flex: 1 0 auto;
   justify-content: center;
   align-items: center;
-  height: 40px;
   overflow: hidden;
-  background-color: #3b3940;
+  background-color: var(--color-grey-800);
   -webkit-app-region: drag;
   width: 100%;
+  height: 100%;
 }
 .nn-button {
   width: 80px;

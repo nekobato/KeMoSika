@@ -15,11 +15,12 @@ import KeyboardKeyConfig from "../components/pages/config/KeyboardKeyConfig.vue"
 import MouseConfig from "../components/pages/config/MouseConfig.vue";
 import LayoutConfig from "../components/pages/config/LayoutConfig.vue";
 import { useStore } from "../store";
-import NNButton from "@/components/common/NNButton.vue";
 import Header from "@/components/Header.vue";
 import Mouse from "@/components/Mouse.vue";
 import { Icon } from "@iconify/vue";
 import { useRoute, useRouter } from "vue-router";
+import FloatActions from "@/components/FloatActions/FloatActions.vue";
+import FloatActionButton from "@/components/FloatActions/FloatActionButton.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -108,6 +109,8 @@ const addMouse = () => {
     }
   });
 };
+
+const addPicture = () => {};
 
 const selectedItemHead = computed(() =>
   items.value?.length ? items.value[activeKeyIndexes.value[0]] : undefined
@@ -276,10 +279,6 @@ const onKeyDown = (e: KeyboardEvent) => {
   }
 };
 
-const changeTool = (newTool: string) => {
-  tool.value = newTool;
-};
-
 const gotoImageManager = () => {
   router.push("/image");
 };
@@ -302,123 +301,121 @@ onUnmounted(() => {
 
 <template>
   <ConfigLayout>
-    <Header>
-      <div class="tools">
-        <button
-          class="nn-button type-ghost"
-          @click="changeTool('move')"
-          :class="{ enabled: tool === 'move' }"
-        >
-          <Icon icon="mingcute:move-line" class="nn-icon size-xsmall" />
-        </button>
-        <button
-          class="nn-button type-ghost"
-          @click="changeTool('select')"
-          :class="{ enabled: tool === 'select' }"
-        >
-          <Icon icon="mingcute:cursor-2-line" class="nn-icon size-xsmall" />
-        </button>
-        <button class="nn-button type-ghost" @click="gotoImageManager">
-          <Icon icon="mingcute:pic-line" class="nn-icon size-xsmall" />
-        </button>
-      </div>
-    </Header>
-    <div class="preview" ref="previewRef" v-if="layout">
-      <div
-        id="layout-area"
-        class="container kmsk-dotted-background"
-        :class="tool"
-        :style="layoutStyle"
-      >
-        <KeyboardButton
-          class="configurable"
-          v-for="key in keys"
-          :key="key.id"
-          :id="key.id"
-          :key-data="key"
+    <template #header>
+      <Header />
+    </template>
+    <template #main>
+      <main>
+        <div class="preview" ref="previewRef" v-if="layout">
+          <div
+            id="layout-area"
+            class="container kmsk-dotted-background"
+            :class="tool"
+            :style="layoutStyle"
+          >
+            <KeyboardButton
+              class="configurable"
+              v-for="key in keys"
+              :key="key.id"
+              :id="key.id"
+              :key-data="key"
+            />
+            <Mouse
+              class="configurable"
+              v-for="mouse in mouses"
+              :key="mouse.id"
+              :id="mouse.id"
+              :data="mouse"
+            />
+            <Moveable
+              ref="moveableRef"
+              :target="itemIdSelectors"
+              :draggable="true"
+              :scalable="false"
+              :rotatable="true"
+              :roundable="false"
+              :snappable="true"
+              :origin="false"
+              :element-guidelines="itemIdSelectors"
+              :stop-propagation="true"
+              :throttle-rotate="1"
+              :throttle-drag="1"
+              @click-group="onClickGroup"
+              @drag="onDrag"
+              @drag-group="onDragGroup"
+              @drag-start="onDragStart"
+              @drag-end="onDragEnd"
+              @rotate="onRotate"
+              @rotate-group="onRotateGroup"
+              @rotate-end="onRotateEnd"
+            />
+            <Selecto
+              ref="selectoRef"
+              :container="previewRef"
+              :drag-container="previewRef"
+              :selectable-targets="['#layout-area .configurable']"
+              :selectBy-click="true"
+              :select-from-inside="false"
+              :continue-select="false"
+              :toggle-continue-select="['shift']"
+              @select-end="onSelectEnd"
+            />
+          </div>
+        </div>
+      </main>
+      <FloatActions class="float-tool-actions">
+        <FloatActionButton @click="addKey">
+          <template #icon>
+            <Icon icon="mingcute:add-fill" class="add-icon" />
+            <Icon icon="mingcute:hotkey-line" class="nn-icon size-small" />
+          </template>
+        </FloatActionButton>
+        <FloatActionButton @click="addMouse">
+          <template #icon>
+            <Icon icon="mingcute:add-fill" class="add-icon" />
+            <Icon icon="mingcute:mouse-line" class="nn-icon size-small" />
+          </template>
+        </FloatActionButton>
+        <FloatActionButton @click="addPicture">
+          <template #icon>
+            <Icon icon="mingcute:pic-line" class="nn-icon size-small" />
+          </template>
+        </FloatActionButton>
+      </FloatActions>
+    </template>
+    <template #aside>
+      <aside>
+        <KeyboardKeyConfig
+          v-if="selectedKeyHead"
+          :keyData="selectedKeyHead"
+          @change="onChangeInput"
+          @keydown.stop
         />
-        <Mouse
-          class="configurable"
-          v-for="mouse in mouses"
-          :key="mouse.id"
-          :id="mouse.id"
-          :data="mouse"
+        <MouseConfig
+          v-if="selectedMouseHead"
+          :mouseData="selectedMouseHead"
+          @change="onChangeInput"
+          @keydown.stop
         />
-        <Moveable
-          ref="moveableRef"
-          :target="itemIdSelectors"
-          :draggable="true"
-          :scalable="false"
-          :rotatable="true"
-          :roundable="false"
-          :snappable="true"
-          :origin="false"
-          :element-guidelines="itemIdSelectors"
-          :stop-propagation="true"
-          :throttle-rotate="1"
-          :throttle-drag="1"
-          @click-group="onClickGroup"
-          @drag="onDrag"
-          @drag-group="onDragGroup"
-          @drag-start="onDragStart"
-          @drag-end="onDragEnd"
-          @rotate="onRotate"
-          @rotate-group="onRotateGroup"
-          @rotate-end="onRotateEnd"
+        <LayoutConfig
+          v-if="activeKeyIndexes.length === 0"
+          :layout="layout"
+          @change="onChangeLayout"
+          @keydown.stop
         />
-        <Selecto
-          ref="selectoRef"
-          :container="previewRef"
-          :drag-container="previewRef"
-          :selectable-targets="['#layout-area .configurable']"
-          :selectBy-click="true"
-          :select-from-inside="false"
-          :continue-select="false"
-          :toggle-continue-select="['shift']"
-          @select-end="onSelectEnd"
-        />
-      </div>
-      <NNButton @click="addKey" class="button type-addkey">ADD KEY</NNButton>
-      <NNButton @click="addMouse" class="button type-addmouse"
-        >ADD MOUSE</NNButton
-      >
-    </div>
-    <KeyboardKeyConfig
-      v-if="selectedKeyHead"
-      :keyData="selectedKeyHead"
-      @change="onChangeInput"
-      @keydown.stop
-    />
-    <MouseConfig
-      v-if="selectedMouseHead"
-      :mouseData="selectedMouseHead"
-      @change="onChangeInput"
-      @keydown.stop
-    />
-    <LayoutConfig
-      v-if="activeKeyIndexes.length === 0"
-      :layout="layout"
-      @change="onChangeLayout"
-      @keydown.stop
-    />
+      </aside>
+    </template>
   </ConfigLayout>
 </template>
 
 <style scoped lang="scss">
-.key-config {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  overflow-y: scroll;
-}
 .preview {
   position: relative;
   min-width: 100%;
   min-height: 100%;
   overflow: scroll;
   padding: 80px;
-  padding-right: calc(80px + 320px);
-  background-color: #e5e5e5;
+  background-color: var(--color-grey-100);
 }
 
 .button {
@@ -464,25 +461,15 @@ onUnmounted(() => {
   top: 16px;
   left: 16px;
 }
-.tools {
-  position: absolute;
-  top: 0;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-
-  .nn-button {
-    width: 40px;
-    height: 24px;
-    padding: 0;
-    min-height: auto;
-    -webkit-app-region: no-drag;
-
-    &.enabled {
-      background-color: #252525;
-    }
+.float-tool-actions {
+  .add-icon {
+    position: absolute;
+    top: 4px;
+    left: 8px;
+    flex: 0 0 16px;
+    color: var(--color-grey-200);
+    width: 10px;
+    height: 10px;
   }
 }
 </style>

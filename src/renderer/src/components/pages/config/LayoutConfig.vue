@@ -74,16 +74,6 @@ const onChangeInput = (key: string, value: any) => {
 
 <style scoped lang="scss">
 .keyboard-key-config {
-  position: fixed;
-  top: 40px;
-  right: 0;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  height: 100%;
-  width: 320px;
-  background-color: #252525;
-  overflow-y: scroll;
   padding: 16px;
 }
 .form {

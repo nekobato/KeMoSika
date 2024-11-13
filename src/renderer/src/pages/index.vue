@@ -8,6 +8,9 @@ import { KeyboardKeyData } from "@shared/types";
 import { useRouter } from "vue-router";
 import Header from "@/components/Header.vue";
 import Mouse from "@/components/Mouse.vue";
+import { ElDivider } from "element-plus";
+import FloatActions from "@/components/FloatActions/FloatActions.vue";
+import FloatActionButton from "@/components/FloatActions/FloatActionButton.vue";
 
 const router = useRouter();
 const store = useStore();
@@ -27,7 +30,7 @@ const layoutStyle = computed(() => {
   };
 });
 
-const keys = computed<KeyboardKeyData[]>(() =>
+const keys = computed<KeyboardKeyData[] | undefined>(() =>
   selectedLayout.value?.keys.filter((key) => key.type === "key")
 );
 
@@ -56,40 +59,40 @@ const gotoVisualizer = () => {
 
 <template>
   <ConfigLayout class="layout-preview kmsk-dotted-background">
-    <Header />
-    <div class="container">
-      <div class="preview-container">
-        <div class="padding-area">
-          <div
-            class="preview kmsk-dotted-background"
-            v-if="selectedLayout"
-            :style="layoutStyle"
-          >
-            <KeyboardButton
-              v-for="key in keys"
-              class="keyboard-key"
-              :key-data="key as KeyboardKeyData"
-              :is-down="false"
-            />
-            <Mouse v-for="mouse in mouses" :data="mouse" />
-          </div>
+    <template #header>
+      <Header class="header" />
+    </template>
+    <template #main>
+      <main class="preview-container">
+        <div
+          class="preview kmsk-dotted-background"
+          v-if="selectedLayout"
+          :style="layoutStyle"
+        >
+          <KeyboardButton
+            v-for="key in keys"
+            class="keyboard-key"
+            :key-data="key as KeyboardKeyData"
+            :is-down="false"
+          />
+          <Mouse v-for="mouse in mouses" :data="mouse" />
         </div>
-        <div class="float-actions">
-          <button class="nn-button type-ghost edit" @click="gotoEdit">
-            <Icon icon="mingcute:edit-line" class="nn-icon size-small" />
-            <span class="label">編集</span>
-          </button>
-          <button
-            class="nn-button type-ghost visualize"
-            @click="gotoVisualizer"
-          >
-            <Icon icon="mingcute:eye-line" class="nn-icon size-small" />
-            <span class="label">可視化開始</span>
-          </button>
-        </div>
-      </div>
-      <div class="list-column">
-        <h3 class="category-title">カスタム</h3>
+      </main>
+      <FloatActions>
+        <FloatActionButton label="編集" @click="gotoEdit">
+          <template #icon>
+            <Icon icon="mingcute:edit-4-line" class="nn-icon size-xsmall" />
+          </template>
+        </FloatActionButton>
+        <FloatActionButton label="可視化" @click="gotoVisualizer">
+          <template #icon>
+            <Icon icon="mingcute:play-line" class="nn-icon size-xsmall" />
+          </template>
+        </FloatActionButton>
+      </FloatActions>
+    </template>
+    <template #aside>
+      <aside class="list-column">
         <div class="layout-list">
           <label
             class="list-item"
@@ -120,7 +123,7 @@ const gotoVisualizer = () => {
             <span>新しいレイアウト</span>
           </button>
         </div>
-        <h3 class="category-title">テンプレート</h3>
+        <ElDivider />
         <div class="layout-list">
           <label
             class="list-item"
@@ -139,77 +142,32 @@ const gotoVisualizer = () => {
             <span class="label">{{ layout.name }}</span>
           </label>
         </div>
-      </div>
-    </div>
+      </aside>
+    </template>
   </ConfigLayout>
 </template>
 
 <style lang="scss" scoped>
-.container {
+.list-column {
+  width: 240px;
+  height: 100%;
+  background-color: #252525;
+  overflow-y: scroll;
+}
+
+.preview-container {
   width: 100%;
   height: 100%;
-  display: grid;
-  grid-template-columns: 1fr 320px;
-  overflow: hidden;
-
-  .list-column {
-    height: 100%;
-    background-color: #252525;
-    overflow-y: scroll;
-  }
-
-  .preview-container {
-    position: relative;
-    background-color: #e5e5e5;
-    overflow: hidden;
-  }
-
-  .preview {
-    flex: 0 0 auto;
-    position: relative;
-  }
-}
-
-.float-actions {
-  position: absolute;
-  bottom: 24px;
-  left: 0;
-  right: 0;
-  width: 320px;
-  display: inline-flex;
-  margin: auto;
-  /* glassmorphic */
-  background: rgba(45, 57, 62, 0.5);
-  border-radius: 8px;
-  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(45, 57, 62, 0.16);
-
-  .nn-button {
-    width: 50%;
-    &:not(:first-of-type) {
-      border-left: 1px solid rgba(45, 57, 62, 0.16);
-    }
-
-    .nn-icon {
-      flex: 0 0 auto;
-      margin: auto auto auto 0;
-    }
-
-    .label {
-      flex: 0 0 auto;
-      font-size: 14px;
-    }
-  }
-}
-
-.padding-area {
+  padding: 80px;
+  position: relative;
+  background-color: #e5e5e5;
   overflow: scroll;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  padding-right: 240px;
+}
+
+.preview {
+  flex: 0 0 auto;
+  position: relative;
 }
 
 .category-title {
@@ -225,6 +183,7 @@ const gotoVisualizer = () => {
   flex-wrap: nowrap;
 
   .list-item {
+    position: relative;
     display: inline-flex;
     align-items: center;
     padding: 8px 16px;
@@ -240,19 +199,20 @@ const gotoVisualizer = () => {
     }
 
     &.selected {
-      background-color: var(--color-accent);
+      background-color: var(--color-teal-400);
       cursor: default;
     }
 
     .label {
-      font-size: 16px;
+      font-size: var(--font-size-14);
       font-weight: bold;
     }
 
     .delete-button {
       position: absolute;
-      right: 20px;
-      height: 32px;
+      right: 8px;
+      width: 24px;
+      height: 24px;
       margin: auto 0 auto auto;
       visibility: hidden;
     }
@@ -293,7 +253,6 @@ const gotoVisualizer = () => {
   width: 100%;
   height: 100%;
 }
-
 .tools {
   width: 100%;
   height: 100%;

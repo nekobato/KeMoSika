@@ -62,7 +62,7 @@ onMounted(async () => {
   width: 100%;
   height: 100%;
   display: grid;
-  grid-template-columns: 1fr 320px;
+  grid-template-columns: 1fr 240px;
   overflow: hidden;
 
   .list-column {
