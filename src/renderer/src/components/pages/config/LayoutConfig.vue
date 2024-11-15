@@ -27,7 +27,7 @@ const onChangeInput = (key: string, value: any) => {
   <section class="keyboard-key-config" v-if="props.layout">
     <EP.ElForm class="form" label-width="auto">
       <EP.ElRow>
-        <EP.ElFormItem label="レイアウト名">
+        <EP.ElFormItem label="名">
           <EP.ElInput
             class="name"
             placeholder="おなまえ"
@@ -42,7 +42,7 @@ const onChangeInput = (key: string, value: any) => {
             <EP.ElInputNumber
               class="input-bounds"
               size="small"
-              v-model="props.layout.width"
+              :model-value="props.layout.width"
               :min="40"
               :max="9999"
               :step="1"

@@ -18,19 +18,16 @@ import { useStore } from "../store";
 import Header from "@/components/Header.vue";
 import Mouse from "@/components/Mouse.vue";
 import { Icon } from "@iconify/vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 import FloatActions from "@/components/FloatActions/FloatActions.vue";
 import FloatActionButton from "@/components/FloatActions/FloatActionButton.vue";
 
 const route = useRoute();
-const router = useRouter();
 const store = useStore();
 const activeKeyIndexes = ref<number[]>([]);
 const previewRef = ref<HTMLDivElement>();
 const moveableRef = ref<Moveable>();
 const selectoRef = ref<Selecto>();
-
-const tool = ref("move");
 
 const layout = computed<LayoutData | undefined>(() =>
   store.$state.layouts.find((layout) => layout.id === route.params.layoutId)
@@ -58,12 +55,15 @@ const layoutStyle = computed(() => {
 });
 
 const addKey = () => {
-  store.addItem({
+  if (!layout.value) {
+    return;
+  }
+  store.addItem(layout.value.id, {
     id: `key-${nanoid()}`,
     type: "key",
     codeMap: ["A"],
-    x: 0,
-    y: 0,
+    x: layout.value?.width || 0 / 2,
+    y: layout.value?.height || 0 / 2,
     width: 48,
     height: 48,
     rotation: 0,
@@ -89,11 +89,14 @@ const addKey = () => {
 };
 
 const addMouse = () => {
-  store.addItem({
+  if (!layout.value) {
+    return;
+  }
+  store.addItem(layout.value.id, {
     id: `mouse-${nanoid()}`,
     type: "mouse",
-    x: 0,
-    y: 0,
+    x: layout.value?.width || 0 / 2,
+    y: layout.value?.height || 0 / 2,
     width: 48,
     height: 48,
     rotation: 0,
@@ -150,8 +153,8 @@ const onDragStart = (e: any) => {
 const onDragEnd = (e: any) => {
   const item = items.value?.find((item) => item.id === e.target.id);
 
-  if (item) {
-    store.updateItem(item);
+  if (item && layout.value) {
+    store.updateItem(layout.value.id, item);
   }
 };
 
@@ -186,8 +189,8 @@ const onRotateGroup = (e: any) => {
 
 const onRotateEnd = (e: any) => {
   const item = items.value?.find((item) => item.id === e.target.id);
-  if (item) {
-    store.updateItem(item);
+  if (item && layout.value) {
+    store.updateItem(layout.value.id, item);
   }
 };
 
@@ -212,7 +215,9 @@ const onSelectEnd = (e: any) => {
 };
 
 const onChangeInput = (keyData: LayoutItemData) => {
-  store.updateItem(keyData);
+  if (layout.value) {
+    store.updateItem(layout.value.id, keyData);
+  }
 };
 
 const onChangeLayout = (layout: LayoutData) => {
@@ -225,8 +230,8 @@ const onKeyDown = (e: KeyboardEvent) => {
 
   // delete key
   if (e.key === "Delete" || e.key === "Backspace") {
-    if (activeKeyIndexes.value.length > 0) {
-      store.removeItems(activeKeyIndexes.value);
+    if (activeKeyIndexes.value.length > 0 && layout.value) {
+      store.removeItems(layout.value.id, activeKeyIndexes.value);
       activeKeyIndexes.value = [];
     }
   }
@@ -279,10 +284,6 @@ const onKeyDown = (e: KeyboardEvent) => {
   }
 };
 
-const gotoImageManager = () => {
-  router.push("/image");
-};
-
 watch(itemsCount, async () => {
   nextTick(() => {
     moveableRef.value?.updateSelectors();
@@ -310,7 +311,6 @@ onUnmounted(() => {
           <div
             id="layout-area"
             class="container kmsk-dotted-background"
-            :class="tool"
             :style="layoutStyle"
           >
             <KeyboardButton
@@ -409,15 +409,17 @@ onUnmounted(() => {
 </template>
 
 <style scoped lang="scss">
+main {
+  width: 100%;
+}
 .preview {
   position: relative;
   min-width: 100%;
   min-height: 100%;
-  overflow: scroll;
   padding: 80px;
   background-color: var(--color-grey-100);
+  overflow: scroll;
 }
-
 .button {
   position: fixed;
   width: 160px;
@@ -440,21 +442,6 @@ onUnmounted(() => {
 
 .container {
   position: relative;
-
-  &.move {
-    cursor: move;
-  }
-
-  &.select {
-    cursor: default;
-  }
-}
-.configurable {
-  cursor: grab;
-
-  &.modifying {
-    cursor: grabbing;
-  }
 }
 .layout-selector {
   position: absolute;

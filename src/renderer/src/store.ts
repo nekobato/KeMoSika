@@ -1,8 +1,9 @@
 import { defineStore } from "pinia";
 import { LayoutData, LayoutItemData } from "@shared/types";
-import { computed, ref } from "vue";
+import { computed, ref, toRaw } from "vue";
 import { useManualRefHistory } from "@vueuse/core";
 import { nanoid } from "nanoid/non-secure";
+import { toRawDeep } from "./utils/toRawDeep";
 
 const defaultLayout: LayoutData = {
   id: nanoid(),
@@ -39,44 +40,45 @@ export const useStore = defineStore("store", () => {
   const updateLayout = async (layout: LayoutData) => {
     layouts.value[activeLayoutIndex.value] = layout;
     commit();
-    saveLayout();
+    saveLayout(layout.id);
   };
 
   const deleteLayout = async (index: number) => {
-    layouts.value.splice(index, 1);
-    commit();
-    saveLayout();
+    await window.ipc.invoke("layout:delete", toRaw(layouts.value[index].id));
+    init();
   };
 
-  const saveLayout = async () => {
-    await window.ipc.invoke(
-      "layout:save",
-      JSON.parse(JSON.stringify(activeLayout.value))
+  const saveLayout = async (layoutId: string) => {
+    const targetLayout = layouts.value.find((layout) => layout.id === layoutId);
+    if (!targetLayout) return;
+    await window.ipc.invoke("layout:save", toRawDeep(targetLayout));
+  };
+
+  const addItem = async (layoutId: string, key: LayoutItemData) => {
+    const targetLayout = layouts.value.find((layout) => layout.id === layoutId);
+    if (!targetLayout) return;
+    targetLayout.keys.push(key);
+    commit();
+    saveLayout(targetLayout.id);
+  };
+
+  const updateItem = async (layoutId: string, key: LayoutItemData) => {
+    const targetLayout = layouts.value.find((layout) => layout.id === layoutId);
+    if (!targetLayout) return;
+    const index = targetLayout.keys.findIndex((k) => k.id === key.id);
+    targetLayout.keys.splice(index, 1, key);
+    commit();
+    saveLayout(targetLayout.id);
+  };
+
+  const removeItems = async (layoutId: string, keyIndexes: number[]) => {
+    const targetLayout = layouts.value.find((layout) => layout.id === layoutId);
+    if (!targetLayout) return;
+    targetLayout.keys = activeLayout.value.keys.filter(
+      (_, index) => !keyIndexes.includes(index)
     );
-  };
-
-  const addItem = async (key: LayoutItemData) => {
-    layouts.value[activeLayoutIndex.value].keys.push(key);
     commit();
-    saveLayout();
-  };
-
-  const updateItem = async (key: LayoutItemData) => {
-    const index = activeLayout.value.keys.findIndex((k) => k.id === key.id);
-    layouts.value[activeLayoutIndex.value].keys[index] = key;
-    commit();
-    saveLayout();
-    console.log("updateKey", history.value);
-  };
-
-  const removeItems = async (keyIndexes: number[]) => {
-    layouts.value[activeLayoutIndex.value].keys =
-      activeLayout.value.keys.filter((_, index) => !keyIndexes.includes(index));
-    // await window.ipc.invoke("set:config", {
-    //   keys: state.value.keys
-    // });
-    commit();
-    saveLayout();
+    saveLayout(targetLayout.id);
   };
 
   const { history, undo, redo, commit } = useManualRefHistory(layouts, {
