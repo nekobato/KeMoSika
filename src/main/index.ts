@@ -9,23 +9,25 @@ import {
   protocol,
   net
 } from "electron";
-import path, { join } from "node:path";
+import path from "node:path";
 import { uIOhook } from "uiohook-napi";
-import * as statics from "./static";
 import * as store from "./store";
 import { initSentry } from "./utils/sentry";
 import { deleteImage, imagePath, saveImage } from "./utils/image";
 import { nanoid } from "nanoid/non-secure";
+import { createEditorWindow } from "./windows/EditorWIndow";
+import { createVisualizerWindow } from "./windows/VisualizerWindow";
 
 initSentry();
 
 // 残像防止
 app.disableHardwareAcceleration();
 
-let win: BrowserWindow | null;
+let editorWindow: BrowserWindow | null;
+let visualizerWindow: BrowserWindow | null;
 
 uIOhook.on("input", (event) => {
-  win?.webContents.send("input", event);
+  editorWindow?.webContents.send("input", event);
 });
 
 function setMenu() {
@@ -34,20 +36,13 @@ function setMenu() {
       label: "KeMoSika",
       submenu: [
         {
-          label: "Config",
-          click: () => {
-            // openConfig();
-          }
+          role: "about"
         },
         {
           type: "separator"
         },
         {
-          label: "Quit",
-          accelerator: "Command+Q",
-          click: () => {
-            app.quit();
-          }
+          role: "quit"
         }
       ]
     },
@@ -58,45 +53,6 @@ function setMenu() {
   ];
 
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
-}
-
-function createWindow() {
-  win = new BrowserWindow({
-    icon: path.join(statics.resourcesRoot, "icon.png"),
-    webPreferences: {
-      preload: statics.preload,
-      sandbox: false
-    },
-    width: 800,
-    height: 600,
-    frame: true,
-    transparent: false,
-    show: true,
-    titleBarStyle: "hidden",
-    titleBarOverlay: true,
-    trafficLightPosition: { x: 12, y: 12 }
-  });
-
-  win.webContents.on("did-finish-load", () => {
-    win?.webContents.send("main-process-message", new Date().toLocaleString());
-  });
-
-  console.log("server", statics.serverUrl);
-  if (statics.serverUrl) {
-    win.loadURL(statics.pageRoot);
-  } else {
-    win.loadFile(statics.pageRoot);
-  }
-
-  if (process.env.NODE_ENV === "development") {
-    win.loadURL(statics.pageRoot);
-  } else {
-    win.loadFile(join(statics.pageRoot));
-  }
-
-  if (statics.serverUrl) {
-    win.webContents.openDevTools();
-  }
 }
 
 protocol.registerSchemesAsPrivileged([
@@ -113,13 +69,13 @@ protocol.registerSchemesAsPrivileged([
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     app.quit();
-    win = null;
+    editorWindow = null;
   }
 });
 
 app.on("activate", () => {
   if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
+    editorWindow = createEditorWindow();
   }
 });
 
@@ -131,7 +87,10 @@ app.on("will-quit", () => {
 app
   .whenReady()
   .then(setMenu)
-  .then(createWindow)
+  .then(() => {
+    editorWindow = createEditorWindow();
+    visualizerWindow = createVisualizerWindow();
+  })
   .then(() => {
     ipcMain.handle("uiohook:start", async () => {
       uIOhook.start();
@@ -186,6 +145,28 @@ app
       return store.getStore().images.map((image) => {
         return { ...image, path: path.join(imagePath, image.fileName) };
       });
+    });
+
+    ipcMain.handle(
+      "visualizer:start",
+      async (
+        _,
+        options: {
+          layoutId: string;
+          size: { width: number; height: number };
+        }
+      ) => {
+        visualizerWindow?.setSize(options.size.width, options.size.height);
+        visualizerWindow?.show();
+        console.log("visualizer:start", options);
+        visualizerWindow?.webContents.send("visualizer:start", options);
+      }
+    );
+
+    ipcMain.handle("visualizer:close", async () => {
+      visualizerWindow?.webContents.send("visualizer:close");
+      visualizerWindow?.hide();
+      visualizerWindow?.setSize(0, 0);
     });
 
     protocol.handle("media", (req) => {

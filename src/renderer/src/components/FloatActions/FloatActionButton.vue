@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { defineProps } from "vue";
 const props = defineProps<{
   label?: string;
 }>();
@@ -13,7 +12,6 @@ const props = defineProps<{
 
 <style lang="scss" scoped>
 .nn-button {
-  width: 50%;
   border-radius: 0;
   cursor: pointer;
   &:hover {

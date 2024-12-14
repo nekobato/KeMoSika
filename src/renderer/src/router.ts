@@ -17,9 +17,14 @@ const routes = [
     component: () => import("./pages/image.vue")
   },
   {
+    path: "/visualizer/",
+    name: "VisualizerHome",
+    component: () => import("./pages/visualizer-home.vue")
+  },
+  {
     path: "/visualizer/:layoutId",
-    name: "Visualizer",
-    component: () => import("./pages/visualizer.vue")
+    name: "VisualizerId",
+    component: () => import("./pages/visualizer-id.vue")
   }
 ];
 

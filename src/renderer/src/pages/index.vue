@@ -51,9 +51,13 @@ const gotoEdit = () => {
 };
 
 const gotoVisualizer = () => {
-  router.push(
-    `/visualizer/${store.$state.layouts[selectedLayoutIndex.value].id}`
-  );
+  window.ipc.invoke("visualizer:start", {
+    layoutId: store.$state.layouts[selectedLayoutIndex.value].id,
+    size: {
+      width: selectedLayout.value?.width,
+      height: selectedLayout.value?.height
+    }
+  });
 };
 </script>
 
@@ -78,15 +82,15 @@ const gotoVisualizer = () => {
           <Mouse v-for="mouse in mouses" :data="mouse" />
         </div>
       </main>
-      <FloatActions>
-        <FloatActionButton label="編集" @click="gotoEdit">
+      <FloatActions class="float-actions">
+        <FloatActionButton @click="gotoEdit">
           <template #icon>
             <Icon icon="mingcute:edit-4-line" class="nn-icon size-xsmall" />
           </template>
         </FloatActionButton>
-        <FloatActionButton label="可視化" @click="gotoVisualizer">
+        <FloatActionButton class="type-primary" @click="gotoVisualizer">
           <template #icon>
-            <Icon icon="mingcute:play-line" class="nn-icon size-xsmall" />
+            <Icon icon="mingcute:play-fill" class="nn-icon size-xsmall" />
           </template>
         </FloatActionButton>
       </FloatActions>
@@ -116,11 +120,9 @@ const gotoVisualizer = () => {
               <Icon icon="mingcute:delete-2-line" class="nn-icon size-xsmall" />
             </button>
           </label>
-        </div>
-        <div class="bottom-actions">
-          <button class="nn-button">
+          <button class="nn-button" @click="addLayout">
             <Icon icon="mingcute:file-new-line" class="nn-icon size-xsmall" />
-            <span>新しいレイアウト</span>
+            <span>新規作成</span>
           </button>
         </div>
         <ElDivider />
@@ -191,7 +193,7 @@ const gotoVisualizer = () => {
     border-radius: 8px;
 
     &:hover {
-      background-color: var(--color-white-t1);
+      background-color: var(--color-white-t50);
 
       .delete-button {
         visibility: visible;
@@ -217,6 +219,10 @@ const gotoVisualizer = () => {
       visibility: hidden;
     }
   }
+
+  .nn-button {
+    margin-top: 8px;
+  }
 }
 
 .radio {
@@ -238,7 +244,7 @@ const gotoVisualizer = () => {
   background: transparent;
   font-weight: bold;
   &:hover {
-    background-color: var(--color-white-t1);
+    background-color: var(--color-white-t50);
   }
 
   svg {
@@ -287,6 +293,12 @@ const gotoVisualizer = () => {
     padding: 0;
     min-height: auto;
     -webkit-app-region: no-drag;
+  }
+}
+
+.float-actions {
+  .type-primary {
+    width: 80px;
   }
 }
 </style>

@@ -9,13 +9,12 @@ import { keyCodeMap } from "@/utils/key";
 import { computed, ref } from "vue";
 import { useStore } from "../store";
 import KeyboardButton from "../components/KeyboardButton.vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 import { onMounted } from "vue";
 import { KeyboardKeyData, LayoutData, MouseData } from "@shared/types";
 import { onBeforeUnmount } from "vue";
 import Mouse from "../components/Mouse.vue";
 
-const router = useRouter();
 const route = useRoute();
 const store = useStore();
 
@@ -87,10 +86,6 @@ window.ipc.on(
   }
 );
 
-const back = () => {
-  router.back();
-};
-
 onMounted(async () => {
   await window.ipc.invoke("uiohook:start");
 });
@@ -108,7 +103,6 @@ onBeforeUnmount(async () => {
       :is-down="isDown(keyData.codeMap)"
     />
     <Mouse v-for="mouse in mouses" :data="mouse" :states="mouseStates" />
-    <button @click="back" class="button type-back">BACK</button>
   </div>
 </template>
 
@@ -120,7 +114,6 @@ onBeforeUnmount(async () => {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #272b2c;
 }
 .button {
   &.type-back {

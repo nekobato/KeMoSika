@@ -24,19 +24,19 @@ button {
   text-align: center;
   text-decoration: none;
   word-break: break-word;
-  background: rgba(255, 255, 255, 0);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
+  border: 1px solid var(--color-white-t100);
   border-radius: 4px;
   cursor: pointer;
   transition-property: background-color, border-color, color, fill;
 
   &:hover,
   &:focus {
-    filter: brightness(1.1);
+    background-color: var(--color-white-t50);
   }
 
   &:active {
-    filter: brightness(0.9);
+    background-color: var(--color-white-t100);
   }
 
   &:disabled {
