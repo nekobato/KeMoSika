@@ -54,7 +54,6 @@ const isDown = (codes: string[]) => {
 window.ipc.on(
   "input",
   (_, e: UiohookKeyboardEvent | UiohookMouseEvent | UiohookWheelEvent) => {
-    console.log(e);
     switch (e.type) {
       case InputEventType.EVENT_KEY_PRESSED:
         downKeys.value.push(keyCodeMap[e.keycode]);
@@ -114,6 +113,7 @@ onBeforeUnmount(async () => {
   display: flex;
   justify-content: center;
   align-items: center;
+  background-color: #00ff00;
 }
 .button {
   &.type-back {

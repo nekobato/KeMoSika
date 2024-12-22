@@ -87,6 +87,19 @@ const onChangeInput = (key: string, value: any) => {
         >
       </div>
 
+      <EP.ElInputNumber
+        class="input-bounds"
+        size="small"
+        v-model="keyData.x"
+        :min="0"
+        :max="999999"
+        :step="1"
+        :controls="false"
+        @change="onChangeInput('x', $event)"
+      >
+        <template #prepend>X</template>
+      </EP.ElInputNumber>
+
       <EP.ElRow>
         <EP.ElCol :span="12">
           <EP.ElFormItem label="X">

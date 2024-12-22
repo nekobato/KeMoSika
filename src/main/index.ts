@@ -15,8 +15,8 @@ import * as store from "./store";
 import { initSentry } from "./utils/sentry";
 import { deleteImage, imagePath, saveImage } from "./utils/image";
 import { nanoid } from "nanoid/non-secure";
-import { createEditorWindow } from "./windows/EditorWIndow";
-import { createVisualizerWindow } from "./windows/VisualizerWindow";
+import { createEditorWindow } from "./windows/editor-wIndow";
+import { createVisualizerWindow } from "./windows/visualizer-window";
 
 initSentry();
 
@@ -27,7 +27,7 @@ let editorWindow: BrowserWindow | null;
 let visualizerWindow: BrowserWindow | null;
 
 uIOhook.on("input", (event) => {
-  editorWindow?.webContents.send("input", event);
+  visualizerWindow?.webContents.send("input", event);
 });
 
 function setMenu() {
@@ -69,7 +69,6 @@ protocol.registerSchemesAsPrivileged([
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     app.quit();
-    editorWindow = null;
   }
 });
 
@@ -79,9 +78,13 @@ app.on("activate", () => {
   }
 });
 
-app.on("will-quit", () => {
+app.on("before-quit", () => {
   uIOhook.stop();
   globalShortcut.unregisterAll();
+  editorWindow?.removeAllListeners();
+  visualizerWindow.removeAllListeners();
+  editorWindow = null;
+  visualizerWindow = null;
 });
 
 app
@@ -90,6 +93,11 @@ app
   .then(() => {
     editorWindow = createEditorWindow();
     visualizerWindow = createVisualizerWindow();
+
+    visualizerWindow?.on("hide", () => {
+      console.log("visualizer:hide");
+      uIOhook.stop();
+    });
   })
   .then(() => {
     ipcMain.handle("uiohook:start", async () => {

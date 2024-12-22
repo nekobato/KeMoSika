@@ -9,17 +9,24 @@ export const createVisualizerWindow = () => {
     icon: path.join(statics.resourcesRoot, "icon.png"),
     webPreferences: {
       preload: statics.preload,
-      sandbox: false
+      sandbox: false,
+      devTools: statics.isDevelopment
     },
     width: 800,
     height: 600,
-    frame: false,
-    transparent: true,
+    frame: true,
+    transparent: false,
     show: false
   });
 
   win.webContents.on("did-finish-load", () => {
     win?.webContents.send("main-process-message", new Date().toLocaleString());
+  });
+
+  win.on("close", (e) => {
+    e.preventDefault();
+    win.hide();
+    win.setSize(0, 0);
   });
 
   if (statics.isDevelopment) {
