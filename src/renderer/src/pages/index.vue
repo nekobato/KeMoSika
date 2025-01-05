@@ -129,7 +129,7 @@ const gotoVisualizer = () => {
         <div class="layout-list">
           <label
             class="list-item"
-            v-for="(layout, index) in store.$state.layouts"
+            v-for="(layout, index) in [] as any"
             :class="{
               selected: selectedLayoutIndex === index
             }"

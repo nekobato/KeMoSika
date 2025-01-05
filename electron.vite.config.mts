@@ -28,6 +28,13 @@ export default defineConfig({
         "@": resolve(__dirname, "./src/renderer/src"),
         "@shared": resolve(__dirname, "./src/shared")
       }
+    },
+    css: {
+      preprocessorOptions: {
+        scss: {
+          api: "modern-compiler"
+        }
+      }
     }
   }
 });
