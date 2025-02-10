@@ -60,6 +60,10 @@ const onChangeInput = (key: string, value: any) => {
       break;
   }
 };
+
+const selectImage = (type: "active" | "inactive") => {
+  emit("openImageDialog", type);
+};
 </script>
 
 <template>
@@ -86,20 +90,6 @@ const onChangeInput = (key: string, value: any) => {
           <Icon class="icon" icon="mingcute:add-line" />Add</EP.ElButton
         >
       </div>
-
-      <EP.ElInputNumber
-        class="input-bounds"
-        size="small"
-        v-model="keyData.x"
-        :min="0"
-        :max="999999"
-        :step="1"
-        :controls="false"
-        @change="onChangeInput('x', $event)"
-      >
-        <template #prepend>X</template>
-      </EP.ElInputNumber>
-
       <EP.ElRow>
         <EP.ElCol :span="12">
           <EP.ElFormItem label="X">
@@ -184,7 +174,7 @@ const onChangeInput = (key: string, value: any) => {
         <EP.ElCheckbox v-model="keyData.text.isVisible" label="Text" border />
       </EP.ElRow>
       <div v-if="keyData.text?.isVisible">
-        <EP.ElFormItem label="Character">
+        <EP.ElFormItem label="Text">
           <EP.ElInput
             class="input-key"
             size="small"
@@ -251,15 +241,18 @@ const onChangeInput = (key: string, value: any) => {
         </EP.ElRow>
       </div>
       <EP.ElDivider />
-      <EP.ElRow>
-        <EP.ElText>Image</EP.ElText>
-      </EP.ElRow>
       <EP.ElRow class="row image-upload" :gutter="8">
         <EP.ElCol :span="12">
-          <img src="/src/assets/images/key_active.png" />
+          <img
+            src="/src/assets/images/key_inactive.png"
+            @click="selectImage('inactive')"
+          />
         </EP.ElCol>
         <EP.ElCol :span="12">
-          <img src="/src/assets/images/key_active.png" />
+          <img
+            src="/src/assets/images/key_active.png"
+            @click="selectImage('active')"
+          />
         </EP.ElCol>
       </EP.ElRow>
     </EP.ElForm>
@@ -289,6 +282,7 @@ const onChangeInput = (key: string, value: any) => {
   }
 }
 .input-bounds {
+  flex: 0 0 auto;
   width: 64px;
 }
 .keymap {

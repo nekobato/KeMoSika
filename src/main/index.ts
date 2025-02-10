@@ -18,6 +18,8 @@ import { nanoid } from "nanoid/non-secure";
 import { createEditorWindow } from "./windows/editor-wIndow";
 import { createVisualizerWindow } from "./windows/visualizer-window";
 
+export const userDataPath = app.getPath("userData");
+
 initSentry();
 
 // 残像防止
@@ -177,8 +179,9 @@ app
       visualizerWindow?.setSize(0, 0);
     });
 
+    // media://xxxx.png
     protocol.handle("media", (req) => {
-      const pathToMedia = new URL(req.url).pathname;
-      return net.fetch(`file://${pathToMedia}`);
+      const mediaPath = req.url.replace("media://", "");
+      return net.fetch(`file://${userDataPath}/${mediaPath}`);
     });
   });

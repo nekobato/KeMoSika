@@ -9,6 +9,7 @@
     <div class="aside">
       <slot name="aside" class="aside" />
     </div>
+    <slot name="dialog" class="dialog" />
   </div>
 </template>
 <style lang="scss" scoped>

@@ -3,14 +3,12 @@ import path from "path";
 import fs from "fs";
 
 export const userDataPath = app.getPath("userData");
-console.log("userDataPath", userDataPath);
 export const imagePath = path.join(userDataPath, "images");
 
 if (!fs.existsSync(imagePath)) {
   fs.mkdirSync(imagePath);
   // copy default images to imagePath
   const defaultImagePath = path.resolve("../../resoures/images");
-  console.log("defaultImagePath", defaultImagePath);
   const files = fs.readdirSync(defaultImagePath);
   files.forEach((file) => {
     fs.copyFileSync(

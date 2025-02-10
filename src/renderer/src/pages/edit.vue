@@ -21,6 +21,8 @@ import { Icon } from "@iconify/vue";
 import { useRoute } from "vue-router";
 import FloatActions from "@/components/FloatActions/FloatActions.vue";
 import FloatActionButton from "@/components/FloatActions/FloatActionButton.vue";
+import { ElDialog } from "element-plus";
+import ImageList from "@/components/pages/config/ImageList.vue";
 
 const route = useRoute();
 const store = useStore();
@@ -28,6 +30,11 @@ const activeKeyIndexes = ref<number[]>([]);
 const previewRef = ref<HTMLDivElement>();
 const moveableRef = ref<Moveable>();
 const selectoRef = ref<Selecto>();
+const showImageDialog = ref(false);
+const imageSelectTargetItem = ref<{
+  item: LayoutItemData;
+  type: "active" | "inactive";
+}>();
 
 const layout = computed<LayoutData | undefined>(() =>
   store.$state.layouts.find((layout) => layout.id === route.params.layoutId)
@@ -284,6 +291,10 @@ const onKeyDown = (e: KeyboardEvent) => {
   }
 };
 
+const openImageDialog = () => {
+  showImageDialog.value = true;
+};
+
 watch(itemsCount, async () => {
   nextTick(() => {
     moveableRef.value?.updateSelectors();
@@ -390,6 +401,7 @@ onUnmounted(() => {
           :keyData="selectedKeyHead"
           @change="onChangeInput"
           @keydown.stop
+          @open-image-dialog="openImageDialog"
         />
         <MouseConfig
           v-if="selectedMouseHead"
@@ -404,6 +416,21 @@ onUnmounted(() => {
           @keydown.stop
         />
       </aside>
+    </template>
+    <template #dialog>
+      <ElDialog
+        v-model="showImageDialog"
+        title="Select Image"
+        :close-on-click-modal="false"
+        :close-on-press-escape="false"
+      >
+        <ImageList
+          @change="onChangeInput"
+          :item="imageSelectTargetItem?.item"
+          :type="imageSelectTargetItem?.type"
+          :images="store.$state.images"
+        />
+      </ElDialog>
     </template>
   </ConfigLayout>
 </template>

@@ -1,15 +1,13 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { LayoutItemImage } from "@shared/types";
-
-type ImageData = LayoutItemImage & {
-  path: string;
-};
+import { LayoutItemData, LayoutItemImage } from "@shared/types";
 
 const props = defineProps<{
-  selectedIndex: number;
-  images: ImageData[];
+  images: LayoutItemImage[];
+  item?: LayoutItemData;
+  type?: "active" | "inactive";
 }>();
+
 const emit = defineEmits(["change", "update"]);
 
 const isDragOver = ref(false);
@@ -58,7 +56,7 @@ const selectImage = (index: number) => {
       :key="image.id"
       @click="selectImage(index)"
     >
-      <img class="image" :src="`media://${image.path}`" />
+      <img class="image" :src="`media://images/${image.fileName}`" />
     </div>
   </div>
 </template>

@@ -9,8 +9,8 @@ export const createVisualizerWindow = () => {
     icon: path.join(statics.resourcesRoot, "icon.png"),
     webPreferences: {
       preload: statics.preload,
-      sandbox: false,
-      devTools: statics.isDevelopment
+      sandbox: false
+      // devTools: statics.isDevelopment
     },
     width: 800,
     height: 600,

@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { LayoutData, LayoutItemData } from "@shared/types";
+import { LayoutData, LayoutItemData, LayoutItemImage } from "@shared/types";
 import { computed, ref, toRaw } from "vue";
 import { useManualRefHistory } from "@vueuse/core";
 import { nanoid } from "nanoid/non-secure";
@@ -21,14 +21,17 @@ export const useStore = defineStore("store", () => {
   // $state
   const activeLayoutIndex = ref<number>(0);
   const layouts = ref<LayoutData[]>([]);
-  const imaages = ref<string[]>([]);
+  const images = ref<LayoutItemImage[]>([]);
 
   const activeLayout = computed(() => {
     return layouts.value[activeLayoutIndex.value];
   });
 
   const init = async () => {
-    layouts.value = await window.ipc.invoke("layout:get-all");
+    const config = await window.ipc.invoke("config:get");
+    layouts.value = config.layouts;
+    images.value = config.images;
+
     commit();
   };
 
@@ -93,6 +96,7 @@ export const useStore = defineStore("store", () => {
   return {
     layouts,
     activeLayoutIndex,
+    images,
     undo,
     redo,
     commitHistory: commit,
