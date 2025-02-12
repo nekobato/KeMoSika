@@ -4,6 +4,7 @@ import * as EP from "element-plus";
 import { Icon } from "@iconify/vue";
 import KeyboardKeyImageInput from "./KeyboardKeyImageInput.vue";
 import { imageType, MouseData } from "@shared/types";
+import { InputImageType } from "@/types/app";
 
 const props = defineProps({
   mouseData: {
@@ -46,7 +47,7 @@ const onChangeInput = (key: string, value: any) => {
 };
 
 const onChangeImage = async (
-  status: "keyDefault" | "keyActive",
+  status: InputImageType,
   file: { path: string; name: string }
 ) => {
   const imageFileName = await window.ipc.invoke("image:save", {

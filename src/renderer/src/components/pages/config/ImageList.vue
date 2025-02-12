@@ -1,14 +1,25 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { LayoutItemData, LayoutItemImage } from "@shared/types";
+import { InputImageType } from "@/types/app";
 
 const props = defineProps<{
   images: LayoutItemImage[];
   item?: LayoutItemData;
-  type?: "active" | "inactive";
+  type?: InputImageType;
 }>();
 
-const emit = defineEmits(["change", "update"]);
+const emit = defineEmits<{
+  (
+    e: "select",
+    payload: {
+      itemId: string;
+      type: InputImageType;
+      imageId: string;
+    }
+  ): void;
+  (e: "update"): void;
+}>();
 
 const isDragOver = ref(false);
 
@@ -38,7 +49,14 @@ const onDragLeave = (_: DragEvent) => {
 };
 
 const selectImage = (index: number) => {
-  emit("change", index);
+  console.log("selectImage", index, props.item, props.type);
+  if (!props.item || !props.type) return;
+
+  emit("select", {
+    itemId: props.item.id,
+    type: props.type,
+    imageId: props.images[index].id
+  });
 };
 </script>
 
@@ -54,9 +72,12 @@ const selectImage = (index: number) => {
       class="image-list-item"
       v-for="(image, index) in props.images"
       :key="image.id"
-      @click="selectImage(index)"
     >
-      <img class="image" :src="`media://images/${image.fileName}`" />
+      <img
+        class="image"
+        :src="`media://images/${image.fileName}`"
+        @click="selectImage(index)"
+      />
     </div>
   </div>
 </template>
@@ -81,6 +102,11 @@ const selectImage = (index: number) => {
     height: 160px;
     padding: 8px;
     border: 1px solid #333;
+    cursor: pointer;
+
+    &:hover {
+      border: 1px solid #fff;
+    }
     .image {
       width: 100%;
       height: 100%;

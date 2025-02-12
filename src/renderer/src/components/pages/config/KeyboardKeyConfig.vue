@@ -4,6 +4,7 @@ import * as EP from "element-plus";
 import { Icon } from "@iconify/vue";
 import { keyboardEventToElectronAccelerator } from "@/utils/key";
 import { KeyboardKeyData } from "@shared/types";
+import { InputImageType } from "@/types/app";
 
 const props = defineProps({
   keyData: {
@@ -61,7 +62,7 @@ const onChangeInput = (key: string, value: any) => {
   }
 };
 
-const selectImage = (type: "active" | "inactive") => {
+const selectImage = (type: InputImageType) => {
   emit("openImageDialog", type);
 };
 </script>
@@ -244,14 +245,30 @@ const selectImage = (type: "active" | "inactive") => {
       <EP.ElRow class="row image-upload" :gutter="8">
         <EP.ElCol :span="12">
           <img
-            src="/src/assets/images/key_inactive.png"
-            @click="selectImage('inactive')"
+            class="key-image"
+            v-if="keyData.images.keyDefault"
+            :src="`media://images/${keyData.images.keyDefault}.png`"
+            @click="selectImage('keyDefault')"
+          />
+          <img
+            class="key-image"
+            v-else
+            src="/src/assets/images/key_default.png"
+            @click="selectImage('keyDefault')"
           />
         </EP.ElCol>
         <EP.ElCol :span="12">
           <img
+            class="key-image"
+            v-if="keyData.images.keyActive"
+            :src="`media://images/${keyData.images.keyActive}.png`"
+            @click="selectImage('keyActive')"
+          />
+          <img
+            class="key-image"
+            v-else
             src="/src/assets/images/key_active.png"
-            @click="selectImage('active')"
+            @click="selectImage('keyActive')"
           />
         </EP.ElCol>
       </EP.ElRow>
@@ -311,6 +328,16 @@ const selectImage = (type: "active" | "inactive") => {
       width: 20px;
       height: 20px;
     }
+  }
+}
+.key-image {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  cursor: pointer;
+
+  &:hover {
+    border: 1px solid #409eff;
   }
 }
 </style>

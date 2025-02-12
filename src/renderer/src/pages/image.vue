@@ -33,7 +33,6 @@ const onDragLeave = (_: DragEvent) => {
 
 onMounted(async () => {
   images.value = await window.ipc.invoke("image:list");
-  console.log(images);
 });
 </script>
 

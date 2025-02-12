@@ -93,6 +93,10 @@ export const useStore = defineStore("store", () => {
     activeLayoutIndex.value = index;
   };
 
+  const getImages = async () => {
+    images.value = await window.ipc.invoke("image:list");
+  };
+
   return {
     layouts,
     activeLayoutIndex,
@@ -110,6 +114,7 @@ export const useStore = defineStore("store", () => {
     addItem,
     updateItem,
     removeItems,
-    changeActiveLayout
+    changeActiveLayout,
+    getImages
   };
 });

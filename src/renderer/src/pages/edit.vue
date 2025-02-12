@@ -23,18 +23,16 @@ import FloatActions from "@/components/FloatActions/FloatActions.vue";
 import FloatActionButton from "@/components/FloatActions/FloatActionButton.vue";
 import { ElDialog } from "element-plus";
 import ImageList from "@/components/pages/config/ImageList.vue";
+import { InputImageType } from "@/types/app";
 
 const route = useRoute();
 const store = useStore();
 const activeKeyIndexes = ref<number[]>([]);
+const activeKeyImageType = ref<InputImageType>();
 const previewRef = ref<HTMLDivElement>();
 const moveableRef = ref<Moveable>();
 const selectoRef = ref<Selecto>();
 const showImageDialog = ref(false);
-const imageSelectTargetItem = ref<{
-  item: LayoutItemData;
-  type: "active" | "inactive";
-}>();
 
 const layout = computed<LayoutData | undefined>(() =>
   store.$state.layouts.find((layout) => layout.id === route.params.layoutId)
@@ -136,6 +134,16 @@ const selectedMouseHead = computed(() => {
   return selectedItemHead.value?.type === "mouse"
     ? (selectedItemHead.value as MouseData)
     : undefined;
+});
+
+const imageSelectTargetItem = computed(() => {
+  if (selectedItemHead.value && activeKeyImageType.value) {
+    return {
+      item: selectedItemHead.value,
+      type: activeKeyImageType.value
+    };
+  }
+  return undefined;
 });
 
 const onClickGroup = (e: any) => {
@@ -291,8 +299,31 @@ const onKeyDown = (e: KeyboardEvent) => {
   }
 };
 
-const openImageDialog = () => {
+const openImageDialog = (type: InputImageType) => {
   showImageDialog.value = true;
+  activeKeyImageType.value = type;
+};
+
+const onSelectImage = async ({
+  itemId,
+  type,
+  imageId
+}: {
+  itemId: string;
+  type: InputImageType;
+  imageId: string;
+}) => {
+  console.log(itemId, type, imageId);
+  const item = items.value?.find((item) => item.id === itemId);
+  if (item) {
+    item.images[type] = imageId;
+    await store.updateItem(layout.value?.id || "", item);
+  }
+  showImageDialog.value = false;
+};
+
+const onUpdateImages = async () => {
+  await store.getImages();
 };
 
 watch(itemsCount, async () => {
@@ -419,13 +450,15 @@ onUnmounted(() => {
     </template>
     <template #dialog>
       <ElDialog
+        width="calc(100% - 48px)"
         v-model="showImageDialog"
         title="Select Image"
         :close-on-click-modal="false"
         :close-on-press-escape="false"
       >
         <ImageList
-          @change="onChangeInput"
+          @select="onSelectImage"
+          @update="onUpdateImages"
           :item="imageSelectTargetItem?.item"
           :type="imageSelectTargetItem?.type"
           :images="store.$state.images"
