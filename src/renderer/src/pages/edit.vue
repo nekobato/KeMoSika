@@ -83,12 +83,7 @@ const addKey = () => {
     images: {
       keyDefault: "",
       keyActive: "",
-      mouseDefault: "",
-      mouseLeftClick: "",
-      mouseMiddleClick: "",
-      mouseRightClick: "",
-      mouseScrollUp: "",
-      mouseScrollDown: ""
+      keyLocked: ""
     }
   });
 };
@@ -106,8 +101,6 @@ const addMouse = () => {
     height: 48,
     rotation: 0,
     images: {
-      keyDefault: "",
-      keyActive: "",
       mouseDefault: "",
       mouseLeftClick: "",
       mouseMiddleClick: "",
@@ -316,7 +309,17 @@ const onSelectImage = async ({
   console.log(itemId, type, imageId);
   const item = items.value?.find((item) => item.id === itemId);
   if (item) {
-    item.images[type] = imageId;
+    if (item.type === "key") {
+      const keyItem = item as KeyboardKeyData;
+      if (type === "keyDefault" || type === "keyActive") {
+        keyItem.images[type] = imageId;
+      }
+    } else if (item.type === "mouse") {
+      const mouseItem = item as MouseData;
+      if (type !== "keyDefault" && type !== "keyActive") {
+        mouseItem.images[type as keyof typeof mouseItem.images] = imageId;
+      }
+    }
     await store.updateItem(layout.value?.id || "", item);
   }
   showImageDialog.value = false;
@@ -439,6 +442,7 @@ onUnmounted(() => {
           :mouseData="selectedMouseHead"
           @change="onChangeInput"
           @keydown.stop
+          @open-image-dialog="openImageDialog"
         />
         <LayoutConfig
           v-if="activeKeyIndexes.length === 0"

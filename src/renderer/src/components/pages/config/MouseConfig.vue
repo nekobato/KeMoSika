@@ -2,9 +2,8 @@
 import { PropType } from "vue";
 import * as EP from "element-plus";
 import { Icon } from "@iconify/vue";
-import KeyboardKeyImageInput from "./KeyboardKeyImageInput.vue";
-import { imageType, MouseData } from "@shared/types";
-import { InputImageType } from "@/types/app";
+import { MouseData } from "@shared/types";
+import { MouseImageType } from "@/types/app";
 
 const props = defineProps({
   mouseData: {
@@ -27,14 +26,12 @@ const onChangeInput = (key: string, value: any) => {
         [key]: value
       });
       break;
-    case "image.keyDefault":
-    case "image.keyActive":
-    case "image.mouseDefault":
-    case "image.mouseLeftClick":
-    case "image.mouseMiddleClick":
-    case "image.mouseRightClick":
-    case "image.mouseScrollUp":
-    case "image.mouseScrollDown":
+    case "images.mouseDefault":
+    case "images.mouseLeftClick":
+    case "images.mouseMiddleClick":
+    case "images.mouseRightClick":
+    case "images.mouseScrollUp":
+    case "images.mouseScrollDown":
       emit("change", {
         ...props.mouseData,
         images: {
@@ -46,30 +43,8 @@ const onChangeInput = (key: string, value: any) => {
   }
 };
 
-const onChangeImage = async (
-  status: InputImageType,
-  file: { path: string; name: string }
-) => {
-  const imageFileName = await window.ipc.invoke("image:save", {
-    id: props.mouseData.id,
-    imagePath: file.path
-  });
-
-  console.log(imageFileName);
-
-  if (imageFileName) {
-    emit("change", {
-      ...props.mouseData,
-      images: {
-        ...props.mouseData.images,
-        [status]: imageFileName
-      }
-    });
-  }
-};
-
-const openImageDialog = async (id: string, status: imageType) => {
-  emit("openImageDialog", { id, status });
+const selectImage = (type: MouseImageType) => {
+  emit("openImageDialog", type);
 };
 </script>
 
@@ -161,28 +136,110 @@ const openImageDialog = async (id: string, status: imageType) => {
         </EP.ElCol>
       </EP.ElRow>
       <EP.ElDivider />
+      <EP.ElDivider />
       <EP.ElRow>
-        <EP.ElText>Image</EP.ElText>
+        <EP.ElText>マウス画像</EP.ElText>
       </EP.ElRow>
       <EP.ElRow class="row image-upload" :gutter="8">
         <EP.ElCol :span="12">
-          <EP.ElButton
-            type="primary"
-            size="small"
-            @click="openImageDialog(props.mouseData.id, 'keyDefault')"
+          <img
+            class="mouse-image"
+            v-if="mouseData.images.mouseDefault"
+            :src="`media://images/${mouseData.images.mouseDefault}.png`"
+            @click="selectImage('mouseDefault')"
           />
-          <KeyboardKeyImageInput
-            label="Default"
-            :value="mouseData.images.keyDefault"
-            @change="onChangeImage('keyDefault', $event)"
-          />
+          <div
+            class="mouse-image-placeholder"
+            v-else
+            @click="selectImage('mouseDefault')"
+          >
+            <Icon class="icon" icon="mingcute:add-line" />
+            <span>デフォルト</span>
+          </div>
         </EP.ElCol>
         <EP.ElCol :span="12">
-          <KeyboardKeyImageInput
-            label="Active"
-            :value="mouseData.images.keyActive"
-            @change="onChangeImage('keyActive', $event)"
+          <img
+            class="mouse-image"
+            v-if="mouseData.images.mouseLeftClick"
+            :src="`media://images/${mouseData.images.mouseLeftClick}.png`"
+            @click="selectImage('mouseLeftClick')"
           />
+          <div
+            class="mouse-image-placeholder"
+            v-else
+            @click="selectImage('mouseLeftClick')"
+          >
+            <Icon class="icon" icon="mingcute:add-line" />
+            <span>左クリック</span>
+          </div>
+        </EP.ElCol>
+      </EP.ElRow>
+      <EP.ElRow class="row image-upload" :gutter="8">
+        <EP.ElCol :span="12">
+          <img
+            class="mouse-image"
+            v-if="mouseData.images.mouseRightClick"
+            :src="`media://images/${mouseData.images.mouseRightClick}.png`"
+            @click="selectImage('mouseRightClick')"
+          />
+          <div
+            class="mouse-image-placeholder"
+            v-else
+            @click="selectImage('mouseRightClick')"
+          >
+            <Icon class="icon" icon="mingcute:add-line" />
+            <span>右クリック</span>
+          </div>
+        </EP.ElCol>
+        <EP.ElCol :span="12">
+          <img
+            class="mouse-image"
+            v-if="mouseData.images.mouseMiddleClick"
+            :src="`media://images/${mouseData.images.mouseMiddleClick}.png`"
+            @click="selectImage('mouseMiddleClick')"
+          />
+          <div
+            class="mouse-image-placeholder"
+            v-else
+            @click="selectImage('mouseMiddleClick')"
+          >
+            <Icon class="icon" icon="mingcute:add-line" />
+            <span>中クリック</span>
+          </div>
+        </EP.ElCol>
+      </EP.ElRow>
+      <EP.ElRow class="row image-upload" :gutter="8">
+        <EP.ElCol :span="12">
+          <img
+            class="mouse-image"
+            v-if="mouseData.images.mouseScrollUp"
+            :src="`media://images/${mouseData.images.mouseScrollUp}.png`"
+            @click="selectImage('mouseScrollUp')"
+          />
+          <div
+            class="mouse-image-placeholder"
+            v-else
+            @click="selectImage('mouseScrollUp')"
+          >
+            <Icon class="icon" icon="mingcute:add-line" />
+            <span>スクロールアップ</span>
+          </div>
+        </EP.ElCol>
+        <EP.ElCol :span="12">
+          <img
+            class="mouse-image"
+            v-if="mouseData.images.mouseScrollDown"
+            :src="`media://images/${mouseData.images.mouseScrollDown}.png`"
+            @click="selectImage('mouseScrollDown')"
+          />
+          <div
+            class="mouse-image-placeholder"
+            v-else
+            @click="selectImage('mouseScrollDown')"
+          >
+            <Icon class="icon" icon="mingcute:add-line" />
+            <span>スクロールダウン</span>
+          </div>
         </EP.ElCol>
       </EP.ElRow>
     </EP.ElForm>
@@ -223,6 +280,44 @@ const openImageDialog = async (id: string, status: imageType) => {
       width: 20px;
       height: 20px;
     }
+  }
+}
+.mouse-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  cursor: pointer;
+  border: 1px solid #333;
+  border-radius: 4px;
+
+  &:hover {
+    border: 1px solid #409eff;
+  }
+}
+.mouse-image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border: 1px dashed #4c4d4f;
+  border-radius: 4px;
+
+  &:hover {
+    border: 1px dashed #409eff;
+  }
+
+  .icon {
+    font-size: 24px;
+    color: #4c4d4f;
+  }
+
+  span {
+    margin-top: 4px;
+    font-size: 12px;
+    color: #4c4d4f;
   }
 }
 </style>

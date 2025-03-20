@@ -26,12 +26,51 @@ const buttonStyle = computed(() => {
     transform: `rotate(${props.data.rotation}deg)`
   };
 });
+
+const getMouseImage = () => {
+  // マウスの状態に応じた画像を返す
+  if (props.states && props.states.buttons && props.states.buttons.length > 0) {
+    // 左クリック
+    if (props.states.buttons.includes(1) && props.data.images.mouseLeftClick) {
+      return `media://images/${props.data.images.mouseLeftClick}.png`;
+    }
+    // 右クリック
+    if (props.states.buttons.includes(2) && props.data.images.mouseRightClick) {
+      return `media://images/${props.data.images.mouseRightClick}.png`;
+    }
+    // 中クリック
+    if (
+      props.states.buttons.includes(3) &&
+      props.data.images.mouseMiddleClick
+    ) {
+      return `media://images/${props.data.images.mouseMiddleClick}.png`;
+    }
+  }
+
+  // スクロール
+  if (props.states && props.states.type === 2) {
+    if (props.states.amount > 0 && props.data.images.mouseScrollUp) {
+      return `media://images/${props.data.images.mouseScrollUp}.png`;
+    }
+    if (props.states.amount < 0 && props.data.images.mouseScrollDown) {
+      return `media://images/${props.data.images.mouseScrollDown}.png`;
+    }
+  }
+
+  // デフォルト
+  if (props.data.images.mouseDefault) {
+    return `media://images/${props.data.images.mouseDefault}.png`;
+  }
+
+  return undefined;
+};
 </script>
 
 <template>
   <div class="mouse-container" :style="buttonStyle">
     <div class="mouse">
-      <div class="mouse-body"></div>
+      <img v-if="getMouseImage()" :src="getMouseImage()" class="mouse-image" />
+      <div v-else class="mouse-body"></div>
     </div>
     <div class="pointer-ring" :style="mouseMoveDegreeStyle">
       <div class="pointer"></div>
@@ -61,6 +100,12 @@ const buttonStyle = computed(() => {
   height: 80px;
   background: #888888;
   border-radius: 8px;
+}
+
+.mouse-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .pointer-ring {
