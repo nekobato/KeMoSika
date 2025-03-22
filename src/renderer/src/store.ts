@@ -58,6 +58,7 @@ export const useStore = defineStore("store", () => {
   };
 
   const addItem = async (layoutId: string, key: LayoutItemData) => {
+    console.log("addItem", key);
     const targetLayout = layouts.value.find((layout) => layout.id === layoutId);
     if (!targetLayout) return;
     targetLayout.keys.push(key);
