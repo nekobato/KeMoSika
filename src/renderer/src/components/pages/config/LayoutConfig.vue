@@ -80,7 +80,7 @@ const onChangeInput = (key: string, value: any) => {
   width: 100%;
 
   .name {
-    width: 222px;
+    width: 180px;
   }
 }
 .keymap-group {
@@ -99,7 +99,7 @@ const onChangeInput = (key: string, value: any) => {
   }
 }
 .input-bounds {
-  width: 100px;
+  width: 64px;
 }
 .formitem {
   &.rotation {

@@ -28,6 +28,7 @@
 }
 
 .main {
+  background-color: var(--color-grey-100);
   grid-row: 2;
   grid-column: 1;
   overflow: hidden;

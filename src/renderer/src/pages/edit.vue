@@ -143,6 +143,12 @@ const onClickGroup = (e: any) => {
   selectoRef.value?.clickTarget(e.inputEvent, e.inputTarget);
 };
 
+const onClickGround = (e: MouseEvent) => {
+  if (e.target === previewRef.value) {
+    activeKeyIndexes.value = [];
+  }
+};
+
 const onDrag = (e: any) => {
   const item = items.value?.find((item) => item.id === e.target.id);
   if (item) {
@@ -351,12 +357,13 @@ onUnmounted(() => {
       <Header />
     </template>
     <template #main>
-      <main>
+      <main @click="onClickGround">
         <div class="preview" ref="previewRef" v-if="layout">
           <div
             id="layout-area"
             class="container kmsk-dotted-background"
             :style="layoutStyle"
+            @click="onClickGround"
           >
             <KeyboardButton
               class="configurable"
@@ -483,6 +490,8 @@ main {
   padding: 80px;
   background-color: var(--color-grey-100);
   overflow: scroll;
+}
+.layout-area {
 }
 .button {
   position: fixed;
