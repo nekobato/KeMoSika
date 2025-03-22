@@ -32,7 +32,14 @@ const textStyle = computed(() => {
 </script>
 
 <template>
-  <button class="key" :class="{ down: props.isDown }" :style="buttonStyle">
+  <button
+    class="key"
+    :class="{
+      down: props.isDown,
+      'no-image': !props.keyData.images.keyDefault
+    }"
+    :style="buttonStyle"
+  >
     <img
       v-if="props.keyData.images.keyDefault"
       class="key-image default"
@@ -60,13 +67,17 @@ const textStyle = computed(() => {
   align-items: center;
   box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.7);
   color: #71d4fe;
-  background: #2f3336;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
   text-shadow: 0px 0px 40px #71d4fe, 0px 0px 80px #71d4fe;
   width: 64px;
   height: 64px;
   text-align: center;
+  border: none;
+
+  &.no-image {
+    background: #2f3336;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+  }
 
   .keyimage.default {
     visibility: visible;

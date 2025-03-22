@@ -256,7 +256,7 @@ const selectImage = (type: MouseImageType) => {
 .row {
   &.image-upload {
     margin-top: 8px;
-    height: 120px;
+    height: 100px;
   }
 }
 .input-key {
@@ -284,7 +284,7 @@ const selectImage = (type: MouseImageType) => {
 }
 .mouse-image {
   width: 100%;
-  height: 100%;
+  height: 100px;
   object-fit: contain;
   cursor: pointer;
   border: 1px solid #333;

@@ -7,13 +7,13 @@ import type {
 import { InputEventType } from "@/utils/uioHook";
 import { keyCodeMap } from "@/utils/key";
 import { computed, ref } from "vue";
-import { useStore } from "../store";
-import KeyboardButton from "../components/KeyboardButton.vue";
+import { useStore } from "../../store";
+import KeyboardButton from "../../components/KeyboardButton.vue";
 import { useRoute } from "vue-router";
 import { onMounted } from "vue";
 import { KeyboardKeyData, LayoutData, MouseData } from "@shared/types";
 import { onBeforeUnmount } from "vue";
-import Mouse from "../components/Mouse.vue";
+import Mouse from "../../components/Mouse.vue";
 
 const route = useRoute();
 const store = useStore();
@@ -84,14 +84,6 @@ window.ipc.on(
     }
   }
 );
-
-onMounted(async () => {
-  await window.ipc.invoke("uiohook:start");
-});
-
-onBeforeUnmount(async () => {
-  await window.ipc.invoke("uiohook:stop");
-});
 </script>
 
 <template>

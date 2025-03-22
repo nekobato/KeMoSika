@@ -46,6 +46,7 @@ const onChangeInput = (key: string, value: any) => {
         [key]: value
       });
       break;
+    case "text.isVisible":
     case "text.character":
     case "text.x":
     case "text.y":
@@ -172,7 +173,12 @@ const selectImage = (type: InputImageType) => {
       </EP.ElRow>
       <EP.ElDivider />
       <EP.ElRow v-if="keyData.text">
-        <EP.ElCheckbox v-model="keyData.text.isVisible" label="Text" border />
+        <EP.ElCheckbox
+          v-model="keyData.text.isVisible"
+          @change="onChangeInput('text.isVisible', $event)"
+          label="Text"
+          border
+        />
       </EP.ElRow>
       <div v-if="keyData.text?.isVisible">
         <EP.ElFormItem label="Text">
@@ -242,6 +248,9 @@ const selectImage = (type: InputImageType) => {
         </EP.ElRow>
       </div>
       <EP.ElDivider />
+      <EP.ElRow>
+        <EP.ElText>キーボード画像</EP.ElText>
+      </EP.ElRow>
       <EP.ElRow class="row image-upload" :gutter="8">
         <EP.ElCol :span="12">
           <img
@@ -250,12 +259,14 @@ const selectImage = (type: InputImageType) => {
             :src="`media://images/${keyData.images.keyDefault}.png`"
             @click="selectImage('keyDefault')"
           />
-          <img
-            class="key-image"
+          <div
+            class="key-image-placeholder"
             v-else
-            src="/src/assets/images/key_default.png"
             @click="selectImage('keyDefault')"
-          />
+          >
+            <Icon class="icon" icon="mingcute:add-line" />
+            <span>デフォルト</span>
+          </div>
         </EP.ElCol>
         <EP.ElCol :span="12">
           <img
@@ -264,12 +275,14 @@ const selectImage = (type: InputImageType) => {
             :src="`media://images/${keyData.images.keyActive}.png`"
             @click="selectImage('keyActive')"
           />
-          <img
-            class="key-image"
+          <div
+            class="key-image-placeholder"
             v-else
-            src="/src/assets/images/key_active.png"
             @click="selectImage('keyActive')"
-          />
+          >
+            <Icon class="icon" icon="mingcute:add-line" />
+            <span>アクティブ</span>
+          </div>
         </EP.ElCol>
       </EP.ElRow>
     </EP.ElForm>
@@ -331,13 +344,41 @@ const selectImage = (type: InputImageType) => {
   }
 }
 .key-image {
-  width: 64px;
-  height: 64px;
+  width: 100%;
+  height: 100px;
   object-fit: contain;
   cursor: pointer;
+  border: 1px solid #333;
+  border-radius: 4px;
 
   &:hover {
     border: 1px solid #409eff;
+  }
+}
+.key-image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border: 1px dashed #4c4d4f;
+  border-radius: 4px;
+
+  &:hover {
+    border: 1px dashed #409eff;
+  }
+
+  .icon {
+    font-size: 24px;
+    color: #4c4d4f;
+  }
+
+  span {
+    margin-top: 4px;
+    font-size: 12px;
+    color: #4c4d4f;
   }
 }
 </style>

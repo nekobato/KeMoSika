@@ -19,12 +19,12 @@ const routes = [
   {
     path: "/visualizer/",
     name: "VisualizerHome",
-    component: () => import("./pages/visualizer-home.vue")
+    component: () => import("./pages/visualizer/index.vue")
   },
   {
     path: "/visualizer/:layoutId",
     name: "VisualizerId",
-    component: () => import("./pages/visualizer-id.vue")
+    component: () => import("./pages/visualizer/:id.vue")
   }
 ];
 

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { usePreferredColorScheme, useStorage } from "@vueuse/core";
 import { computed, onBeforeMount, onMounted } from "vue";
-import { RouterView } from "vue-router";
+import { RouterView, useRouter } from "vue-router";
 import { useStore } from "./store";
 
 const savedTheme = useStorage("theme", undefined);
@@ -11,6 +11,8 @@ const theme = computed(() => {
   return savedTheme.value || preferredColor.value;
 });
 
+const router = useRouter();
+
 const store = useStore();
 
 onBeforeMount(async () => {
@@ -18,6 +20,10 @@ onBeforeMount(async () => {
   if (!store.$state.layouts?.length) {
     store.addLayout();
   }
+});
+
+router.afterEach(() => {
+  store.init();
 });
 
 onMounted(() => {

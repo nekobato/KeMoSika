@@ -103,11 +103,13 @@ app
   })
   .then(() => {
     ipcMain.handle("uiohook:start", async () => {
+      console.log("uiohook:start");
       uIOhook.start();
       return true;
     });
 
     ipcMain.handle("uiohook:stop", async () => {
+      console.log("uiohook:start");
       uIOhook.stop();
       return true;
     });
@@ -170,6 +172,7 @@ app
         visualizerWindow?.show();
         console.log("visualizer:start", options);
         visualizerWindow?.webContents.send("visualizer:start", options);
+        uIOhook.start();
       }
     );
 
