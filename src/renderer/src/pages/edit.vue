@@ -191,20 +191,81 @@ const onRotate = (e: any) => {
 };
 
 const onRotateGroup = (e: any) => {
-  e.events.forEach((ev: any) => {
-    const item = items.value?.find((item) => item.id === ev.target.id);
-    if (item) {
-      // item.x = ev.left;
-      // item.y = ev.top;
-      item.rotation = (ev.beforeRotate + ev.rotate) % 360;
-    }
+  // グループの回転角度を取得
+  const rotateAngle = e.rotate;
+
+  // 選択された要素のIDを取得
+  const selectedIds = e.targets.map((target: HTMLElement) => target.id);
+
+  // 選択された要素を取得
+  const selectedItems = items.value.filter((item) =>
+    selectedIds.includes(item.id)
+  );
+
+  if (selectedItems.length === 0) return;
+
+  // グループの中心点を計算
+  const centerX =
+    selectedItems.reduce((sum, item) => sum + item.x + item.width / 2, 0) /
+    selectedItems.length;
+  const centerY =
+    selectedItems.reduce((sum, item) => sum + item.y + item.height / 2, 0) /
+    selectedItems.length;
+
+  // 各要素を回転
+  selectedItems.forEach((item) => {
+    // 要素の中心点
+    const itemCenterX = item.x + item.width / 2;
+    const itemCenterY = item.y + item.height / 2;
+
+    // 要素の中心点からグループの中心点までの距離と角度を計算
+    const dx = itemCenterX - centerX;
+    const dy = itemCenterY - centerY;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    const currentAngle = Math.atan2(dy, dx);
+
+    // 新しい角度を計算（ラジアンに変換）
+    const newAngle = currentAngle + (rotateAngle * Math.PI) / 180;
+
+    // 新しい位置を計算
+    const newX = centerX + distance * Math.cos(newAngle);
+    const newY = centerY + distance * Math.sin(newAngle);
+
+    // 要素の位置を更新（中心点から左上の座標に変換）
+    item.x = newX - item.width / 2;
+    item.y = newY - item.height / 2;
+
+    // 要素自体の回転角度も更新
+    item.rotation = (item.rotation + rotateAngle) % 360;
   });
 };
 
 const onRotateEnd = (e: any) => {
-  const item = items.value?.find((item) => item.id === e.target.id);
-  if (item && layout.value) {
-    store.updateItem(layout.value.id, item);
+  // 単一要素の回転終了時
+  if (!e.targets) {
+    const item = items.value?.find((item) => item.id === e.target.id);
+    if (item && layout.value) {
+      store.updateItem(layout.value.id, item);
+    }
+    return;
+  }
+
+  // グループ回転の終了時
+  if (e.targets && e.targets.length > 0 && layout.value) {
+    // 選択された要素のIDを取得
+    const selectedIds = e.targets.map((target: HTMLElement) => target.id);
+
+    // 選択された要素を取得して更新
+    const selectedItems = items.value.filter((item) =>
+      selectedIds.includes(item.id)
+    );
+
+    // 各要素を更新
+    selectedItems.forEach((item) => {
+      if (layout.value) {
+        store.updateItem(layout.value.id, item);
+      }
+    });
   }
 };
 
