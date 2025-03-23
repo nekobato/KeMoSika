@@ -5,9 +5,17 @@ import {
   LayoutItemData,
   MouseData
 } from "@shared/types";
-import { nanoid } from "nanoid/non-secure";
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
-import Moveable from "vue3-moveable";
+import Moveable, {
+  OnClickGroup,
+  OnDrag,
+  OnDragEnd,
+  OnDragGroup,
+  OnDragStart,
+  OnRotate,
+  OnRotateEnd,
+  OnRotateGroup
+} from "vue3-moveable";
 import Selecto from "vue3-selecto";
 import KeyboardButton from "../components/KeyboardButton.vue";
 import ConfigLayout from "../components/layouts/ConfigLayout.vue";
@@ -24,9 +32,14 @@ import FloatActionButton from "@/components/FloatActions/FloatActionButton.vue";
 import { ElDialog } from "element-plus";
 import ImageList from "@/components/pages/config/ImageList.vue";
 import { InputImageType } from "@/types/app";
+import { useEditLayout } from "@/composables/edit/useEditLayout";
+import { useEditItemByKey } from "@/composables/edit/useEditItemByKey";
+import router from "@/router";
 
 const route = useRoute();
 const store = useStore();
+const { addKey, addMouse } = useEditLayout();
+const { updateItemByKey } = useEditItemByKey();
 const activeKeyIndexes = ref<number[]>([]);
 const activeKeyImageType = ref<InputImageType>();
 const previewRef = ref<HTMLDivElement>();
@@ -59,58 +72,6 @@ const layoutStyle = computed(() => {
   };
 });
 
-const addKey = () => {
-  if (!layout.value) {
-    return;
-  }
-  store.addItem(layout.value.id, {
-    id: `key-${nanoid()}`,
-    type: "key",
-    codeMap: ["A"],
-    x: (layout.value?.width || 0) / 2,
-    y: (layout.value?.height || 0) / 2,
-    width: 48,
-    height: 48,
-    rotation: 0,
-    text: {
-      isVisible: true,
-      character: "A",
-      x: 0,
-      y: 0,
-      size: 24,
-      color: "#71d4fe"
-    },
-    images: {
-      keyDefault: "",
-      keyActive: "",
-      keyLocked: ""
-    }
-  });
-};
-
-const addMouse = () => {
-  if (!layout.value) {
-    return;
-  }
-  store.addItem(layout.value.id, {
-    id: `mouse-${nanoid()}`,
-    type: "mouse",
-    x: (layout.value?.width || 0) / 2,
-    y: (layout.value?.height || 0) / 2,
-    width: 48,
-    height: 48,
-    rotation: 0,
-    images: {
-      mouseDefault: "",
-      mouseLeftClick: "",
-      mouseMiddleClick: "",
-      mouseRightClick: "",
-      mouseScrollUp: "",
-      mouseScrollDown: ""
-    }
-  });
-};
-
 const addPicture = () => {};
 
 const selectedItemHead = computed(() =>
@@ -139,7 +100,7 @@ const imageSelectTargetItem = computed(() => {
   return undefined;
 });
 
-const onClickGroup = (e: any) => {
+const onClickGroup = (e: OnClickGroup) => {
   selectoRef.value?.clickTarget(e.inputEvent, e.inputTarget);
 };
 
@@ -149,7 +110,7 @@ const onClickGround = (e: MouseEvent) => {
   }
 };
 
-const onDrag = (e: any) => {
+const onDrag = (e: OnDrag) => {
   const item = items.value?.find((item) => item.id === e.target.id);
   if (item) {
     item.x = e.left;
@@ -157,14 +118,14 @@ const onDrag = (e: any) => {
   }
 };
 
-const onDragStart = (e: any) => {
+const onDragStart = (e: OnDragStart) => {
   const item = items.value?.find((item) => item.id === e.target.id);
   if (item) {
     // item.isModifying = true;
   }
 };
 
-const onDragEnd = (e: any) => {
+const onDragEnd = (e: OnDragEnd) => {
   const item = items.value?.find((item) => item.id === e.target.id);
 
   if (item && layout.value) {
@@ -172,7 +133,7 @@ const onDragEnd = (e: any) => {
   }
 };
 
-const onDragGroup = (e: any) => {
+const onDragGroup = (e: OnDragGroup) => {
   e.events.forEach((ev: any) => {
     const item = items.value?.find((item) => item.id === ev.target.id);
     if (item) {
@@ -182,91 +143,25 @@ const onDragGroup = (e: any) => {
   });
 };
 
-const onRotate = (e: any) => {
+const onRotate = (e: OnRotate) => {
   e.inputEvent.preventDefault();
-  const item = items.value?.find((item) => item.id === e.target.id);
-  if (item) {
-    item.rotation = (e.beforeRotate + e.rotate) % 360;
+  if (
+    store.$state.layouts[store.activeLayoutIndex].keys[
+      activeKeyIndexes.value[0]
+    ].rotation
+  ) {
+    store.$state.layouts[store.activeLayoutIndex].keys[
+      activeKeyIndexes.value[0]
+    ].rotation = e.rotation;
   }
 };
 
-const onRotateGroup = (e: any) => {
-  // グループの回転角度を取得
-  const rotateAngle = e.rotate;
-
-  // 選択された要素のIDを取得
-  const selectedIds = e.targets.map((target: HTMLElement) => target.id);
-
-  // 選択された要素を取得
-  const selectedItems = items.value.filter((item) =>
-    selectedIds.includes(item.id)
-  );
-
-  if (selectedItems.length === 0) return;
-
-  // グループの中心点を計算
-  const centerX =
-    selectedItems.reduce((sum, item) => sum + item.x + item.width / 2, 0) /
-    selectedItems.length;
-  const centerY =
-    selectedItems.reduce((sum, item) => sum + item.y + item.height / 2, 0) /
-    selectedItems.length;
-
-  // 各要素を回転
-  selectedItems.forEach((item) => {
-    // 要素の中心点
-    const itemCenterX = item.x + item.width / 2;
-    const itemCenterY = item.y + item.height / 2;
-
-    // 要素の中心点からグループの中心点までの距離と角度を計算
-    const dx = itemCenterX - centerX;
-    const dy = itemCenterY - centerY;
-    const distance = Math.sqrt(dx * dx + dy * dy);
-    const currentAngle = Math.atan2(dy, dx);
-
-    // 新しい角度を計算（ラジアンに変換）
-    const newAngle = currentAngle + (rotateAngle * Math.PI) / 180;
-
-    // 新しい位置を計算
-    const newX = centerX + distance * Math.cos(newAngle);
-    const newY = centerY + distance * Math.sin(newAngle);
-
-    // 要素の位置を更新（中心点から左上の座標に変換）
-    item.x = newX - item.width / 2;
-    item.y = newY - item.height / 2;
-
-    // 要素自体の回転角度も更新
-    item.rotation = (item.rotation + rotateAngle) % 360;
-  });
+const onRotateGroup = (e: OnRotateGroup) => {
+  console.log("onRotate", e);
 };
 
-const onRotateEnd = (e: any) => {
-  // 単一要素の回転終了時
-  if (!e.targets) {
-    const item = items.value?.find((item) => item.id === e.target.id);
-    if (item && layout.value) {
-      store.updateItem(layout.value.id, item);
-    }
-    return;
-  }
-
-  // グループ回転の終了時
-  if (e.targets && e.targets.length > 0 && layout.value) {
-    // 選択された要素のIDを取得
-    const selectedIds = e.targets.map((target: HTMLElement) => target.id);
-
-    // 選択された要素を取得して更新
-    const selectedItems = items.value.filter((item) =>
-      selectedIds.includes(item.id)
-    );
-
-    // 各要素を更新
-    selectedItems.forEach((item) => {
-      if (layout.value) {
-        store.updateItem(layout.value.id, item);
-      }
-    });
-  }
+const onRotateEnd = (e: OnRotateEnd) => {
+  console.log("onRotateEnd", e);
 };
 
 const onSelectEnd = (e: any) => {
@@ -296,63 +191,23 @@ const onChangeInput = (keyData: LayoutItemData) => {
 };
 
 const onChangeLayout = (layout: LayoutData) => {
-  console.log(layout);
   store.updateLayout(layout);
 };
 
 const onKeyDown = (e: KeyboardEvent) => {
   e.preventDefault();
+  const { shouldUpdateRect } = updateItemByKey(
+    {
+      key: e.key,
+      shiftKey: e.shiftKey,
+      ctrlKey: e.ctrlKey,
+      altKey: e.altKey,
+      metaKey: e.metaKey
+    },
+    activeKeyIndexes.value
+  );
 
-  // delete key
-  if (e.key === "Delete" || e.key === "Backspace") {
-    if (activeKeyIndexes.value.length > 0 && layout.value) {
-      store.removeItems(layout.value.id, activeKeyIndexes.value);
-      activeKeyIndexes.value = [];
-    }
-  }
-
-  // undo
-  if (e.key === "z" && (e.ctrlKey || e.metaKey) && !e.shiftKey) {
-    // [0] is empty initial state
-    if (store.history && store.history.length > 2) {
-      activeKeyIndexes.value = [];
-      store.undo();
-    }
-  }
-
-  // redo
-  if (e.key === "z" && (e.ctrlKey || e.metaKey) && e.shiftKey) {
-    // [0] is empty initial state
-    if (store.history && store.history.length > 2) {
-      activeKeyIndexes.value = [];
-      store.redo();
-    }
-  }
-
-  // move
-  if (e.key === "ArrowUp" || e.key === "ArrowDown") {
-    if (activeKeyIndexes.value.length === 0) {
-      return;
-    }
-    let move = e.key === "ArrowUp" ? -1 : 1;
-    move *= e.shiftKey ? 10 : 1;
-    activeKeyIndexes.value.forEach((index) => {
-      items.value[index].y += move;
-    });
-    nextTick(() => {
-      moveableRef.value?.updateRect();
-    });
-  }
-
-  if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
-    if (activeKeyIndexes.value.length === 0) {
-      return;
-    }
-    let move = e.key === "ArrowLeft" ? -1 : 1;
-    move *= e.shiftKey ? 10 : 1;
-    activeKeyIndexes.value.forEach((index) => {
-      items.value[index].x += move;
-    });
+  if (shouldUpdateRect) {
     nextTick(() => {
       moveableRef.value?.updateRect();
     });
@@ -405,6 +260,19 @@ watch(itemsCount, async () => {
 
 onMounted(async () => {
   document.addEventListener("keydown", onKeyDown);
+
+  if (route.params.layoutId) {
+    const activeLayoutIndex = store.$state.layouts.findIndex(
+      (layout) => layout.id === route.params.layoutId
+    );
+
+    if (activeLayoutIndex === -1) {
+      router.replace({ name: "home" });
+      return;
+    }
+
+    store.changeActiveLayout(activeLayoutIndex);
+  }
 });
 
 onUnmounted(() => {
