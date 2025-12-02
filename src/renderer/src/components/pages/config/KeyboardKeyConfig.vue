@@ -162,7 +162,7 @@ const selectImage = (type: InputImageType) => {
               class="input-bounds"
               size="small"
               v-model="keyData.rotation"
-              :min="0"
+              :min="-999999"
               :max="999999"
               :step="1"
               :controls="false"

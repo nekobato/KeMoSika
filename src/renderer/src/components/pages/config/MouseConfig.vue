@@ -126,7 +126,7 @@ const selectImage = (type: MouseImageType) => {
               class="input-bounds"
               size="small"
               v-model="mouseData.rotation"
-              :min="0"
+              :min="-999999"
               :max="999999"
               :step="1"
               :controls="false"
