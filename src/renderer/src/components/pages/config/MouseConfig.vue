@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { PropType } from "vue";
-import * as EP from "element-plus";
 import { Icon } from "@iconify/vue";
 import { MouseData } from "@shared/types";
 import { MouseImageType } from "@/types/app";
+import InputNumber from "primevue/inputnumber";
+import Divider from "primevue/divider";
 
 const props = defineProps({
   mouseData: {
@@ -13,6 +14,14 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["change", "openImageDialog"]);
+const imageTypes = [
+  { key: "mouseDefault", label: "デフォルト" },
+  { key: "mouseLeftClick", label: "左クリック" },
+  { key: "mouseRightClick", label: "右クリック" },
+  { key: "mouseMiddleClick", label: "中クリック" },
+  { key: "mouseScrollUp", label: "スクロールアップ" },
+  { key: "mouseScrollDown", label: "スクロールダウン" }
+];
 
 const onChangeInput = (key: string, value: any) => {
   switch (key) {
@@ -26,20 +35,6 @@ const onChangeInput = (key: string, value: any) => {
         [key]: value
       });
       break;
-    case "images.mouseDefault":
-    case "images.mouseLeftClick":
-    case "images.mouseMiddleClick":
-    case "images.mouseRightClick":
-    case "images.mouseScrollUp":
-    case "images.mouseScrollDown":
-      emit("change", {
-        ...props.mouseData,
-        images: {
-          ...props.mouseData.images,
-          [key.split(".")[1]]: value
-        }
-      });
-      break;
   }
 };
 
@@ -49,200 +44,106 @@ const selectImage = (type: MouseImageType) => {
 </script>
 
 <template>
-  <section class="mouse-config">
-    <EP.ElForm
-      class="form"
-      :model="mouseData"
-      label-width="auto"
-      v-if="mouseData"
-    >
-      <EP.ElRow>
-        <EP.ElCol :span="12">
-          <EP.ElFormItem label="X">
-            <EP.ElInputNumber
-              class="input-bounds"
-              size="small"
-              v-model="mouseData.x"
-              :min="0"
-              :max="999999"
-              :step="1"
-              :controls="false"
-              @change="onChangeInput('x', $event)"
-            />
-          </EP.ElFormItem>
-        </EP.ElCol>
-        <EP.ElCol :span="12">
-          <EP.ElFormItem label="Y">
-            <EP.ElInputNumber
-              class="input-bounds"
-              size="small"
-              v-model="mouseData.y"
-              :min="0"
-              :max="999999"
-              :step="1"
-              :controls="false"
-              @change="onChangeInput('y', $event)"
-            />
-          </EP.ElFormItem>
-        </EP.ElCol>
-      </EP.ElRow>
-      <EP.ElRow>
-        <EP.ElCol :span="12">
-          <EP.ElFormItem label="W">
-            <EP.ElInputNumber
-              class="input-bounds"
-              size="small"
-              v-model="mouseData.width"
-              :min="0"
-              :max="999999"
-              :step="1"
-              :controls="false"
-              @change="onChangeInput('width', $event)"
-            />
-          </EP.ElFormItem>
-        </EP.ElCol>
-        <EP.ElCol :span="12">
-          <EP.ElFormItem label="H">
-            <EP.ElInputNumber
-              class="input-bounds"
-              size="small"
-              v-model="mouseData.height"
-              :min="0"
-              :max="999999"
-              :step="1"
-              :controls="false"
-              @change="onChangeInput('height', $event)"
-            />
-          </EP.ElFormItem>
-        </EP.ElCol>
-      </EP.ElRow>
-      <EP.ElRow>
-        <EP.ElCol :span="12">
-          <EP.ElFormItem class="formitem rotation">
-            <template #label>
-              <Icon icon="mingcute:clockwise-line" class="icon" />
-            </template>
-            <EP.ElInputNumber
-              class="input-bounds"
-              size="small"
-              v-model="mouseData.rotation"
-              :min="-999999"
-              :max="999999"
-              :step="1"
-              :controls="false"
-              @change="onChangeInput('rotation', $event)"
-            />
-          </EP.ElFormItem>
-        </EP.ElCol>
-      </EP.ElRow>
-      <EP.ElDivider />
-      <EP.ElDivider />
-      <EP.ElRow>
-        <EP.ElText>マウス画像</EP.ElText>
-      </EP.ElRow>
-      <EP.ElRow class="row image-upload" :gutter="8">
-        <EP.ElCol :span="12">
+  <section class="mouse-config" v-if="mouseData">
+    <div class="form">
+      <div class="field-grid">
+        <div class="field">
+          <label for="mouse-x">X</label>
+          <InputNumber
+            inputId="mouse-x"
+            class="input-bounds"
+            v-model="mouseData.x"
+            :useGrouping="false"
+            :min="0"
+            :max="999999"
+            :step="1"
+            @update:modelValue="onChangeInput('x', $event)"
+          />
+        </div>
+        <div class="field">
+          <label for="mouse-y">Y</label>
+          <InputNumber
+            inputId="mouse-y"
+            class="input-bounds"
+            v-model="mouseData.y"
+            :useGrouping="false"
+            :min="0"
+            :max="999999"
+            :step="1"
+            @update:modelValue="onChangeInput('y', $event)"
+          />
+        </div>
+      </div>
+
+      <div class="field-grid">
+        <div class="field">
+          <label for="mouse-w">W</label>
+          <InputNumber
+            inputId="mouse-w"
+            class="input-bounds"
+            v-model="mouseData.width"
+            :useGrouping="false"
+            :min="0"
+            :max="999999"
+            :step="1"
+            @update:modelValue="onChangeInput('width', $event)"
+          />
+        </div>
+        <div class="field">
+          <label for="mouse-h">H</label>
+          <InputNumber
+            inputId="mouse-h"
+            class="input-bounds"
+            v-model="mouseData.height"
+            :useGrouping="false"
+            :min="0"
+            :max="999999"
+            :step="1"
+            @update:modelValue="onChangeInput('height', $event)"
+          />
+        </div>
+      </div>
+
+      <div class="field-grid single">
+        <div class="field">
+          <label class="icon-label" for="mouse-rotation">
+            <Icon icon="mingcute:clockwise-line" class="icon" />
+          </label>
+          <InputNumber
+            inputId="mouse-rotation"
+            class="input-bounds"
+            v-model="mouseData.rotation"
+            :useGrouping="false"
+            :min="-999999"
+            :max="999999"
+            :step="1"
+            @update:modelValue="onChangeInput('rotation', $event)"
+          />
+        </div>
+      </div>
+
+      <Divider />
+
+      <div class="section-title">マウス画像</div>
+      <div class="image-grid">
+        <div class="image-cell" v-for="type in imageTypes" :key="type.key">
           <img
             class="mouse-image"
-            v-if="mouseData.images.mouseDefault"
-            :src="`media://images/${mouseData.images.mouseDefault}.png`"
-            @click="selectImage('mouseDefault')"
+            v-if="mouseData.images[type.key]"
+            :src="`media://images/${mouseData.images[type.key]}.png`"
+            @click="selectImage(type.key as MouseImageType)"
           />
           <div
             class="mouse-image-placeholder"
             v-else
-            @click="selectImage('mouseDefault')"
+            @click="selectImage(type.key as MouseImageType)"
           >
             <Icon class="icon" icon="mingcute:add-line" />
-            <span>デフォルト</span>
+            <span>{{ type.label }}</span>
           </div>
-        </EP.ElCol>
-        <EP.ElCol :span="12">
-          <img
-            class="mouse-image"
-            v-if="mouseData.images.mouseLeftClick"
-            :src="`media://images/${mouseData.images.mouseLeftClick}.png`"
-            @click="selectImage('mouseLeftClick')"
-          />
-          <div
-            class="mouse-image-placeholder"
-            v-else
-            @click="selectImage('mouseLeftClick')"
-          >
-            <Icon class="icon" icon="mingcute:add-line" />
-            <span>左クリック</span>
-          </div>
-        </EP.ElCol>
-      </EP.ElRow>
-      <EP.ElRow class="row image-upload" :gutter="8">
-        <EP.ElCol :span="12">
-          <img
-            class="mouse-image"
-            v-if="mouseData.images.mouseRightClick"
-            :src="`media://images/${mouseData.images.mouseRightClick}.png`"
-            @click="selectImage('mouseRightClick')"
-          />
-          <div
-            class="mouse-image-placeholder"
-            v-else
-            @click="selectImage('mouseRightClick')"
-          >
-            <Icon class="icon" icon="mingcute:add-line" />
-            <span>右クリック</span>
-          </div>
-        </EP.ElCol>
-        <EP.ElCol :span="12">
-          <img
-            class="mouse-image"
-            v-if="mouseData.images.mouseMiddleClick"
-            :src="`media://images/${mouseData.images.mouseMiddleClick}.png`"
-            @click="selectImage('mouseMiddleClick')"
-          />
-          <div
-            class="mouse-image-placeholder"
-            v-else
-            @click="selectImage('mouseMiddleClick')"
-          >
-            <Icon class="icon" icon="mingcute:add-line" />
-            <span>中クリック</span>
-          </div>
-        </EP.ElCol>
-      </EP.ElRow>
-      <EP.ElRow class="row image-upload" :gutter="8">
-        <EP.ElCol :span="12">
-          <img
-            class="mouse-image"
-            v-if="mouseData.images.mouseScrollUp"
-            :src="`media://images/${mouseData.images.mouseScrollUp}.png`"
-            @click="selectImage('mouseScrollUp')"
-          />
-          <div
-            class="mouse-image-placeholder"
-            v-else
-            @click="selectImage('mouseScrollUp')"
-          >
-            <Icon class="icon" icon="mingcute:add-line" />
-            <span>スクロールアップ</span>
-          </div>
-        </EP.ElCol>
-        <EP.ElCol :span="12">
-          <img
-            class="mouse-image"
-            v-if="mouseData.images.mouseScrollDown"
-            :src="`media://images/${mouseData.images.mouseScrollDown}.png`"
-            @click="selectImage('mouseScrollDown')"
-          />
-          <div
-            class="mouse-image-placeholder"
-            v-else
-            @click="selectImage('mouseScrollDown')"
-          >
-            <Icon class="icon" icon="mingcute:add-line" />
-            <span>スクロールダウン</span>
-          </div>
-        </EP.ElCol>
-      </EP.ElRow>
-    </EP.ElForm>
+        </div>
+      </div>
+    </div>
   </section>
 </template>
 
@@ -252,35 +153,51 @@ const selectImage = (type: MouseImageType) => {
 }
 .form {
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
-.row {
-  &.image-upload {
-    margin-top: 8px;
-    height: 100px;
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+
+  &.single {
+    grid-template-columns: 1fr;
   }
 }
-.input-key {
-  width: 64px;
-  ::v-deep(input) {
-    text-align: center;
+.field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  label {
+    min-width: 32px;
+    color: #4c4d4f;
+  }
+
+  .icon-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
   }
 }
 .input-bounds {
-  width: 64px;
+  width: 80px;
 }
-.submit-row {
-  margin-top: 16px;
-  display: flex;
-  justify-content: flex-end;
+.section-title {
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #4c4d4f;
 }
-.formitem {
-  &.rotation {
-    .icon {
-      margin: auto;
-      width: 20px;
-      height: 20px;
-    }
-  }
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.image-cell {
+  min-height: 100px;
 }
 .mouse-image {
   width: 100%;

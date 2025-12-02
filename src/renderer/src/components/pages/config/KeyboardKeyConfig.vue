@@ -1,10 +1,16 @@
 <script setup lang="ts">
 import { PropType } from "vue";
-import * as EP from "element-plus";
 import { Icon } from "@iconify/vue";
 import { keyboardEventToElectronAccelerator } from "@/utils/key";
 import { KeyboardKeyData } from "@shared/types";
 import { InputImageType } from "@/types/app";
+import Chip from "primevue/chip";
+import Button from "primevue/button";
+import InputNumber from "primevue/inputnumber";
+import InputText from "primevue/inputtext";
+import Checkbox from "primevue/checkbox";
+import ColorPicker from "primevue/colorpicker";
+import Divider from "primevue/divider";
 
 const props = defineProps({
   keyData: {
@@ -69,190 +75,192 @@ const selectImage = (type: InputImageType) => {
 </script>
 
 <template>
-  <section class="keyboard-key-config">
-    <EP.ElForm class="form" :model="keyData" label-width="auto">
+  <section class="keyboard-key-config" v-if="keyData">
+    <div class="form">
       <div class="keymap-group">
-        <EP.ElTag
-          class="keymap"
-          type="info"
-          closable
+        <Chip
           v-for="(mapKey, index) in keyData.codeMap"
-          @close="
+          :key="`${mapKey}-${index}`"
+          class="keymap"
+          removable
+          @remove="
             () => keyData.codeMap.splice(keyData.codeMap.indexOf(mapKey), 1)
           "
           @keydown="onKeyDownShortcutInput($event, index)"
           tabindex="0"
-          >{{ mapKey || "Empty" }}</EP.ElTag
-        >
-        <EP.ElButton
-          class="keymap"
+          :label="mapKey || 'Empty'"
+        />
+        <Button
+          class="keymap add-button"
           size="small"
+          outlined
           @click="() => keyData.codeMap.push('')"
         >
-          <Icon class="icon" icon="mingcute:add-line" />Add</EP.ElButton
-        >
+          <Icon class="icon" icon="mingcute:add-line" />Add
+        </Button>
       </div>
-      <EP.ElRow>
-        <EP.ElCol :span="12">
-          <EP.ElFormItem label="X">
-            <EP.ElInputNumber
-              class="input-bounds"
-              size="small"
-              v-model="keyData.x"
-              :min="0"
-              :max="999999"
-              :step="1"
-              :controls="false"
-              @change="onChangeInput('x', $event)"
-            />
-          </EP.ElFormItem>
-        </EP.ElCol>
-        <EP.ElCol :span="12">
-          <EP.ElFormItem label="Y">
-            <EP.ElInputNumber
-              class="input-bounds"
-              size="small"
-              v-model="keyData.y"
-              :min="0"
-              :max="999999"
-              :step="1"
-              :controls="false"
-              @change="onChangeInput('y', $event)"
-            />
-          </EP.ElFormItem>
-        </EP.ElCol>
-      </EP.ElRow>
-      <EP.ElRow>
-        <EP.ElCol :span="12">
-          <EP.ElFormItem label="W">
-            <EP.ElInputNumber
-              class="input-bounds"
-              size="small"
-              v-model="keyData.width"
-              :min="0"
-              :max="999999"
-              :step="1"
-              :controls="false"
-              @change="onChangeInput('width', $event)"
-            />
-          </EP.ElFormItem>
-        </EP.ElCol>
-        <EP.ElCol :span="12">
-          <EP.ElFormItem label="H">
-            <EP.ElInputNumber
-              class="input-bounds"
-              size="small"
-              v-model="keyData.height"
-              :min="0"
-              :max="999999"
-              :step="1"
-              :controls="false"
-              @change="onChangeInput('height', $event)"
-            />
-          </EP.ElFormItem>
-        </EP.ElCol>
-      </EP.ElRow>
-      <EP.ElRow>
-        <EP.ElCol :span="12">
-          <EP.ElFormItem class="formitem rotation">
-            <template #label>
-              <Icon icon="mingcute:clockwise-line" class="icon" />
-            </template>
-            <EP.ElInputNumber
-              class="input-bounds"
-              size="small"
-              v-model="keyData.rotation"
-              :min="-999999"
-              :max="999999"
-              :step="1"
-              :controls="false"
-              @change="onChangeInput('rotation', $event)"
-            />
-          </EP.ElFormItem>
-        </EP.ElCol>
-      </EP.ElRow>
-      <EP.ElDivider />
-      <EP.ElRow v-if="keyData.text">
-        <EP.ElCheckbox
-          v-model="keyData.text.isVisible"
-          @change="onChangeInput('text.isVisible', $event)"
-          label="Text"
-          border
-        />
-      </EP.ElRow>
-      <div v-if="keyData.text?.isVisible">
-        <EP.ElFormItem label="Text">
-          <EP.ElInput
-            class="input-key"
-            size="small"
-            v-model="keyData.text.character"
-            @change="onChangeInput('text.character', $event)"
+
+      <div class="field-grid">
+        <div class="field">
+          <label for="key-x">X</label>
+          <InputNumber
+            inputId="key-x"
+            class="input-bounds"
+            v-model="keyData.x"
+            :useGrouping="false"
+            :min="0"
+            :max="999999"
+            :step="1"
+            @update:modelValue="onChangeInput('x', $event)"
           />
-        </EP.ElFormItem>
-        <EP.ElRow>
-          <EP.ElCol :span="12">
-            <EP.ElFormItem label="X">
-              <EP.ElInputNumber
+        </div>
+        <div class="field">
+          <label for="key-y">Y</label>
+          <InputNumber
+            inputId="key-y"
+            class="input-bounds"
+            v-model="keyData.y"
+            :useGrouping="false"
+            :min="0"
+            :max="999999"
+            :step="1"
+            @update:modelValue="onChangeInput('y', $event)"
+          />
+        </div>
+      </div>
+
+      <div class="field-grid">
+        <div class="field">
+          <label for="key-w">W</label>
+          <InputNumber
+            inputId="key-w"
+            class="input-bounds"
+            v-model="keyData.width"
+            :useGrouping="false"
+            :min="0"
+            :max="999999"
+            :step="1"
+            @update:modelValue="onChangeInput('width', $event)"
+          />
+        </div>
+        <div class="field">
+          <label for="key-h">H</label>
+          <InputNumber
+            inputId="key-h"
+            class="input-bounds"
+            v-model="keyData.height"
+            :useGrouping="false"
+            :min="0"
+            :max="999999"
+            :step="1"
+            @update:modelValue="onChangeInput('height', $event)"
+          />
+        </div>
+      </div>
+
+      <div class="field-grid single">
+        <div class="field">
+          <label class="icon-label" for="key-rotation">
+            <Icon icon="mingcute:clockwise-line" class="icon" />
+          </label>
+          <InputNumber
+            inputId="key-rotation"
+            class="input-bounds"
+            v-model="keyData.rotation"
+            :useGrouping="false"
+            :min="-999999"
+            :max="999999"
+            :step="1"
+            @update:modelValue="onChangeInput('rotation', $event)"
+          />
+        </div>
+      </div>
+
+      <Divider />
+
+      <div v-if="keyData.text">
+        <div class="field checkbox-field">
+          <Checkbox
+            inputId="key-text-visible"
+            binary
+            v-model="keyData.text.isVisible"
+            @update:modelValue="onChangeInput('text.isVisible', $event)"
+          />
+          <label for="key-text-visible">Text</label>
+        </div>
+
+        <div v-if="keyData.text.isVisible">
+          <div class="field">
+            <label for="key-text">Text</label>
+            <InputText
+              id="key-text"
+              class="input-key"
+              v-model="keyData.text.character"
+              @update:modelValue="onChangeInput('text.character', $event)"
+            />
+          </div>
+
+          <div class="field-grid">
+            <div class="field">
+              <label for="key-text-x">X</label>
+              <InputNumber
+                inputId="key-text-x"
                 class="input-bounds"
-                size="small"
                 v-model="keyData.text.x"
+                :useGrouping="false"
                 :min="-9999"
                 :max="9999"
                 :step="1"
-                :controls="false"
-                @change="onChangeInput('text.x', $event)"
+                @update:modelValue="onChangeInput('text.x', $event)"
               />
-            </EP.ElFormItem>
-          </EP.ElCol>
-          <EP.ElCol :span="12">
-            <EP.ElFormItem label="Y">
-              <EP.ElInputNumber
+            </div>
+            <div class="field">
+              <label for="key-text-y">Y</label>
+              <InputNumber
+                inputId="key-text-y"
                 class="input-bounds"
-                size="small"
                 v-model="keyData.text.y"
+                :useGrouping="false"
                 :min="-9999"
                 :max="9999"
                 :step="1"
-                :controls="false"
-                @change="onChangeInput('text.y', $event)"
+                @update:modelValue="onChangeInput('text.y', $event)"
               />
-            </EP.ElFormItem>
-          </EP.ElCol>
-        </EP.ElRow>
-        <EP.ElRow>
-          <EP.ElCol :span="12">
-            <EP.ElFormItem label="Size">
-              <EP.ElInputNumber
+            </div>
+          </div>
+
+          <div class="field-grid">
+            <div class="field">
+              <label for="key-text-size">Size</label>
+              <InputNumber
+                inputId="key-text-size"
                 class="input-bounds"
-                size="small"
                 v-model="keyData.text.size"
+                :useGrouping="false"
                 :min="10"
                 :max="99"
                 :step="1"
-                :controls="false"
-                @change="onChangeInput('text.size', $event)"
+                @update:modelValue="onChangeInput('text.size', $event)"
               />
-            </EP.ElFormItem>
-          </EP.ElCol>
-          <EP.ElCol :span="12">
-            <EP.ElFormItem label="Color">
-              <EP.ElColorPicker
+            </div>
+            <div class="field">
+              <label for="key-text-color">Color</label>
+              <ColorPicker
+                inputId="key-text-color"
                 class="input-bounds"
-                size="small"
-                :show-alpha="true"
                 v-model="keyData.text.color"
-                @change="onChangeInput('text.color', $event)"
+                @update:modelValue="onChangeInput('text.color', $event)"
               />
-            </EP.ElFormItem>
-          </EP.ElCol>
-        </EP.ElRow>
+            </div>
+          </div>
+        </div>
       </div>
-      <EP.ElDivider />
-      <EP.ElRow>
-        <EP.ElText>キーボード画像</EP.ElText>
-      </EP.ElRow>
-      <EP.ElRow class="row image-upload" :gutter="8">
-        <EP.ElCol :span="12">
+
+      <Divider />
+
+      <div class="section-title">キーボード画像</div>
+      <div class="image-grid">
+        <div class="image-cell">
           <img
             class="key-image"
             v-if="keyData.images.keyDefault"
@@ -267,8 +275,8 @@ const selectImage = (type: InputImageType) => {
             <Icon class="icon" icon="mingcute:add-line" />
             <span>デフォルト</span>
           </div>
-        </EP.ElCol>
-        <EP.ElCol :span="12">
+        </div>
+        <div class="image-cell">
           <img
             class="key-image"
             v-if="keyData.images.keyActive"
@@ -283,9 +291,9 @@ const selectImage = (type: InputImageType) => {
             <Icon class="icon" icon="mingcute:add-line" />
             <span>アクティブ</span>
           </div>
-        </EP.ElCol>
-      </EP.ElRow>
-    </EP.ElForm>
+        </div>
+      </div>
+    </div>
   </section>
 </template>
 
@@ -298,12 +306,9 @@ const selectImage = (type: InputImageType) => {
 }
 .keymap-group {
   padding: 0 0 16px;
-}
-.row {
-  &.image-upload {
-    margin-top: 8px;
-    height: 120px;
-  }
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 .input-key {
   width: 64px;
@@ -317,22 +322,14 @@ const selectImage = (type: InputImageType) => {
 }
 .keymap {
   cursor: pointer;
-  border-color: #969696;
-  &:not(:first-child) {
-    margin-left: 4px;
-  }
   &:focus {
-    border-color: #409eff;
-  }
-  .icon {
-    color: #fff;
-    margin-right: 2px;
+    outline: 1px solid #409eff;
   }
 }
-.submit-row {
-  margin-top: 16px;
-  display: flex;
-  justify-content: flex-end;
+.add-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 .formitem {
   &.rotation {
@@ -341,6 +338,46 @@ const selectImage = (type: InputImageType) => {
       width: 20px;
       height: 20px;
     }
+  }
+}
+.section-title {
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #4c4d4f;
+}
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+
+  &.single {
+    grid-template-columns: 1fr;
+  }
+}
+.field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  label {
+    min-width: 40px;
+    color: #4c4d4f;
+  }
+
+  &.checkbox-field {
+    gap: 6px;
+    align-items: center;
+
+    label {
+      min-width: auto;
+    }
+  }
+
+  .icon-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
   }
 }
 .key-image {
@@ -354,6 +391,15 @@ const selectImage = (type: InputImageType) => {
   &:hover {
     border: 1px solid #409eff;
   }
+}
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+.image-cell {
+  min-height: 100px;
 }
 .key-image-placeholder {
   width: 100%;

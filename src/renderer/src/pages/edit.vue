@@ -29,7 +29,7 @@ import { Icon } from "@iconify/vue";
 import { useRoute } from "vue-router";
 import FloatActions from "@/components/FloatActions/FloatActions.vue";
 import FloatActionButton from "@/components/FloatActions/FloatActionButton.vue";
-import { ElDialog } from "element-plus";
+import Dialog from "primevue/dialog";
 import ImageList from "@/components/pages/config/ImageList.vue";
 import { InputImageType } from "@/types/app";
 import { useEditLayout } from "@/composables/edit/useEditLayout";
@@ -409,12 +409,13 @@ onUnmounted(() => {
       </aside>
     </template>
     <template #dialog>
-      <ElDialog
-        width="calc(100% - 48px)"
-        v-model="showImageDialog"
-        title="Select Image"
-        :close-on-click-modal="false"
-        :close-on-press-escape="false"
+      <Dialog
+        v-model:visible="showImageDialog"
+        header="Select Image"
+        modal
+        :closable="true"
+        :draggable="false"
+        style="width: calc(100% - 48px);"
       >
         <ImageList
           @select="onSelectImage"
@@ -423,7 +424,7 @@ onUnmounted(() => {
           :type="imageSelectTargetItem?.type"
           :images="store.$state.images"
         />
-      </ElDialog>
+      </Dialog>
     </template>
   </ConfigLayout>
 </template>

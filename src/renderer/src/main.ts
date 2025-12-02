@@ -1,12 +1,21 @@
 import { createApp } from "vue";
 import { createPinia } from "pinia";
-import ElementPlus from "element-plus";
-import "element-plus/dist/index.css";
-import "element-plus/theme-chalk/dark/css-vars.css";
+import PrimeVue from "primevue/config";
+import AuraEP from "./theme/aura-ep";
+import "primeicons/primeicons.css";
+import "primeflex/primeflex.css";
 import "./assets/styles/index.scss";
 import App from "./App.vue";
 import router from "./router";
 import { initSentry } from "./utils/sentry";
 
 initSentry();
-createApp(App).use(createPinia()).use(router).use(ElementPlus).mount("#app");
+createApp(App)
+  .use(createPinia())
+  .use(router)
+  .use(PrimeVue, {
+    theme: {
+      preset: AuraEP
+    }
+  })
+  .mount("#app");

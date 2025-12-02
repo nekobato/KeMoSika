@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { LayoutData } from "@shared/types";
-import * as EP from "element-plus";
 import { PropType } from "vue";
+import InputText from "primevue/inputtext";
+import InputNumber from "primevue/inputnumber";
 
 const props = defineProps({
   layout: Object as PropType<LayoutData>
@@ -10,7 +11,6 @@ const props = defineProps({
 const emit = defineEmits(["change"]);
 
 const onChangeInput = (key: string, value: any) => {
-  console.log(key, value);
   switch (key) {
     case "name":
     case "width":
@@ -24,90 +24,80 @@ const onChangeInput = (key: string, value: any) => {
 };
 </script>
 <template>
-  <section class="keyboard-key-config" v-if="props.layout">
-    <EP.ElForm class="form" label-width="auto">
-      <EP.ElRow>
-        <EP.ElFormItem label="名">
-          <EP.ElInput
-            class="name"
-            placeholder="おなまえ"
-            v-model="props.layout.name"
-            @change="onChangeInput('name', $event)"
+  <section class="layout-config" v-if="props.layout">
+    <div class="form">
+      <div class="field">
+        <label for="layout-name">名</label>
+        <InputText
+          id="layout-name"
+          class="name"
+          placeholder="おなまえ"
+          v-model="props.layout.name"
+          @update:modelValue="onChangeInput('name', $event)"
+        />
+      </div>
+      <div class="field-grid">
+        <div class="field">
+          <label for="layout-w">W</label>
+          <InputNumber
+            inputId="layout-w"
+            class="input-bounds"
+            :useGrouping="false"
+            :min="40"
+            :max="9999"
+            :step="1"
+            v-model="props.layout.width"
+            @update:modelValue="onChangeInput('width', $event)"
           />
-        </EP.ElFormItem>
-      </EP.ElRow>
-      <EP.ElRow>
-        <EP.ElCol :span="12">
-          <EP.ElFormItem label="W">
-            <EP.ElInputNumber
-              class="input-bounds"
-              size="small"
-              :model-value="props.layout.width"
-              :min="40"
-              :max="9999"
-              :step="1"
-              :controls="false"
-              placeholder="ヨコ"
-              @change="onChangeInput('width', $event)"
-            />
-          </EP.ElFormItem>
-        </EP.ElCol>
-        <EP.ElCol :span="12">
-          <EP.ElFormItem label="H">
-            <EP.ElInputNumber
-              class="input-bounds"
-              size="small"
-              v-model="props.layout.height"
-              :min="40"
-              :max="9999"
-              :step="1"
-              :controls="false"
-              placeholder="タテ"
-              @change="onChangeInput('height', $event)"
-            />
-          </EP.ElFormItem>
-        </EP.ElCol>
-      </EP.ElRow>
-    </EP.ElForm>
+        </div>
+        <div class="field">
+          <label for="layout-h">H</label>
+          <InputNumber
+            inputId="layout-h"
+            class="input-bounds"
+            :useGrouping="false"
+            :min="40"
+            :max="9999"
+            :step="1"
+            v-model="props.layout.height"
+            @update:modelValue="onChangeInput('height', $event)"
+          />
+        </div>
+      </div>
+    </div>
   </section>
 </template>
 
 <style scoped lang="scss">
-.keyboard-key-config {
+.layout-config {
   padding: 16px;
 }
 .form {
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 
   .name {
     width: 180px;
   }
 }
-.keymap-group {
-  padding: 0 0 16px;
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
 }
-.row {
-  &.image-upload {
-    margin-top: 8px;
-    height: 120px;
-  }
-}
-.input-key {
-  width: 64px;
-  ::v-deep(input) {
-    text-align: center;
+.field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  label {
+    min-width: 28px;
+    color: #4c4d4f;
   }
 }
 .input-bounds {
-  width: 64px;
-}
-.formitem {
-  &.rotation {
-    .icon {
-      margin: auto;
-      width: 20px;
-      height: 20px;
-    }
-  }
+  width: 80px;
 }
 </style>

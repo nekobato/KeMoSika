@@ -8,7 +8,7 @@ import { KeyboardKeyData } from "@shared/types";
 import { useRouter } from "vue-router";
 import Header from "@/components/Header.vue";
 import Mouse from "@/components/Mouse.vue";
-import { ElDivider } from "element-plus";
+import Divider from "primevue/divider";
 import FloatActions from "@/components/FloatActions/FloatActions.vue";
 import FloatActionButton from "@/components/FloatActions/FloatActionButton.vue";
 
@@ -125,7 +125,7 @@ const gotoVisualizer = () => {
             <span>新規作成</span>
           </button>
         </div>
-        <ElDivider />
+        <Divider />
         <div class="layout-list">
           <label
             class="list-item"
