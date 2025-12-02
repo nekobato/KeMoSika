@@ -1,19 +1,19 @@
-@import "variables.scss";
+@use "variables" as *;
 
-@import "reset.scss";
-@import "spacing.scss";
+@use "reset" as *;
+@use "spacing" as *;
 
-@import "button.scss";
-@import "dialog.scss";
-@import "form.scss";
-@import "heading.scss";
-@import "icon.scss";
-@import "list.scss";
-@import "table.scss";
-@import "text.scss";
-@import "tooltip.scss";
+@use "button" as *;
+@use "dialog" as *;
+@use "form" as *;
+@use "heading" as *;
+@use "icon" as *;
+@use "list" as *;
+@use "table" as *;
+@use "text" as *;
+@use "tooltip" as *;
 
-@import "app.scss";
+@use "app" as *;
 
 /* themes */
-@import "theme/default.scss";
+@use "theme/default" as *;

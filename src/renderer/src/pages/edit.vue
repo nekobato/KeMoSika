@@ -143,25 +143,44 @@ const onDragGroup = (e: OnDragGroup) => {
   });
 };
 
-const onRotate = (e: OnRotate) => {
-  e.inputEvent.preventDefault();
-  if (
-    store.$state.layouts[store.activeLayoutIndex].keys[
-      activeKeyIndexes.value[0]
-    ].rotation
-  ) {
-    store.$state.layouts[store.activeLayoutIndex].keys[
-      activeKeyIndexes.value[0]
-    ].rotation = e.rotation;
+const setRotation = (targetId: string, rotation: number) => {
+  const target = items.value?.find((item) => item.id === targetId);
+  if (target) {
+    target.rotation = rotation;
   }
 };
 
-const onRotateGroup = (e: OnRotateGroup) => {
-  console.log("onRotate", e);
+const persistRotation = async (targetIds: string[]) => {
+  if (!layout.value) return;
+  const uniqueIds = Array.from(new Set(targetIds));
+  await Promise.all(
+    uniqueIds.map(async (id) => {
+      const target = items.value?.find((item) => item.id === id);
+      if (target) {
+        await store.updateItem(layout.value.id, { ...target });
+      }
+    })
+  );
 };
 
-const onRotateEnd = (e: OnRotateEnd) => {
-  console.log("onRotateEnd", e);
+const onRotate = (e: OnRotate) => {
+  e.inputEvent.preventDefault();
+  setRotation(e.target.id, e.rotation);
+};
+
+const onRotateGroup = (e: OnRotateGroup) => {
+  e.events.forEach((ev) => {
+    setRotation(ev.target.id, ev.rotation);
+  });
+};
+
+const onRotateEnd = async (e: OnRotateEnd) => {
+  await persistRotation([e.target.id]);
+};
+
+const onRotateGroupEnd = async (e: OnRotateGroup) => {
+  const ids = e.events.map((ev) => ev.target.id);
+  await persistRotation(ids);
 };
 
 const onSelectEnd = (e: any) => {
@@ -329,6 +348,7 @@ onUnmounted(() => {
               @rotate="onRotate"
               @rotate-group="onRotateGroup"
               @rotate-end="onRotateEnd"
+              @rotate-group-end="onRotateGroupEnd"
             />
             <Selecto
               ref="selectoRef"
