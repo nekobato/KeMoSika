@@ -14,7 +14,8 @@ import Moveable, {
   OnDragStart,
   OnRotate,
   OnRotateEnd,
-  OnRotateGroup
+  OnRotateGroup,
+  OnRotateGroupEnd
 } from "vue3-moveable";
 import Selecto from "vue3-selecto";
 import KeyboardButton from "../components/KeyboardButton.vue";
@@ -152,12 +153,13 @@ const setRotation = (targetId: string, rotation: number) => {
 
 const persistRotation = async (targetIds: string[]) => {
   if (!layout.value) return;
+  const layoutId = layout.value.id;
   const uniqueIds = Array.from(new Set(targetIds));
   await Promise.all(
     uniqueIds.map(async (id) => {
       const target = items.value?.find((item) => item.id === id);
       if (target) {
-        await store.updateItem(layout.value.id, { ...target });
+        await store.updateItem(layoutId, { ...target });
       }
     })
   );
@@ -178,7 +180,7 @@ const onRotateEnd = async (e: OnRotateEnd) => {
   await persistRotation([e.target.id]);
 };
 
-const onRotateGroupEnd = async (e: OnRotateGroup) => {
+const onRotateGroupEnd = async (e: OnRotateGroupEnd) => {
   const ids = e.events.map((ev) => ev.target.id);
   await persistRotation(ids);
 };
@@ -220,7 +222,6 @@ const onKeyDown = (e: KeyboardEvent) => {
       key: e.key,
       shiftKey: e.shiftKey,
       ctrlKey: e.ctrlKey,
-      altKey: e.altKey,
       metaKey: e.metaKey
     },
     activeKeyIndexes.value

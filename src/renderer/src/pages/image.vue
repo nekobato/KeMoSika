@@ -17,8 +17,8 @@ const onDragOver = (_: DragEvent) => {
 
 const onDrop = async (e: DragEvent) => {
   isDragOver.value = false;
-  const imagePath = e.dataTransfer?.files[0].path;
-  if (e.dataTransfer?.files) {
+  const imagePath = (e.dataTransfer?.files[0] as any)?.path;
+  if (e.dataTransfer?.files && imagePath) {
     await window.ipc.invoke("image:save", {
       imagePath
     });

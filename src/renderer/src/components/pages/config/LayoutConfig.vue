@@ -24,13 +24,14 @@ const onChangeInput = (key: string, value: any) => {
 };
 </script>
 <template>
-  <section class="layout-config" v-if="props.layout">
+<section class="layout-config" v-if="props.layout">
     <div class="form">
       <div class="field">
         <label for="layout-name">名</label>
         <InputText
           id="layout-name"
           class="name"
+          size="small"
           placeholder="おなまえ"
           v-model="props.layout.name"
           @update:modelValue="onChangeInput('name', $event)"
@@ -39,12 +40,13 @@ const onChangeInput = (key: string, value: any) => {
       <div class="field-grid">
         <div class="field">
           <label for="layout-w">W</label>
-          <InputNumber
-            inputId="layout-w"
-            class="input-bounds"
-            :useGrouping="false"
-            :min="40"
-            :max="9999"
+        <InputNumber
+          inputId="layout-w"
+          class="input-bounds"
+          size="small"
+          :useGrouping="false"
+          :min="40"
+          :max="9999"
             :step="1"
             v-model="props.layout.width"
             @update:modelValue="onChangeInput('width', $event)"
@@ -52,12 +54,13 @@ const onChangeInput = (key: string, value: any) => {
         </div>
         <div class="field">
           <label for="layout-h">H</label>
-          <InputNumber
-            inputId="layout-h"
-            class="input-bounds"
-            :useGrouping="false"
-            :min="40"
-            :max="9999"
+        <InputNumber
+          inputId="layout-h"
+          class="input-bounds"
+          size="small"
+          :useGrouping="false"
+          :min="40"
+          :max="9999"
             :step="1"
             v-model="props.layout.height"
             @update:modelValue="onChangeInput('height', $event)"

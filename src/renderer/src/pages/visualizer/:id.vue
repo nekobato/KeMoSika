@@ -10,9 +10,7 @@ import { computed, ref } from "vue";
 import { useStore } from "../../store";
 import KeyboardButton from "../../components/KeyboardButton.vue";
 import { useRoute } from "vue-router";
-import { onMounted } from "vue";
 import { KeyboardKeyData, LayoutData, MouseData } from "@shared/types";
-import { onBeforeUnmount } from "vue";
 import Mouse from "../../components/Mouse.vue";
 
 const route = useRoute();
@@ -33,11 +31,9 @@ const mouseStates = ref({
   amount: 0
 });
 
-const layout = computed<LayoutData | undefined>(() => {
-  return store.$state.layouts.find(
-    (layout) => layout.id === route.params.layoutId
-  );
-});
+const layout = computed<LayoutData | undefined>(() =>
+  store.$state.layouts.find((layout) => layout.id === route.params.layoutId)
+);
 
 const keys = computed<KeyboardKeyData[] | undefined>(() =>
   layout.value?.keys.filter((key) => key.type === "key")

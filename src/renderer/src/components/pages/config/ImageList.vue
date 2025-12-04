@@ -38,7 +38,7 @@ const onDragOver = (_: DragEvent) => {
 
 const onDrop = async (e: DragEvent) => {
   isDragOver.value = false;
-  const imagePath = e.dataTransfer?.files[0].path;
+  const imagePath = (e.dataTransfer?.files[0] as any)?.path;
   if (imagePath) {
     await saveImage(imagePath);
   }

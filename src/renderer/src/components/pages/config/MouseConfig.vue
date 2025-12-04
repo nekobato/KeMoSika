@@ -14,7 +14,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["change", "openImageDialog"]);
-const imageTypes = [
+const imageTypes: { key: MouseImageType; label: string }[] = [
   { key: "mouseDefault", label: "デフォルト" },
   { key: "mouseLeftClick", label: "左クリック" },
   { key: "mouseRightClick", label: "右クリック" },
@@ -44,7 +44,7 @@ const selectImage = (type: MouseImageType) => {
 </script>
 
 <template>
-  <section class="mouse-config" v-if="mouseData">
+<section class="mouse-config" v-if="mouseData">
     <div class="form">
       <div class="field-grid">
         <div class="field">
@@ -52,6 +52,7 @@ const selectImage = (type: MouseImageType) => {
           <InputNumber
             inputId="mouse-x"
             class="input-bounds"
+            size="small"
             v-model="mouseData.x"
             :useGrouping="false"
             :min="0"
@@ -65,6 +66,7 @@ const selectImage = (type: MouseImageType) => {
           <InputNumber
             inputId="mouse-y"
             class="input-bounds"
+            size="small"
             v-model="mouseData.y"
             :useGrouping="false"
             :min="0"
@@ -81,6 +83,7 @@ const selectImage = (type: MouseImageType) => {
           <InputNumber
             inputId="mouse-w"
             class="input-bounds"
+            size="small"
             v-model="mouseData.width"
             :useGrouping="false"
             :min="0"
@@ -94,6 +97,7 @@ const selectImage = (type: MouseImageType) => {
           <InputNumber
             inputId="mouse-h"
             class="input-bounds"
+            size="small"
             v-model="mouseData.height"
             :useGrouping="false"
             :min="0"
@@ -112,6 +116,7 @@ const selectImage = (type: MouseImageType) => {
           <InputNumber
             inputId="mouse-rotation"
             class="input-bounds"
+            size="small"
             v-model="mouseData.rotation"
             :useGrouping="false"
             :min="-999999"

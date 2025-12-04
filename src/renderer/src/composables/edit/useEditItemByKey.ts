@@ -8,13 +8,11 @@ export const useEditItemByKey = () => {
       key,
       shiftKey,
       ctrlKey,
-      altKey,
       metaKey
     }: {
       key: string;
       shiftKey: boolean;
       ctrlKey: boolean;
-      altKey: boolean;
       metaKey: boolean;
     },
     activeKeys: any[]

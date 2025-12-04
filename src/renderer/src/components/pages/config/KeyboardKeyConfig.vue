@@ -78,15 +78,16 @@ const selectImage = (type: InputImageType) => {
   <section class="keyboard-key-config" v-if="keyData">
     <div class="form">
       <div class="keymap-group">
-        <Chip
-          v-for="(mapKey, index) in keyData.codeMap"
-          :key="`${mapKey}-${index}`"
-          class="keymap"
-          removable
-          @remove="
-            () => keyData.codeMap.splice(keyData.codeMap.indexOf(mapKey), 1)
-          "
-          @keydown="onKeyDownShortcutInput($event, index)"
+      <Chip
+        v-for="(mapKey, index) in keyData.codeMap"
+        :key="`${mapKey}-${index}`"
+        class="keymap"
+        size="small"
+        removable
+        @remove="
+          () => keyData.codeMap.splice(keyData.codeMap.indexOf(mapKey), 1)
+        "
+        @keydown="onKeyDownShortcutInput($event, index)"
           tabindex="0"
           :label="mapKey || 'Empty'"
         />
@@ -106,6 +107,7 @@ const selectImage = (type: InputImageType) => {
           <InputNumber
             inputId="key-x"
             class="input-bounds"
+            size="small"
             v-model="keyData.x"
             :useGrouping="false"
             :min="0"
@@ -119,6 +121,7 @@ const selectImage = (type: InputImageType) => {
           <InputNumber
             inputId="key-y"
             class="input-bounds"
+            size="small"
             v-model="keyData.y"
             :useGrouping="false"
             :min="0"
@@ -135,6 +138,7 @@ const selectImage = (type: InputImageType) => {
           <InputNumber
             inputId="key-w"
             class="input-bounds"
+            size="small"
             v-model="keyData.width"
             :useGrouping="false"
             :min="0"
@@ -148,6 +152,7 @@ const selectImage = (type: InputImageType) => {
           <InputNumber
             inputId="key-h"
             class="input-bounds"
+            size="small"
             v-model="keyData.height"
             :useGrouping="false"
             :min="0"
@@ -166,6 +171,7 @@ const selectImage = (type: InputImageType) => {
           <InputNumber
             inputId="key-rotation"
             class="input-bounds"
+            size="small"
             v-model="keyData.rotation"
             :useGrouping="false"
             :min="-999999"
@@ -182,6 +188,7 @@ const selectImage = (type: InputImageType) => {
         <div class="field checkbox-field">
           <Checkbox
             inputId="key-text-visible"
+            size="small"
             binary
             v-model="keyData.text.isVisible"
             @update:modelValue="onChangeInput('text.isVisible', $event)"
@@ -195,6 +202,7 @@ const selectImage = (type: InputImageType) => {
             <InputText
               id="key-text"
               class="input-key"
+              size="small"
               v-model="keyData.text.character"
               @update:modelValue="onChangeInput('text.character', $event)"
             />
@@ -206,6 +214,7 @@ const selectImage = (type: InputImageType) => {
               <InputNumber
                 inputId="key-text-x"
                 class="input-bounds"
+                size="small"
                 v-model="keyData.text.x"
                 :useGrouping="false"
                 :min="-9999"
@@ -219,6 +228,7 @@ const selectImage = (type: InputImageType) => {
               <InputNumber
                 inputId="key-text-y"
                 class="input-bounds"
+                size="small"
                 v-model="keyData.text.y"
                 :useGrouping="false"
                 :min="-9999"
@@ -235,6 +245,7 @@ const selectImage = (type: InputImageType) => {
               <InputNumber
                 inputId="key-text-size"
                 class="input-bounds"
+                size="small"
                 v-model="keyData.text.size"
                 :useGrouping="false"
                 :min="10"
@@ -322,9 +333,6 @@ const selectImage = (type: InputImageType) => {
 }
 .keymap {
   cursor: pointer;
-  &:focus {
-    outline: 1px solid #409eff;
-  }
 }
 .add-button {
   display: inline-flex;
@@ -400,31 +408,5 @@ const selectImage = (type: InputImageType) => {
 }
 .image-cell {
   min-height: 100px;
-}
-.key-image-placeholder {
-  width: 100%;
-  height: 100px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  border: 1px dashed #4c4d4f;
-  border-radius: 4px;
-
-  &:hover {
-    border: 1px dashed #409eff;
-  }
-
-  .icon {
-    font-size: 24px;
-    color: #4c4d4f;
-  }
-
-  span {
-    margin-top: 4px;
-    font-size: 12px;
-    color: #4c4d4f;
-  }
 }
 </style>

@@ -2,9 +2,9 @@ import Aura from "@primevue/themes/aura";
 
 // Element Plus の既定プライマリーパレットを PrimeVue のデザイントークンへ写経したプリセット拡張
 const AuraEP = {
-  ...Aura,
+  ...(Aura as any),
   semantic: {
-    ...Aura.semantic,
+    ...((Aura as any).semantic ?? {}),
     primary: {
       50: "#ecf5ff",
       100: "#d9ecff",
@@ -19,6 +19,6 @@ const AuraEP = {
       950: "#1c3a66"
     }
   }
-};
+} as const;
 
 export default AuraEP;

@@ -31,7 +31,7 @@ export const createVisualizerWindow = () => {
 
   if (statics.isDevelopment) {
     win.loadURL(statics.pageRoot + "#" + pageName);
-    win.webContents.openDevTools();
+    win.webContents.openDevTools({ mode: "detach" });
   } else {
     win.loadFile(join(statics.pageRoot), { hash: pageName });
   }
