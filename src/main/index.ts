@@ -13,7 +13,7 @@ import path from "node:path";
 import { uIOhook } from "uiohook-napi";
 import * as store from "./store";
 import { initSentry } from "./utils/sentry";
-import { deleteImage, imagePath, saveImage } from "./utils/image";
+import { deleteImage, imagePath, saveImage, saveImageBuffer } from "./utils/image";
 import { nanoid } from "nanoid/non-secure";
 import { createEditorWindow } from "./windows/editor-wIndow";
 import { createVisualizerWindow } from "./windows/visualizer-window";
@@ -139,6 +139,13 @@ app
     ipcMain.handle("image:save", async (_, data) => {
       const id = nanoid();
       const fileName = saveImage(id, data.imagePath);
+      store.createImage(id, fileName);
+      return { id, fileName };
+    });
+
+    ipcMain.handle("image:save-buffer", async (_, data) => {
+      const id = nanoid();
+      const fileName = saveImageBuffer(id, data.buffer);
       store.createImage(id, fileName);
       return { id, fileName };
     });

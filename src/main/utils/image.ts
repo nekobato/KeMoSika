@@ -12,18 +12,42 @@ const defaultImagePath = path.resolve(
 
 if (!fs.existsSync(imagePath)) {
   fs.mkdirSync(imagePath, { recursive: true });
-  // copy default images to imagePath
+}
+
+function ensureDefaultImages() {
   const files = fs.readdirSync(defaultImagePath);
   files.forEach((file) => {
-    fs.copyFileSync(
-      path.join(defaultImagePath, file),
-      path.join(imagePath, file)
-    );
+    const target = path.join(imagePath, file);
+    if (!fs.existsSync(target)) {
+      fs.copyFileSync(path.join(defaultImagePath, file), target);
+    }
   });
 }
 
+ensureDefaultImages();
+
 export function saveImage(imageId: string, targetImagePath: string) {
   const image = nativeImage.createFromPath(targetImagePath);
+  const buffer = image.toPNG();
+  const fileName = `${imageId}.png`;
+  const filePath = path.join(imagePath, fileName);
+  fs.writeFileSync(filePath, buffer);
+
+  return fileName;
+}
+
+export function saveImageBuffer(
+  imageId: string,
+  data: ArrayBuffer | Buffer | Uint8Array
+) {
+  const sourceBuffer =
+    data instanceof Buffer
+      ? data
+      : Buffer.isBuffer(data)
+        ? data
+        : Buffer.from(data);
+
+  const image = nativeImage.createFromBuffer(sourceBuffer);
   const buffer = image.toPNG();
   const fileName = `${imageId}.png`;
   const filePath = path.join(imagePath, fileName);

@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { LayoutData } from "@shared/types";
 import { PropType } from "vue";
+import IconField from "primevue/iconfield";
 import InputText from "primevue/inputtext";
+import InputIcon from "primevue/inputicon";
 import InputNumber from "primevue/inputnumber";
 
 const props = defineProps({
@@ -24,83 +26,72 @@ const onChangeInput = (key: string, value: any) => {
 };
 </script>
 <template>
-<section class="layout-config" v-if="props.layout">
-    <div class="form">
-      <div class="field">
-        <label for="layout-name">名</label>
+  <section class="layout-config" v-if="props.layout">
+    <div class="form grid">
+      <IconField class="grid-span-2">
+        <InputIcon>
+          <span>名</span>
+        </InputIcon>
         <InputText
           id="layout-name"
-          class="name"
           size="small"
-          placeholder="おなまえ"
+          placeholder="レイアウト名"
+          fluid
           v-model="props.layout.name"
           @update:modelValue="onChangeInput('name', $event)"
         />
-      </div>
-      <div class="field-grid">
-        <div class="field">
-          <label for="layout-w">W</label>
+      </IconField>
+      <IconField>
+        <InputIcon>
+          <span>W</span>
+        </InputIcon>
         <InputNumber
           inputId="layout-w"
           class="input-bounds"
           size="small"
+          fluid
           :useGrouping="false"
           :min="40"
           :max="9999"
-            :step="1"
-            v-model="props.layout.width"
-            @update:modelValue="onChangeInput('width', $event)"
-          />
-        </div>
-        <div class="field">
-          <label for="layout-h">H</label>
+          :step="1"
+          v-model="props.layout.width"
+          @update:modelValue="onChangeInput('width', $event)"
+        />
+      </IconField>
+      <IconField>
+        <InputIcon>
+          <span>H</span>
+        </InputIcon>
         <InputNumber
           inputId="layout-h"
           class="input-bounds"
           size="small"
+          fluid
           :useGrouping="false"
           :min="40"
           :max="9999"
-            :step="1"
-            v-model="props.layout.height"
-            @update:modelValue="onChangeInput('height', $event)"
-          />
-        </div>
-      </div>
+          :step="1"
+          v-model="props.layout.height"
+          @update:modelValue="onChangeInput('height', $event)"
+        />
+      </IconField>
     </div>
   </section>
 </template>
 
 <style scoped lang="scss">
 .layout-config {
-  padding: 16px;
+  padding: 24px;
 }
 .form {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-
-  .name {
-    width: 180px;
-  }
-}
-.field-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
-}
-.field {
-  display: flex;
-  align-items: center;
-  gap: 8px;
 
-  label {
-    min-width: 28px;
-    color: #4c4d4f;
+  &.grid {
+    .grid-span-2 {
+      grid-column: 1 / -1;
+    }
   }
-}
-.input-bounds {
-  width: 80px;
 }
 </style>

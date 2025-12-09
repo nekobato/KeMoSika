@@ -5,6 +5,8 @@ import { MouseData } from "@shared/types";
 import { MouseImageType } from "@/types/app";
 import InputNumber from "primevue/inputnumber";
 import Divider from "primevue/divider";
+import IconField from "primevue/iconfield";
+import InputIcon from "primevue/inputicon";
 
 const props = defineProps({
   mouseData: {
@@ -44,108 +46,100 @@ const selectImage = (type: MouseImageType) => {
 </script>
 
 <template>
-<section class="mouse-config" v-if="mouseData">
-    <div class="form">
-      <div class="field-grid">
-        <div class="field">
-          <label for="mouse-x">X</label>
-          <InputNumber
-            inputId="mouse-x"
-            class="input-bounds"
-            size="small"
-            v-model="mouseData.x"
-            :useGrouping="false"
-            :min="0"
-            :max="999999"
-            :step="1"
-            @update:modelValue="onChangeInput('x', $event)"
-          />
-        </div>
-        <div class="field">
-          <label for="mouse-y">Y</label>
-          <InputNumber
-            inputId="mouse-y"
-            class="input-bounds"
-            size="small"
-            v-model="mouseData.y"
-            :useGrouping="false"
-            :min="0"
-            :max="999999"
-            :step="1"
-            @update:modelValue="onChangeInput('y', $event)"
-          />
-        </div>
-      </div>
+  <section class="mouse-config" v-if="mouseData">
+    <div class="form grid">
+      <IconField>
+        <InputIcon><span>X</span></InputIcon>
+        <InputNumber
+          inputId="mouse-x"
+          size="small"
+          fluid
+          v-model="mouseData.x"
+          :useGrouping="false"
+          :min="0"
+          :max="999999"
+          :step="1"
+          @update:modelValue="onChangeInput('x', $event)"
+        />
+      </IconField>
+      <IconField>
+        <InputIcon><span>Y</span></InputIcon>
+        <InputNumber
+          inputId="mouse-y"
+          size="small"
+          fluid
+          v-model="mouseData.y"
+          :useGrouping="false"
+          :min="0"
+          :max="999999"
+          :step="1"
+          @update:modelValue="onChangeInput('y', $event)"
+        />
+      </IconField>
 
-      <div class="field-grid">
-        <div class="field">
-          <label for="mouse-w">W</label>
-          <InputNumber
-            inputId="mouse-w"
-            class="input-bounds"
-            size="small"
-            v-model="mouseData.width"
-            :useGrouping="false"
-            :min="0"
-            :max="999999"
-            :step="1"
-            @update:modelValue="onChangeInput('width', $event)"
-          />
-        </div>
-        <div class="field">
-          <label for="mouse-h">H</label>
-          <InputNumber
-            inputId="mouse-h"
-            class="input-bounds"
-            size="small"
-            v-model="mouseData.height"
-            :useGrouping="false"
-            :min="0"
-            :max="999999"
-            :step="1"
-            @update:modelValue="onChangeInput('height', $event)"
-          />
-        </div>
-      </div>
+      <IconField>
+        <InputIcon><span>W</span></InputIcon>
+        <InputNumber
+          inputId="mouse-w"
+          size="small"
+          fluid
+          v-model="mouseData.width"
+          :useGrouping="false"
+          :min="0"
+          :max="999999"
+          :step="1"
+          @update:modelValue="onChangeInput('width', $event)"
+        />
+      </IconField>
+      <IconField>
+        <InputIcon><span>H</span></InputIcon>
+        <InputNumber
+          inputId="mouse-h"
+          size="small"
+          fluid
+          v-model="mouseData.height"
+          :useGrouping="false"
+          :min="0"
+          :max="999999"
+          :step="1"
+          @update:modelValue="onChangeInput('height', $event)"
+        />
+      </IconField>
 
-      <div class="field-grid single">
-        <div class="field">
-          <label class="icon-label" for="mouse-rotation">
-            <Icon icon="mingcute:clockwise-line" class="icon" />
-          </label>
-          <InputNumber
-            inputId="mouse-rotation"
-            class="input-bounds"
-            size="small"
-            v-model="mouseData.rotation"
-            :useGrouping="false"
-            :min="-999999"
-            :max="999999"
-            :step="1"
-            @update:modelValue="onChangeInput('rotation', $event)"
-          />
-        </div>
-      </div>
+      <IconField class="grid-span-2">
+        <InputIcon
+          ><Icon icon="mingcute:clockwise-line" class="icon"
+        /></InputIcon>
+        <InputNumber
+          inputId="mouse-rotation"
+          size="small"
+          fluid
+          v-model="mouseData.rotation"
+          :useGrouping="false"
+          :min="-999999"
+          :max="999999"
+          :step="1"
+          @update:modelValue="onChangeInput('rotation', $event)"
+        />
+      </IconField>
 
-      <Divider />
+      <Divider class="grid-span-2" />
 
-      <div class="section-title">マウス画像</div>
-      <div class="image-grid">
-        <div class="image-cell" v-for="type in imageTypes" :key="type.key">
-          <img
-            class="mouse-image"
-            v-if="mouseData.images[type.key]"
-            :src="`media://images/${mouseData.images[type.key]}.png`"
-            @click="selectImage(type.key as MouseImageType)"
-          />
-          <div
-            class="mouse-image-placeholder"
-            v-else
-            @click="selectImage(type.key as MouseImageType)"
-          >
-            <Icon class="icon" icon="mingcute:add-line" />
-            <span>{{ type.label }}</span>
-          </div>
+      <div class="section-title grid-span-2">マウス画像</div>
+      <div class="image-cell" v-for="type in imageTypes" :key="type.key">
+        <img
+          class="mouse-image"
+          v-if="mouseData.images[type.key]"
+          :src="`media://images/${mouseData.images[type.key]}.png`"
+          @click="selectImage(type.key as MouseImageType)"
+        />
+        <div
+          class="mouse-image-placeholder"
+          v-else
+          @click="selectImage(type.key as MouseImageType)"
+        >
+          <Icon class="icon" icon="mingcute:add-line" />
+          <span>{{ type.label }}</span>
         </div>
       </div>
     </div>
@@ -156,50 +150,18 @@ const selectImage = (type: MouseImageType) => {
 .mouse-config {
   padding: 16px;
 }
+.grid {
+  margin: 0;
+}
 .form {
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.field-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 
-  &.single {
-    grid-template-columns: 1fr;
+  .grid-span-2 {
+    grid-column: 1 / -1;
   }
-}
-.field {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-  label {
-    min-width: 32px;
-    color: #4c4d4f;
-  }
-
-  .icon-label {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-  }
-}
-.input-bounds {
-  width: 80px;
-}
-.section-title {
-  margin-bottom: 8px;
-  font-size: 14px;
-  color: #4c4d4f;
-}
-.image-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
 }
 .image-cell {
   min-height: 100px;

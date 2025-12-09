@@ -22,7 +22,8 @@
     "docs:build": "vitepress build doc",
     "docs:preview": "vitepress preview doc",
     "wdio": "wdio run ./wdio.conf.ts",
-    "typecheck": "tsc --noEmit && vue-tsc --noEmit"
+    "typecheck": "tsc --noEmit && vue-tsc --noEmit",
+    "lint": "pnpm run typecheck"
   },
   "engines": {
     "node": ">=24",

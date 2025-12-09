@@ -31,6 +31,7 @@ import { useRoute } from "vue-router";
 import FloatActions from "@/components/FloatActions/FloatActions.vue";
 import FloatActionButton from "@/components/FloatActions/FloatActionButton.vue";
 import Dialog from "primevue/dialog";
+import FileUpload, { FileUploadUploaderEvent } from "primevue/fileupload";
 import ImageList from "@/components/pages/config/ImageList.vue";
 import { InputImageType } from "@/types/app";
 import { useEditLayout } from "@/composables/edit/useEditLayout";
@@ -271,6 +272,28 @@ const onUpdateImages = async () => {
   await store.getImages();
 };
 
+const uploadImages = async (event: FileUploadUploaderEvent) => {
+  const files = event.files
+    ? Array.isArray(event.files)
+      ? event.files
+      : [event.files]
+    : [];
+
+  for (const file of files) {
+    const fileWithPath = file as File & { path?: string };
+
+    if (fileWithPath.path) {
+      await window.ipc.invoke("image:save", { imagePath: fileWithPath.path });
+      continue;
+    }
+
+    const buffer = await file.arrayBuffer();
+    await window.ipc.invoke("image:save-buffer", { buffer });
+  }
+
+  await onUpdateImages();
+};
+
 watch(itemsCount, async () => {
   nextTick(() => {
     moveableRef.value?.updateSelectors();
@@ -412,12 +435,27 @@ onUnmounted(() => {
     <template #dialog>
       <Dialog
         v-model:visible="showImageDialog"
-        header="Select Image"
         modal
         :closable="true"
         :draggable="false"
+        :baseZIndex="5000"
+        appendTo="body"
         style="width: calc(100% - 48px);"
       >
+        <template #header>
+          <div class="image-dialog-header">
+            <span class="image-dialog-title">Select Image</span>
+            <FileUpload
+              class="image-dialog-upload"
+              mode="basic"
+              chooseLabel="Upload"
+              accept="image/*"
+              :auto="true"
+              customUpload
+              @uploader="uploadImages"
+            />
+          </div>
+        </template>
         <ImageList
           @select="onSelectImage"
           @update="onUpdateImages"
@@ -482,5 +520,21 @@ main {
     width: 10px;
     height: 10px;
   }
+}
+
+.image-dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.image-dialog-title {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.image-dialog-upload :deep(.p-button) {
+  padding: 0.4rem 0.75rem;
 }
 </style>

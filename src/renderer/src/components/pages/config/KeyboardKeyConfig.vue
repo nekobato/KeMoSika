@@ -8,9 +8,11 @@ import Chip from "primevue/chip";
 import Button from "primevue/button";
 import InputNumber from "primevue/inputnumber";
 import InputText from "primevue/inputtext";
-import Checkbox from "primevue/checkbox";
+import ToggleSwitch from "primevue/toggleswitch";
 import ColorPicker from "primevue/colorpicker";
 import Divider from "primevue/divider";
+import IconField from "primevue/iconfield";
+import InputIcon from "primevue/inputicon";
 
 const props = defineProps({
   keyData: {
@@ -77,37 +79,37 @@ const selectImage = (type: InputImageType) => {
 <template>
   <section class="keyboard-key-config" v-if="keyData">
     <div class="form">
-      <div class="keymap-group">
-      <Chip
-        v-for="(mapKey, index) in keyData.codeMap"
-        :key="`${mapKey}-${index}`"
-        class="keymap"
-        size="small"
-        removable
-        @remove="
-          () => keyData.codeMap.splice(keyData.codeMap.indexOf(mapKey), 1)
-        "
-        @keydown="onKeyDownShortcutInput($event, index)"
-          tabindex="0"
-          :label="mapKey || 'Empty'"
-        />
-        <Button
-          class="keymap add-button"
-          size="small"
-          outlined
-          @click="() => keyData.codeMap.push('')"
-        >
-          <Icon class="icon" icon="mingcute:add-line" />Add
-        </Button>
-      </div>
+      <div class="grid">
+        <div class="keymap-group grid-span-2">
+          <Chip
+            v-for="(mapKey, index) in keyData.codeMap"
+            :key="`${mapKey}-${index}`"
+            class="keymap"
+            size="small"
+            removable
+            @remove="
+              () => keyData.codeMap.splice(keyData.codeMap.indexOf(mapKey), 1)
+            "
+            @keydown="onKeyDownShortcutInput($event, index)"
+            tabindex="0"
+            :label="mapKey || 'Empty'"
+          />
+          <Button
+            class="keymap add-button"
+            size="small"
+            outlined
+            @click="() => keyData.codeMap.push('')"
+          >
+            <Icon class="icon" icon="mingcute:add-line" />Add
+          </Button>
+        </div>
 
-      <div class="field-grid">
-        <div class="field">
-          <label for="key-x">X</label>
+        <IconField>
+          <InputIcon><span>X</span></InputIcon>
           <InputNumber
             inputId="key-x"
-            class="input-bounds"
             size="small"
+            fluid
             v-model="keyData.x"
             :useGrouping="false"
             :min="0"
@@ -115,13 +117,14 @@ const selectImage = (type: InputImageType) => {
             :step="1"
             @update:modelValue="onChangeInput('x', $event)"
           />
-        </div>
-        <div class="field">
-          <label for="key-y">Y</label>
+        </IconField>
+
+        <IconField>
+          <InputIcon><span>Y</span></InputIcon>
           <InputNumber
             inputId="key-y"
-            class="input-bounds"
             size="small"
+            fluid
             v-model="keyData.y"
             :useGrouping="false"
             :min="0"
@@ -129,16 +132,14 @@ const selectImage = (type: InputImageType) => {
             :step="1"
             @update:modelValue="onChangeInput('y', $event)"
           />
-        </div>
-      </div>
+        </IconField>
 
-      <div class="field-grid">
-        <div class="field">
-          <label for="key-w">W</label>
+        <IconField>
+          <InputIcon><span>W</span></InputIcon>
           <InputNumber
             inputId="key-w"
-            class="input-bounds"
             size="small"
+            fluid
             v-model="keyData.width"
             :useGrouping="false"
             :min="0"
@@ -146,13 +147,14 @@ const selectImage = (type: InputImageType) => {
             :step="1"
             @update:modelValue="onChangeInput('width', $event)"
           />
-        </div>
-        <div class="field">
-          <label for="key-h">H</label>
+        </IconField>
+
+        <IconField>
+          <InputIcon><span>H</span></InputIcon>
           <InputNumber
             inputId="key-h"
-            class="input-bounds"
             size="small"
+            fluid
             v-model="keyData.height"
             :useGrouping="false"
             :min="0"
@@ -160,18 +162,16 @@ const selectImage = (type: InputImageType) => {
             :step="1"
             @update:modelValue="onChangeInput('height', $event)"
           />
-        </div>
-      </div>
+        </IconField>
 
-      <div class="field-grid single">
-        <div class="field">
-          <label class="icon-label" for="key-rotation">
-            <Icon icon="mingcute:clockwise-line" class="icon" />
-          </label>
+        <IconField>
+          <InputIcon
+            ><Icon icon="mingcute:clockwise-line" class="icon"
+          /></InputIcon>
           <InputNumber
             inputId="key-rotation"
-            class="input-bounds"
             size="small"
+            fluid
             v-model="keyData.rotation"
             :useGrouping="false"
             :min="-999999"
@@ -179,129 +179,130 @@ const selectImage = (type: InputImageType) => {
             :step="1"
             @update:modelValue="onChangeInput('rotation', $event)"
           />
-        </div>
+        </IconField>
+
+        <div />
       </div>
 
       <Divider />
 
-      <div v-if="keyData.text">
-        <div class="field checkbox-field">
-          <Checkbox
-            inputId="key-text-visible"
+      <div class="checkbox-field" v-if="keyData.text">
+        <ToggleSwitch
+          inputId="key-text-visible"
+          size="small"
+          binary
+          v-model="keyData.text.isVisible"
+          @update:modelValue="onChangeInput('text.isVisible', $event)"
+        />
+        <label for="key-text-visible">Text</label>
+      </div>
+
+      <div class="grid" v-if="keyData.text?.isVisible">
+        <IconField>
+          <InputIcon>
+            <Icon icon="mingcute:text-2-line" />
+          </InputIcon>
+          <InputText
+            id="key-text"
             size="small"
-            binary
-            v-model="keyData.text.isVisible"
-            @update:modelValue="onChangeInput('text.isVisible', $event)"
+            fluid
+            v-model="keyData.text.character"
+            @update:modelValue="onChangeInput('text.character', $event)"
           />
-          <label for="key-text-visible">Text</label>
+        </IconField>
+
+        <div class="color-picker-field">
+          <ColorPicker
+            inputId="key-text-color"
+            class="color-input"
+            v-model="keyData.text.color"
+            @update:modelValue="onChangeInput('text.color', $event)"
+          />
+          <span>Color</span>
         </div>
 
-        <div v-if="keyData.text.isVisible">
-          <div class="field">
-            <label for="key-text">Text</label>
-            <InputText
-              id="key-text"
-              class="input-key"
-              size="small"
-              v-model="keyData.text.character"
-              @update:modelValue="onChangeInput('text.character', $event)"
-            />
-          </div>
+        <IconField>
+          <InputIcon><span>X</span></InputIcon>
+          <InputNumber
+            inputId="key-text-x"
+            size="small"
+            fluid
+            v-model="keyData.text.x"
+            :useGrouping="false"
+            :min="-9999"
+            :max="9999"
+            :step="1"
+            @update:modelValue="onChangeInput('text.x', $event)"
+          />
+        </IconField>
+        <IconField>
+          <InputIcon><span>Y</span></InputIcon>
+          <InputNumber
+            inputId="key-text-y"
+            size="small"
+            fluid
+            v-model="keyData.text.y"
+            :useGrouping="false"
+            :min="-9999"
+            :max="9999"
+            :step="1"
+            @update:modelValue="onChangeInput('text.y', $event)"
+          />
+        </IconField>
 
-          <div class="field-grid">
-            <div class="field">
-              <label for="key-text-x">X</label>
-              <InputNumber
-                inputId="key-text-x"
-                class="input-bounds"
-                size="small"
-                v-model="keyData.text.x"
-                :useGrouping="false"
-                :min="-9999"
-                :max="9999"
-                :step="1"
-                @update:modelValue="onChangeInput('text.x', $event)"
-              />
-            </div>
-            <div class="field">
-              <label for="key-text-y">Y</label>
-              <InputNumber
-                inputId="key-text-y"
-                class="input-bounds"
-                size="small"
-                v-model="keyData.text.y"
-                :useGrouping="false"
-                :min="-9999"
-                :max="9999"
-                :step="1"
-                @update:modelValue="onChangeInput('text.y', $event)"
-              />
-            </div>
-          </div>
+        <IconField>
+          <InputIcon>
+            <Icon icon="mingcute:font-size-line" />
+          </InputIcon>
+          <InputNumber
+            inputId="key-text-size"
+            size="small"
+            fluid
+            v-model="keyData.text.size"
+            :useGrouping="false"
+            :min="10"
+            :max="99"
+            :step="1"
+            @update:modelValue="onChangeInput('text.size', $event)"
+          />
+        </IconField>
+      </div>
+    </div>
 
-          <div class="field-grid">
-            <div class="field">
-              <label for="key-text-size">Size</label>
-              <InputNumber
-                inputId="key-text-size"
-                class="input-bounds"
-                size="small"
-                v-model="keyData.text.size"
-                :useGrouping="false"
-                :min="10"
-                :max="99"
-                :step="1"
-                @update:modelValue="onChangeInput('text.size', $event)"
-              />
-            </div>
-            <div class="field">
-              <label for="key-text-color">Color</label>
-              <ColorPicker
-                inputId="key-text-color"
-                class="input-bounds"
-                v-model="keyData.text.color"
-                @update:modelValue="onChangeInput('text.color', $event)"
-              />
-            </div>
-          </div>
+    <Divider />
+
+    <div class="section-title">キーボード画像</div>
+    <div class="image-grid">
+      <div class="image-cell">
+        <img
+          class="key-image"
+          v-if="keyData.images.keyDefault"
+          :src="`media://images/${keyData.images.keyDefault}.png`"
+          @click="selectImage('keyDefault')"
+        />
+        <div
+          class="key-image-placeholder"
+          v-else
+          @click="selectImage('keyDefault')"
+        >
+          <Icon class="icon" icon="mingcute:add-line" />
+          <span>デフォルト</span>
         </div>
       </div>
-
-      <Divider />
-
-      <div class="section-title">キーボード画像</div>
-      <div class="image-grid">
-        <div class="image-cell">
-          <img
-            class="key-image"
-            v-if="keyData.images.keyDefault"
-            :src="`media://images/${keyData.images.keyDefault}.png`"
-            @click="selectImage('keyDefault')"
-          />
-          <div
-            class="key-image-placeholder"
-            v-else
-            @click="selectImage('keyDefault')"
-          >
-            <Icon class="icon" icon="mingcute:add-line" />
-            <span>デフォルト</span>
-          </div>
-        </div>
-        <div class="image-cell">
-          <img
-            class="key-image"
-            v-if="keyData.images.keyActive"
-            :src="`media://images/${keyData.images.keyActive}.png`"
-            @click="selectImage('keyActive')"
-          />
-          <div
-            class="key-image-placeholder"
-            v-else
-            @click="selectImage('keyActive')"
-          >
-            <Icon class="icon" icon="mingcute:add-line" />
-            <span>アクティブ</span>
-          </div>
+      <div class="image-cell">
+        <img
+          class="key-image"
+          v-if="keyData.images.keyActive"
+          :src="`media://images/${keyData.images.keyActive}.png`"
+          @click="selectImage('keyActive')"
+        />
+        <div
+          class="key-image-placeholder"
+          v-else
+          @click="selectImage('keyActive')"
+        >
+          <Icon class="icon" icon="mingcute:add-line" />
+          <span>アクティブ</span>
         </div>
       </div>
     </div>
@@ -351,42 +352,32 @@ const selectImage = (type: InputImageType) => {
 .section-title {
   margin-bottom: 8px;
   font-size: 14px;
-  color: #4c4d4f;
 }
-.field-grid {
+.grid {
+  margin: 0;
+  width: 100%;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 
-  &.single {
-    grid-template-columns: 1fr;
+  .grid-span-2 {
+    grid-column: 1 / -1;
   }
 }
-.field {
+.keymap-group {
+  padding: 0 0 8px;
   display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.checkbox-field {
+  padding-bottom: 12px;
+}
+.checkbox-field,
+.color-picker-field {
+  display: inline-flex;
   align-items: center;
   gap: 8px;
-
-  label {
-    min-width: 40px;
-    color: #4c4d4f;
-  }
-
-  &.checkbox-field {
-    gap: 6px;
-    align-items: center;
-
-    label {
-      min-width: auto;
-    }
-  }
-
-  .icon-label {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-  }
 }
 .key-image {
   width: 100%;
@@ -408,5 +399,31 @@ const selectImage = (type: InputImageType) => {
 }
 .image-cell {
   min-height: 100px;
+}
+.key-image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border: 1px dashed #4c4d4f;
+  border-radius: 4px;
+
+  &:hover {
+    border: 1px dashed #409eff;
+  }
+
+  .icon {
+    font-size: 24px;
+    color: #4c4d4f;
+  }
+
+  span {
+    margin-top: 4px;
+    font-size: 12px;
+    color: #4c4d4f;
+  }
 }
 </style>
