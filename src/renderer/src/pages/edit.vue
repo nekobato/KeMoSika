@@ -28,10 +28,11 @@ import Header from "@/components/Header.vue";
 import Mouse from "@/components/Mouse.vue";
 import { Icon } from "@iconify/vue";
 import { useRoute } from "vue-router";
-import FloatActions from "@/components/FloatActions/FloatActions.vue";
-import FloatActionButton from "@/components/FloatActions/FloatActionButton.vue";
 import Dialog from "primevue/dialog";
+import Button from "primevue/button";
+import ButtonGroup from "primevue/buttongroup";
 import FileUpload, { FileUploadUploaderEvent } from "primevue/fileupload";
+import FloatActions from "@/components/FloatActions/FloatActions.vue";
 import ImageList from "@/components/pages/config/ImageList.vue";
 import { InputImageType } from "@/types/app";
 import { useEditLayout } from "@/composables/edit/useEditLayout";
@@ -389,23 +390,31 @@ onUnmounted(() => {
         </div>
       </main>
       <FloatActions class="float-tool-actions">
-        <FloatActionButton @click="addKey">
-          <template #icon>
-            <Icon icon="mingcute:add-fill" class="add-icon" />
-            <Icon icon="mingcute:hotkey-line" class="nn-icon size-small" />
-          </template>
-        </FloatActionButton>
-        <FloatActionButton @click="addMouse">
-          <template #icon>
-            <Icon icon="mingcute:add-fill" class="add-icon" />
-            <Icon icon="mingcute:mouse-line" class="nn-icon size-small" />
-          </template>
-        </FloatActionButton>
-        <FloatActionButton @click="addPicture">
-          <template #icon>
-            <Icon icon="mingcute:pic-line" class="nn-icon size-small" />
-          </template>
-        </FloatActionButton>
+        <ButtonGroup>
+          <Button
+            class="float-action-button"
+            @click="addKey"
+            aria-label="Add Key"
+          >
+            <Icon icon="mingcute:add-fill" class="action-icon add-icon" />
+            <Icon icon="mingcute:hotkey-line" class="action-icon size-small" />
+          </Button>
+          <Button
+            class="float-action-button"
+            @click="addMouse"
+            aria-label="Add Mouse"
+          >
+            <Icon icon="mingcute:add-fill" class="action-icon add-icon" />
+            <Icon icon="mingcute:mouse-line" class="action-icon size-small" />
+          </Button>
+          <Button
+            class="float-action-button"
+            @click="addPicture"
+            aria-label="Add Image"
+          >
+            <Icon icon="mingcute:pic-line" class="action-icon size-small" />
+          </Button>
+        </ButtonGroup>
       </FloatActions>
     </template>
     <template #aside>
@@ -509,17 +518,6 @@ main {
   position: absolute;
   top: 16px;
   left: 16px;
-}
-.float-tool-actions {
-  .add-icon {
-    position: absolute;
-    top: 4px;
-    left: 8px;
-    flex: 0 0 16px;
-    color: var(--color-grey-200);
-    width: 10px;
-    height: 10px;
-  }
 }
 
 .image-dialog-header {

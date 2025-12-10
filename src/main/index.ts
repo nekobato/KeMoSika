@@ -7,7 +7,9 @@ import {
   ipcMain,
   Menu,
   protocol,
-  net
+  net,
+  systemPreferences,
+  dialog
 } from "electron";
 import path from "node:path";
 import { uIOhook } from "uiohook-napi";
@@ -27,10 +29,30 @@ app.disableHardwareAcceleration();
 
 let editorWindow: BrowserWindow | null;
 let visualizerWindow: BrowserWindow | null;
+let accessibilityTrusted = process.platform !== "darwin";
 
 uIOhook.on("input", (event) => {
   visualizerWindow?.webContents.send("input", event);
 });
+
+const ensureAccessibilityPermission = (prompt = false) => {
+  if (process.platform !== "darwin") return true;
+  accessibilityTrusted = systemPreferences.isTrustedAccessibilityClient(prompt);
+  return accessibilityTrusted;
+};
+
+const showAccessibilityDialog = () => {
+  const win = visualizerWindow || editorWindow || null;
+  dialog.showMessageBox(win, {
+    type: "warning",
+    buttons: ["OK"],
+    defaultId: 0,
+    title: "アクセシビリティ許可が必要です",
+    message: "KeMoSika が入力イベントを取得するにはアクセシビリティ権限が必要です。",
+    detail:
+      "システム設定 > プライバシーとセキュリティ > アクセシビリティ で KeMoSika を許可した後、もう一度お試しください。"
+  });
+};
 
 function setMenu() {
   const template: (MenuItemConstructorOptions | MenuItem)[] = [
@@ -91,6 +113,10 @@ app.on("before-quit", () => {
 
 app
   .whenReady()
+  .then(() => {
+    // macOS での入力フック用に早めに権限ダイアログを表示
+    ensureAccessibilityPermission(true);
+  })
   .then(setMenu)
   .then(() => {
     editorWindow = createEditorWindow();
@@ -104,8 +130,18 @@ app
   .then(() => {
     ipcMain.handle("uiohook:start", async () => {
       console.log("uiohook:start");
-      uIOhook.start();
-      return true;
+      if (!ensureAccessibilityPermission(true)) {
+        showAccessibilityDialog();
+        return { started: false, reason: "permission" };
+      }
+
+      try {
+        uIOhook.start();
+        return { started: true };
+      } catch (error) {
+        console.error("uIOhook.start failed", error);
+        return { started: false, reason: "error" };
+      }
     });
 
     ipcMain.handle("uiohook:stop", async () => {
@@ -175,11 +211,32 @@ app
           size: { width: number; height: number };
         }
       ) => {
+        const trusted = ensureAccessibilityPermission(true);
+        if (!trusted) {
+          showAccessibilityDialog();
+          return { started: false, reason: "permission" };
+        }
+
         visualizerWindow?.setSize(options.size.width, options.size.height);
         visualizerWindow?.show();
         console.log("visualizer:start", options);
         visualizerWindow?.webContents.send("visualizer:start", options);
-        uIOhook.start();
+
+        try {
+          uIOhook.start();
+          return { started: true };
+        } catch (error) {
+          console.error("visualizer uIOhook.start failed", error);
+          dialog.showMessageBox(visualizerWindow || editorWindow || null, {
+            type: "error",
+            buttons: ["OK"],
+            defaultId: 0,
+            title: "入力フックの開始に失敗しました",
+            message: "アクセシビリティ権限が付与されているか確認してください。",
+            detail: String(error)
+          });
+          return { started: false, reason: "error" };
+        }
       }
     );
 

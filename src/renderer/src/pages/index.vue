@@ -9,8 +9,9 @@ import { useRouter } from "vue-router";
 import Header from "@/components/Header.vue";
 import Mouse from "@/components/Mouse.vue";
 import Divider from "primevue/divider";
+import ButtonGroup from "primevue/buttongroup";
+import Button from "primevue/button";
 import FloatActions from "@/components/FloatActions/FloatActions.vue";
-import FloatActionButton from "@/components/FloatActions/FloatActionButton.vue";
 
 const router = useRouter();
 const store = useStore();
@@ -82,17 +83,23 @@ const gotoVisualizer = () => {
           <Mouse v-for="mouse in mouses" :data="mouse" />
         </div>
       </main>
-      <FloatActions class="float-actions">
-        <FloatActionButton @click="gotoEdit">
-          <template #icon>
-            <Icon icon="mingcute:edit-4-line" class="nn-icon size-xsmall" />
-          </template>
-        </FloatActionButton>
-        <FloatActionButton class="type-primary" @click="gotoVisualizer">
-          <template #icon>
-            <Icon icon="mingcute:play-fill" class="nn-icon size-xsmall" />
-          </template>
-        </FloatActionButton>
+      <FloatActions>
+        <ButtonGroup>
+          <Button
+            class="float-action-button"
+            @click="gotoEdit"
+            aria-label="Edit Layout"
+          >
+            <Icon icon="mingcute:edit-4-line" class="action-icon size-xsmall" />
+          </Button>
+          <Button
+            class="float-action-button type-primary"
+            @click="gotoVisualizer"
+            aria-label="Open Visualizer"
+          >
+            <Icon icon="mingcute:play-fill" class="action-icon size-xsmall" />
+          </Button>
+        </ButtonGroup>
       </FloatActions>
     </template>
     <template #aside>
@@ -296,9 +303,4 @@ const gotoVisualizer = () => {
   }
 }
 
-.float-actions {
-  .type-primary {
-    width: 80px;
-  }
-}
 </style>
