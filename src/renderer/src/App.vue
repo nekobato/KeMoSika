@@ -18,7 +18,7 @@ const store = useStore();
 onBeforeMount(async () => {
   await store.init();
   if (!store.$state.layouts?.length) {
-    store.addLayout();
+    await store.addLayout();
   }
 });
 

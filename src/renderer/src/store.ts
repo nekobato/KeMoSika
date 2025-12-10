@@ -4,8 +4,9 @@ import { computed, ref, toRaw } from "vue";
 import { useManualRefHistory } from "@vueuse/core";
 import { nanoid } from "nanoid/non-secure";
 import { toRawDeep } from "./utils/toRawDeep";
+import { builtInLayouts } from "@/constants/defaultLayouts";
 
-const defaultLayout: LayoutData = {
+const createEmptyLayout = (): LayoutData => ({
   id: nanoid(),
   name: "新しいレイアウト",
   width: 800,
@@ -15,6 +16,15 @@ const defaultLayout: LayoutData = {
     image: ""
   },
   keys: []
+});
+
+const createLayoutFromTemplate = (template?: LayoutData, name?: string) => {
+  const base = template ? toRawDeep(template) : createEmptyLayout();
+  return {
+    ...base,
+    id: nanoid(),
+    name: name ?? base.name
+  } satisfies LayoutData;
 };
 
 export const useStore = defineStore("store", () => {
@@ -29,15 +39,18 @@ export const useStore = defineStore("store", () => {
 
   const init = async () => {
     const config = await window.ipc.invoke("config:get");
-    layouts.value = config.layouts;
-    images.value = config.images;
+    layouts.value = config.layouts ?? [];
+    images.value = config.images ?? [];
 
     commit();
   };
 
-  const addLayout = async () => {
-    layouts.value.push(defaultLayout);
-    await window.ipc.invoke("layout:save", defaultLayout);
+  const addLayout = async (template?: LayoutData, name?: string) => {
+    const layout = createLayoutFromTemplate(template, name);
+    layouts.value.push(layout);
+    commit();
+    await window.ipc.invoke("layout:save", toRawDeep(layout));
+    return layout;
   };
 
   const updateLayout = async (layout: LayoutData) => {
@@ -111,6 +124,7 @@ export const useStore = defineStore("store", () => {
     addLayout,
     deleteLayout,
     updateLayout,
+    builtinLayouts: builtInLayouts,
     saveLayout,
     addItem,
     updateItem,

@@ -31,9 +31,10 @@ const mouseStates = ref({
   amount: 0
 });
 
-const layout = computed<LayoutData | undefined>(() =>
-  store.$state.layouts.find((layout) => layout.id === route.params.layoutId)
-);
+const layout = computed<LayoutData | undefined>(() => {
+  const allLayouts = [...store.$state.layouts, ...store.builtinLayouts];
+  return allLayouts.find((l) => l.id === route.params.layoutId);
+});
 
 const keys = computed<KeyboardKeyData[] | undefined>(() =>
   layout.value?.keys.filter((key) => key.type === "key")

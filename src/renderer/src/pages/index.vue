@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { useStore } from "../store";
 import { Icon } from "@iconify/vue";
 import ConfigLayout from "@/components/layouts/ConfigLayout.vue";
 import KeyboardButton from "@/components/KeyboardButton.vue";
-import { KeyboardKeyData } from "@shared/types";
+import { KeyboardKeyData, LayoutData } from "@shared/types";
 import { useRouter } from "vue-router";
 import Header from "@/components/Header.vue";
 import Mouse from "@/components/Mouse.vue";
@@ -13,21 +13,69 @@ import ButtonGroup from "primevue/buttongroup";
 import Button from "primevue/button";
 import FloatActions from "@/components/FloatActions/FloatActions.vue";
 
+type LayoutSource = "user" | "builtin";
+
 const router = useRouter();
 const store = useStore();
 
-const selectedLayoutIndex = ref(0);
+const userLayouts = computed(() => store.$state.layouts || []);
+const builtinLayouts = computed(() => store.builtinLayouts || []);
 
-const selectedLayout = computed(() => {
-  return store.$state.layouts?.length
-    ? store.$state.layouts[selectedLayoutIndex.value]
-    : undefined;
+const selectedLayoutKey = ref("user:0");
+
+const parseSelectionKey = (
+  value: string
+): { source: LayoutSource; index: number } => {
+  const [source, index] = value.split(":");
+  const parsedSource: LayoutSource = source === "builtin" ? "builtin" : "user";
+  const parsedIndex = Number.isFinite(Number(index)) ? Number(index) : 0;
+  return { source: parsedSource, index: Math.max(0, parsedIndex) };
+};
+
+const ensureValidSelection = () => {
+  const userLength = userLayouts.value.length;
+  const builtinLength = builtinLayouts.value.length;
+  const { source, index } = parseSelectionKey(selectedLayoutKey.value);
+
+  if (source === "user") {
+    if (userLength === 0 && builtinLength > 0) {
+      selectedLayoutKey.value = "builtin:0";
+      return;
+    }
+    if (index >= userLength && userLength > 0) {
+      selectedLayoutKey.value = `user:${userLength - 1}`;
+      return;
+    }
+  }
+
+  if (source === "builtin") {
+    if (builtinLength === 0 && userLength > 0) {
+      selectedLayoutKey.value = "user:0";
+      return;
+    }
+    if (index >= builtinLength && builtinLength > 0) {
+      selectedLayoutKey.value = `builtin:${builtinLength - 1}`;
+    }
+  }
+};
+
+watch([userLayouts, builtinLayouts], ensureValidSelection, { immediate: true });
+
+const selectedLayout = computed<LayoutData | undefined>(() => {
+  const { source, index } = parseSelectionKey(selectedLayoutKey.value);
+  return source === "builtin"
+    ? builtinLayouts.value[index]
+    : userLayouts.value[index];
 });
+
+const selectedLayoutSource = computed<LayoutSource>(
+  () => parseSelectionKey(selectedLayoutKey.value).source
+);
 
 const layoutStyle = computed(() => {
   return {
-    width: `${selectedLayout.value?.width}px`,
-    height: `${selectedLayout.value?.height}px`
+    width: `${selectedLayout.value?.width ?? 0}px`,
+    height: `${selectedLayout.value?.height ?? 0}px`
   };
 });
 
@@ -39,26 +87,51 @@ const mouses = computed(() => {
   return selectedLayout.value?.keys.filter((key) => key.type === "mouse");
 });
 
-const addLayout = () => {
-  store.addLayout();
+const addLayout = async () => {
+  await store.addLayout();
+  selectedLayoutKey.value = `user:${Math.max(store.$state.layouts.length - 1, 0)}`;
 };
 
-const deleteLayout = (index: number) => {
-  store.deleteLayout(index);
+const deleteLayout = async (index: number) => {
+  await store.deleteLayout(index);
+  ensureValidSelection();
+};
+
+const copyBuiltinLayout = async (layout: LayoutData) => {
+  const defaultName = `${layout.name} のコピー`;
+  const name = window.prompt("コピー後のレイアウト名を入力してください", defaultName);
+  if (name === null) return;
+  await store.addLayout(layout, name.trim() || defaultName);
+  selectedLayoutKey.value = `user:${Math.max(store.$state.layouts.length - 1, 0)}`;
 };
 
 const gotoEdit = () => {
-  router.push(`/edit/${store.$state.layouts[selectedLayoutIndex.value].id}`);
+  if (selectedLayoutSource.value !== "user" || !selectedLayout.value) return;
+  router.push(`/edit/${selectedLayout.value.id}`);
 };
 
 const gotoVisualizer = () => {
+  if (!selectedLayout.value) return;
   window.ipc.invoke("visualizer:start", {
-    layoutId: store.$state.layouts[selectedLayoutIndex.value].id,
+    layoutId: selectedLayout.value.id,
     size: {
-      width: selectedLayout.value?.width,
-      height: selectedLayout.value?.height
+      width: selectedLayout.value.width,
+      height: selectedLayout.value.height
     }
   });
+};
+
+const isBuiltinLayoutSelected = computed(
+  () => selectedLayoutSource.value === "builtin" && !!selectedLayout.value
+);
+
+const handleLeftAction = () => {
+  if (!selectedLayout.value) return;
+  if (isBuiltinLayoutSelected.value) {
+    copyBuiltinLayout(selectedLayout.value);
+  } else {
+    gotoEdit();
+  }
 };
 </script>
 
@@ -87,13 +160,22 @@ const gotoVisualizer = () => {
         <ButtonGroup>
           <Button
             class="float-action-button"
-            @click="gotoEdit"
-            aria-label="Edit Layout"
+            :disabled="!selectedLayout"
+            @click="handleLeftAction"
+            :aria-label="isBuiltinLayoutSelected ? 'Copy Layout' : 'Edit Layout'"
           >
-            <Icon icon="mingcute:edit-4-line" class="action-icon size-xsmall" />
+            <Icon
+              :icon="
+                isBuiltinLayoutSelected
+                  ? 'mingcute:file-copy-2-line'
+                  : 'mingcute:edit-4-line'
+              "
+              class="action-icon size-xsmall"
+            />
           </Button>
           <Button
             class="float-action-button type-primary"
+            :disabled="!selectedLayout"
             @click="gotoVisualizer"
             aria-label="Open Visualizer"
           >
@@ -105,19 +187,20 @@ const gotoVisualizer = () => {
     <template #aside>
       <aside class="list-column">
         <div class="layout-list">
+          <p class="category-title">マイレイアウト</p>
           <label
             class="list-item"
-            v-for="(layout, index) in store.$state.layouts"
+            v-for="(layout, index) in userLayouts"
             :class="{
-              selected: selectedLayoutIndex === index
+              selected: selectedLayoutKey === `user:${index}`
             }"
           >
             <input
               class="radio"
               type="radio"
               key="layout"
-              :value="index"
-              v-model="selectedLayoutIndex"
+              :value="`user:${index}`"
+              v-model="selectedLayoutKey"
             />
             <span class="label">{{ layout.name }}</span>
             <button
@@ -134,21 +217,28 @@ const gotoVisualizer = () => {
         </div>
         <Divider />
         <div class="layout-list">
+          <p class="category-title">デフォルトレイアウト</p>
           <label
             class="list-item"
-            v-for="(layout, index) in [] as any"
+            v-for="(layout, index) in builtinLayouts"
             :class="{
-              selected: selectedLayoutIndex === index
+              selected: selectedLayoutKey === `builtin:${index}`
             }"
           >
             <input
               class="radio"
               type="radio"
               key="layout"
-              :value="index"
-              v-model="selectedLayoutIndex"
+              :value="`builtin:${index}`"
+              v-model="selectedLayoutKey"
             />
             <span class="label">{{ layout.name }}</span>
+            <button
+              class="nn-button type-ghost size-xsmall copy-button"
+              @click.stop="copyBuiltinLayout(layout)"
+            >
+              <Icon icon="mingcute:file-copy-2-line" class="nn-icon size-xsmall" />
+            </button>
           </label>
         </div>
       </aside>
@@ -202,7 +292,8 @@ const gotoVisualizer = () => {
     &:hover {
       background-color: var(--color-white-t50);
 
-      .delete-button {
+      .delete-button,
+      .copy-button {
         visibility: visible;
       }
     }
@@ -218,6 +309,15 @@ const gotoVisualizer = () => {
     }
 
     .delete-button {
+      position: absolute;
+      right: 8px;
+      width: 24px;
+      height: 24px;
+      margin: auto 0 auto auto;
+      visibility: hidden;
+    }
+
+    .copy-button {
       position: absolute;
       right: 8px;
       width: 24px;
