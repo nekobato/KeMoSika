@@ -183,7 +183,9 @@ const handleLeftAction = () => {
             class="float-action-button"
             :disabled="!selectedLayout"
             @click="handleLeftAction"
-            :aria-label="isBuiltinLayoutSelected ? 'Copy Layout' : 'Edit Layout'"
+            :aria-label="
+              isBuiltinLayoutSelected ? 'Copy Layout' : 'Edit Layout'
+            "
           >
             <Icon
               :icon="
@@ -191,7 +193,7 @@ const handleLeftAction = () => {
                   ? 'mingcute:file-copy-2-line'
                   : 'mingcute:edit-4-line'
               "
-              class="action-icon size-xsmall"
+              class="action-icon"
             />
           </Button>
           <Button
@@ -200,7 +202,7 @@ const handleLeftAction = () => {
             @click="gotoVisualizer"
             aria-label="Open Visualizer"
           >
-            <Icon icon="mingcute:play-fill" class="action-icon size-xsmall" />
+            <Icon icon="mingcute:play-fill" class="action-icon" />
           </Button>
         </ButtonGroup>
       </FloatActions>
@@ -224,17 +226,20 @@ const handleLeftAction = () => {
               v-model="selectedLayoutKey"
             />
             <span class="label">{{ layout.name }}</span>
-            <button
-              class="nn-button type-ghost size-xsmall delete-button"
+            <Button
+              class="nn-button delete-button"
+              text
+              severity="secondary"
               @click.stop="deleteLayout(index)"
+              aria-label="Delete Layout"
             >
-              <Icon icon="mingcute:delete-2-line" class="nn-icon size-xsmall" />
-            </button>
+              <Icon icon="mingcute:delete-2-line" class="nn-icon" />
+            </Button>
           </label>
-          <button class="nn-button" @click="addLayout">
-            <Icon icon="mingcute:file-new-line" class="nn-icon size-xsmall" />
+          <Button class="nn-button" @click="addLayout" aria-label="Add Layout">
+            <Icon icon="mingcute:file-new-line" class="nn-icon" />
             <span>新規作成</span>
-          </button>
+          </Button>
         </div>
         <Divider />
         <div class="layout-list">
@@ -254,12 +259,15 @@ const handleLeftAction = () => {
               v-model="selectedLayoutKey"
             />
             <span class="label">{{ layout.name }}</span>
-            <button
-              class="nn-button type-ghost size-xsmall copy-button"
+            <Button
+              class="nn-button copy-button"
+              text
+              severity="secondary"
               @click.stop="openCopyDialog(layout)"
+              aria-label="Copy Layout"
             >
-              <Icon icon="mingcute:file-copy-2-line" class="nn-icon size-xsmall" />
-            </button>
+              <Icon icon="mingcute:file-copy-2-line" class="nn-icon" />
+            </Button>
           </label>
         </div>
       </aside>
@@ -281,7 +289,9 @@ const handleLeftAction = () => {
           </div>
         </template>
         <div class="copy-dialog-body">
-          <label class="copy-dialog-label" for="copy-layout-name">レイアウト名</label>
+          <label class="copy-dialog-label" for="copy-layout-name"
+            >レイアウト名</label
+          >
           <InputText
             id="copy-layout-name"
             v-model="copyName"
@@ -293,8 +303,17 @@ const handleLeftAction = () => {
         </div>
         <template #footer>
           <div class="copy-dialog-actions">
-            <Button label="キャンセル" severity="secondary" text @click="closeCopyDialog" />
-            <Button label="決定" :disabled="!copyTargetLayout" @click="confirmCopyLayout" />
+            <Button
+              label="キャンセル"
+              severity="secondary"
+              text
+              @click="closeCopyDialog"
+            />
+            <Button
+              label="決定"
+              :disabled="!copyTargetLayout"
+              @click="confirmCopyLayout"
+            />
           </div>
         </template>
       </Dialog>
@@ -482,5 +501,4 @@ const handleLeftAction = () => {
     -webkit-app-region: no-drag;
   }
 }
-
 </style>

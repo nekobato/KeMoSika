@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Icon } from "@iconify/vue";
+import Button from "primevue/button";
 
 const props = defineProps({
   icon: {
@@ -15,10 +16,10 @@ const props = defineProps({
 
 <template>
   <div class="window-header">
-    <button class="nn-button type-ghost">
+    <Button class="nn-button" text severity="secondary" :aria-label="props.text">
       <Icon :icon="props.icon" class="nn-icon size-small" />
       <span>{{ props.text }}</span>
-    </button>
+    </Button>
   </div>
 </template>
 
@@ -40,8 +41,5 @@ const props = defineProps({
   height: 24px;
   min-height: auto;
   -webkit-app-region: no-drag;
-  &.exit {
-    margin: auto auto auto 80px;
-  }
 }
 </style>

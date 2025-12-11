@@ -401,7 +401,7 @@ onUnmounted(() => {
           </div>
         </div>
       </main>
-      <FloatActions class="float-tool-actions">
+      <FloatActions>
         <ButtonGroup>
           <Button
             class="float-action-button"
@@ -461,7 +461,7 @@ onUnmounted(() => {
         :draggable="false"
         :baseZIndex="5000"
         appendTo="body"
-        style="width: calc(100% - 48px);"
+        style="width: calc(100% - 48px)"
       >
         <template #header>
           <div class="image-dialog-header">

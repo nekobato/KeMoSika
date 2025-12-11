@@ -2,6 +2,7 @@
 import { Icon } from "@iconify/vue";
 import { computed } from "vue";
 import { useRouter } from "vue-router";
+import Button from "primevue/button";
 
 const router = useRouter();
 
@@ -16,9 +17,16 @@ const backHome = () => {
 
 <template>
   <div class="window-header">
-    <button class="nn-button type-ghost exit" v-if="canBack" @click="backHome">
-      <Icon icon="mingcute:home-4-line" class="nn-icon size-xsmall" />
-    </button>
+    <Button
+      v-if="canBack"
+      class="nn-button exit"
+      severity="secondary"
+      text
+      @click="backHome"
+      aria-label="Home"
+    >
+      <Icon icon="mingcute:home-4-line" class="nn-icon" />
+    </Button>
     <slot />
   </div>
 </template>
