@@ -77,6 +77,20 @@ const layoutStyle = computed(() => {
 
 const addPicture = () => {};
 
+const updateSelectionFrame = () => {
+  nextTick(() => {
+    const targets = activeKeyIndexes.value
+      .map((index) => items.value?.[index])
+      .filter((item): item is LayoutItemData => Boolean(item))
+      .map((item) => document.getElementById(item.id))
+      .filter((el): el is HTMLElement => Boolean(el));
+
+    moveableRef.value?.updateSelectors();
+    moveableRef.value?.updateRect();
+    selectoRef.value?.setSelectedTargets(targets);
+  });
+};
+
 const selectedItemHead = computed(() =>
   items.value?.length ? items.value[activeKeyIndexes.value[0]] : undefined
 );
@@ -110,6 +124,7 @@ const onClickGroup = (e: OnClickGroup) => {
 const onClickGround = (e: MouseEvent) => {
   if (e.target === previewRef.value) {
     activeKeyIndexes.value = [];
+    updateSelectionFrame();
   }
 };
 
@@ -204,12 +219,14 @@ const onSelectEnd = (e: any) => {
     activeKeyIndexes.value = selectedItems
       .map((item) => items.value?.indexOf(item))
       .filter((item) => item !== undefined);
+    updateSelectionFrame();
   }
 };
 
 const onChangeInput = (keyData: LayoutItemData) => {
   if (layout.value) {
     store.updateItem(layout.value.id, keyData);
+    updateSelectionFrame();
   }
 };
 
@@ -230,9 +247,7 @@ const onKeyDown = (e: KeyboardEvent) => {
   );
 
   if (shouldUpdateRect) {
-    nextTick(() => {
-      moveableRef.value?.updateRect();
-    });
+    updateSelectionFrame();
   }
 };
 
@@ -296,10 +311,7 @@ const uploadImages = async (event: FileUploadUploaderEvent) => {
 };
 
 watch(itemsCount, async () => {
-  nextTick(() => {
-    moveableRef.value?.updateSelectors();
-    moveableRef.value?.updateRect();
-  });
+  updateSelectionFrame();
 });
 
 onMounted(async () => {

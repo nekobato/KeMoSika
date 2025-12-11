@@ -17,13 +17,14 @@ export const useEditItemByKey = () => {
     },
     activeKeys: any[]
   ) => {
-    const shouldUpdateRect = false;
+    let shouldUpdateRect = false;
 
     // delete key
     if (key === "Delete" || key === "Backspace") {
       if (activeKeys.length > 0 && store.activeLayout) {
         store.removeItems(store.activeLayout.id, activeKeys);
         activeKeys = [];
+        shouldUpdateRect = true;
       }
     }
 
@@ -33,6 +34,7 @@ export const useEditItemByKey = () => {
       if (store.history && store.history.length > 2) {
         activeKeys = [];
         store.undo();
+        shouldUpdateRect = true;
       }
     }
 
@@ -42,6 +44,7 @@ export const useEditItemByKey = () => {
       if (store.history && store.history.length > 2) {
         activeKeys = [];
         store.redo();
+        shouldUpdateRect = true;
       }
     }
 
@@ -55,6 +58,7 @@ export const useEditItemByKey = () => {
       activeKeys.forEach((index) => {
         store.activeLayout.keys[index].y += move;
       });
+      shouldUpdateRect = true;
     }
 
     if (key === "ArrowLeft" || key === "ArrowRight") {
@@ -66,6 +70,7 @@ export const useEditItemByKey = () => {
       activeKeys.forEach((index) => {
         store.activeLayout.keys[index].x += move;
       });
+      shouldUpdateRect = true;
     }
 
     return { shouldUpdateRect };

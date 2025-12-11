@@ -11,6 +11,8 @@ import Mouse from "@/components/Mouse.vue";
 import Divider from "primevue/divider";
 import ButtonGroup from "primevue/buttongroup";
 import Button from "primevue/button";
+import Dialog from "primevue/dialog";
+import InputText from "primevue/inputtext";
 import FloatActions from "@/components/FloatActions/FloatActions.vue";
 
 type LayoutSource = "user" | "builtin";
@@ -22,6 +24,9 @@ const userLayouts = computed(() => store.$state.layouts || []);
 const builtinLayouts = computed(() => store.builtinLayouts || []);
 
 const selectedLayoutKey = ref("user:0");
+const copyTargetLayout = ref<LayoutData | null>(null);
+const showCopyDialog = ref(false);
+const copyName = ref("");
 
 const parseSelectionKey = (
   value: string
@@ -97,12 +102,28 @@ const deleteLayout = async (index: number) => {
   ensureValidSelection();
 };
 
-const copyBuiltinLayout = async (layout: LayoutData) => {
-  const defaultName = `${layout.name} のコピー`;
-  const name = window.prompt("コピー後のレイアウト名を入力してください", defaultName);
-  if (name === null) return;
-  await store.addLayout(layout, name.trim() || defaultName);
+const resetCopyDialog = () => {
+  copyTargetLayout.value = null;
+  copyName.value = "";
+};
+
+const closeCopyDialog = () => {
+  showCopyDialog.value = false;
+  resetCopyDialog();
+};
+
+const openCopyDialog = (layout: LayoutData) => {
+  copyTargetLayout.value = layout;
+  copyName.value = layout.name;
+  showCopyDialog.value = true;
+};
+
+const confirmCopyLayout = async () => {
+  if (!copyTargetLayout.value) return;
+  const name = copyName.value.trim() || copyTargetLayout.value.name;
+  await store.addLayout(copyTargetLayout.value, name);
   selectedLayoutKey.value = `user:${Math.max(store.$state.layouts.length - 1, 0)}`;
+  closeCopyDialog();
 };
 
 const gotoEdit = () => {
@@ -128,7 +149,7 @@ const isBuiltinLayoutSelected = computed(
 const handleLeftAction = () => {
   if (!selectedLayout.value) return;
   if (isBuiltinLayoutSelected.value) {
-    copyBuiltinLayout(selectedLayout.value);
+    openCopyDialog(selectedLayout.value);
   } else {
     gotoEdit();
   }
@@ -235,13 +256,48 @@ const handleLeftAction = () => {
             <span class="label">{{ layout.name }}</span>
             <button
               class="nn-button type-ghost size-xsmall copy-button"
-              @click.stop="copyBuiltinLayout(layout)"
+              @click.stop="openCopyDialog(layout)"
             >
               <Icon icon="mingcute:file-copy-2-line" class="nn-icon size-xsmall" />
             </button>
           </label>
         </div>
       </aside>
+    </template>
+    <template #dialog>
+      <Dialog
+        v-model:visible="showCopyDialog"
+        modal
+        :closable="true"
+        :draggable="false"
+        :baseZIndex="5000"
+        appendTo="body"
+        class="copy-dialog"
+        @hide="resetCopyDialog"
+      >
+        <template #header>
+          <div class="copy-dialog-header">
+            <span class="copy-dialog-title">レイアウトをコピー</span>
+          </div>
+        </template>
+        <div class="copy-dialog-body">
+          <label class="copy-dialog-label" for="copy-layout-name">レイアウト名</label>
+          <InputText
+            id="copy-layout-name"
+            v-model="copyName"
+            class="copy-dialog-input"
+            placeholder="レイアウト名を入力"
+            autofocus
+            @keyup.enter="confirmCopyLayout"
+          />
+        </div>
+        <template #footer>
+          <div class="copy-dialog-actions">
+            <Button label="キャンセル" severity="secondary" text @click="closeCopyDialog" />
+            <Button label="決定" :disabled="!copyTargetLayout" @click="confirmCopyLayout" />
+          </div>
+        </template>
+      </Dialog>
     </template>
   </ConfigLayout>
 </template>
@@ -329,6 +385,30 @@ const handleLeftAction = () => {
 
   .nn-button {
     margin-top: 8px;
+  }
+}
+
+.copy-dialog {
+  .copy-dialog-body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px 0 16px;
+  }
+
+  .copy-dialog-label {
+    font-size: 12px;
+    color: var(--color-grey-500);
+  }
+
+  .copy-dialog-input {
+    width: 100%;
+  }
+
+  .copy-dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
   }
 }
 
