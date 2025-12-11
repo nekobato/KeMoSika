@@ -14,6 +14,7 @@ export const createVisualizerWindow = () => {
     },
     width: 800,
     height: 600,
+    useContentSize: true,
     frame: true,
     transparent: false,
     show: false

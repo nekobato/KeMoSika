@@ -1,0 +1,237 @@
+{
+  "id": "builtin-arrow-basic",
+  "name": "ナビゲーションテンプレート",
+  "width": 840,
+  "height": 320,
+  "background": {
+    "color": "#252525",
+    "image": ""
+  },
+  "keys": [
+    {
+      "id": "key-up",
+      "type": "key",
+      "codeMap": [
+        "up"
+      ],
+      "width": 64,
+      "height": 64,
+      "x": 540,
+      "y": 84,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "↑",
+        "x": 0,
+        "y": 0,
+        "size": 20,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "key-left",
+      "type": "key",
+      "codeMap": [
+        "left"
+      ],
+      "width": 64,
+      "height": 64,
+      "x": 476,
+      "y": 148,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "←",
+        "x": 0,
+        "y": 0,
+        "size": 20,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "key-down",
+      "type": "key",
+      "codeMap": [
+        "down"
+      ],
+      "width": 64,
+      "height": 64,
+      "x": 540,
+      "y": 148,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "↓",
+        "x": 0,
+        "y": 0,
+        "size": 20,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "key-right",
+      "type": "key",
+      "codeMap": [
+        "right"
+      ],
+      "width": 64,
+      "height": 64,
+      "x": 604,
+      "y": 148,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "→",
+        "x": 0,
+        "y": 0,
+        "size": 20,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "key-enter",
+      "type": "key",
+      "codeMap": [
+        "enter"
+      ],
+      "width": 120,
+      "height": 64,
+      "x": 340,
+      "y": 148,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "Enter",
+        "x": 0,
+        "y": 0,
+        "size": 18,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "key-escape-nav",
+      "type": "key",
+      "codeMap": [
+        "escape"
+      ],
+      "width": 96,
+      "height": 52,
+      "x": 72,
+      "y": 24,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "Esc",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "key-play",
+      "type": "key",
+      "codeMap": [
+        "P"
+      ],
+      "width": 96,
+      "height": 52,
+      "x": 72,
+      "y": 96,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "Play",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "key-stop",
+      "type": "key",
+      "codeMap": [
+        "O"
+      ],
+      "width": 96,
+      "height": 52,
+      "x": 72,
+      "y": 160,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "Stop",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "key-next",
+      "type": "key",
+      "codeMap": [
+        "N"
+      ],
+      "width": 96,
+      "height": 52,
+      "x": 72,
+      "y": 224,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "Next",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    }
+  ]
+}

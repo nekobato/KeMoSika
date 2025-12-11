@@ -1,0 +1,1962 @@
+{
+  "id": "builtin-macbook-air-2022",
+  "name": "MacBook Air (2022)",
+  "width": 1100,
+  "height": 400,
+  "background": {
+    "color": "#252525",
+    "image": ""
+  },
+  "keys": [
+    {
+      "id": "mba22-esc",
+      "type": "key",
+      "codeMap": [
+        "escape"
+      ],
+      "width": 52,
+      "height": 44,
+      "x": 20,
+      "y": 20,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "esc",
+        "x": 0,
+        "y": 0,
+        "size": 14,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-f1",
+      "type": "key",
+      "codeMap": [
+        "f1"
+      ],
+      "width": 52,
+      "height": 44,
+      "x": 80,
+      "y": 20,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "F1",
+        "x": 0,
+        "y": 0,
+        "size": 14,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-f2",
+      "type": "key",
+      "codeMap": [
+        "f2"
+      ],
+      "width": 52,
+      "height": 44,
+      "x": 140,
+      "y": 20,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "F2",
+        "x": 0,
+        "y": 0,
+        "size": 14,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-f3",
+      "type": "key",
+      "codeMap": [
+        "f3"
+      ],
+      "width": 52,
+      "height": 44,
+      "x": 200,
+      "y": 20,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "F3",
+        "x": 0,
+        "y": 0,
+        "size": 14,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-f4",
+      "type": "key",
+      "codeMap": [
+        "f4"
+      ],
+      "width": 52,
+      "height": 44,
+      "x": 260,
+      "y": 20,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "F4",
+        "x": 0,
+        "y": 0,
+        "size": 14,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-f5",
+      "type": "key",
+      "codeMap": [
+        "f5"
+      ],
+      "width": 52,
+      "height": 44,
+      "x": 320,
+      "y": 20,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "F5",
+        "x": 0,
+        "y": 0,
+        "size": 14,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-f6",
+      "type": "key",
+      "codeMap": [
+        "f6"
+      ],
+      "width": 52,
+      "height": 44,
+      "x": 380,
+      "y": 20,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "F6",
+        "x": 0,
+        "y": 0,
+        "size": 14,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-f7",
+      "type": "key",
+      "codeMap": [
+        "f7"
+      ],
+      "width": 52,
+      "height": 44,
+      "x": 440,
+      "y": 20,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "F7",
+        "x": 0,
+        "y": 0,
+        "size": 14,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-f8",
+      "type": "key",
+      "codeMap": [
+        "f8"
+      ],
+      "width": 52,
+      "height": 44,
+      "x": 500,
+      "y": 20,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "F8",
+        "x": 0,
+        "y": 0,
+        "size": 14,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-f9",
+      "type": "key",
+      "codeMap": [
+        "f9"
+      ],
+      "width": 52,
+      "height": 44,
+      "x": 560,
+      "y": 20,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "F9",
+        "x": 0,
+        "y": 0,
+        "size": 14,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-f10",
+      "type": "key",
+      "codeMap": [
+        "f10"
+      ],
+      "width": 52,
+      "height": 44,
+      "x": 620,
+      "y": 20,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "F10",
+        "x": 0,
+        "y": 0,
+        "size": 14,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-f11",
+      "type": "key",
+      "codeMap": [
+        "f11"
+      ],
+      "width": 52,
+      "height": 44,
+      "x": 680,
+      "y": 20,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "F11",
+        "x": 0,
+        "y": 0,
+        "size": 14,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-f12",
+      "type": "key",
+      "codeMap": [
+        "f12"
+      ],
+      "width": 52,
+      "height": 44,
+      "x": 740,
+      "y": 20,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "F12",
+        "x": 0,
+        "y": 0,
+        "size": 14,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-power",
+      "type": "key",
+      "codeMap": [
+        "power"
+      ],
+      "width": 70,
+      "height": 44,
+      "x": 820,
+      "y": 20,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "Touch ID",
+        "x": 0,
+        "y": 0,
+        "size": 12,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-grave",
+      "type": "key",
+      "codeMap": [
+        "`"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 20,
+      "y": 82,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "`",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-num-1",
+      "type": "key",
+      "codeMap": [
+        "1"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 80,
+      "y": 82,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "1",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-num-2",
+      "type": "key",
+      "codeMap": [
+        "2"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 140,
+      "y": 82,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "2",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-num-3",
+      "type": "key",
+      "codeMap": [
+        "3"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 200,
+      "y": 82,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "3",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-num-4",
+      "type": "key",
+      "codeMap": [
+        "4"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 260,
+      "y": 82,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "4",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-num-5",
+      "type": "key",
+      "codeMap": [
+        "5"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 320,
+      "y": 82,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "5",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-num-6",
+      "type": "key",
+      "codeMap": [
+        "6"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 380,
+      "y": 82,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "6",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-num-7",
+      "type": "key",
+      "codeMap": [
+        "7"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 440,
+      "y": 82,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "7",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-num-8",
+      "type": "key",
+      "codeMap": [
+        "8"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 500,
+      "y": 82,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "8",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-num-9",
+      "type": "key",
+      "codeMap": [
+        "9"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 560,
+      "y": 82,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "9",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-num-0",
+      "type": "key",
+      "codeMap": [
+        "0"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 620,
+      "y": 82,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "0",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-num--",
+      "type": "key",
+      "codeMap": [
+        "-"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 680,
+      "y": 82,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "-",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-num-=",
+      "type": "key",
+      "codeMap": [
+        "="
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 740,
+      "y": 82,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "=",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-backspace",
+      "type": "key",
+      "codeMap": [
+        "backspace"
+      ],
+      "width": 96,
+      "height": 52,
+      "x": 800,
+      "y": 82,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "delete",
+        "x": 0,
+        "y": 0,
+        "size": 14,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-tab",
+      "type": "key",
+      "codeMap": [
+        "tab"
+      ],
+      "width": 84,
+      "height": 52,
+      "x": 20,
+      "y": 144,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "tab",
+        "x": 0,
+        "y": 0,
+        "size": 14,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-q",
+      "type": "key",
+      "codeMap": [
+        "Q"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 110,
+      "y": 144,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "Q",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-w",
+      "type": "key",
+      "codeMap": [
+        "W"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 170,
+      "y": 144,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "W",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-e",
+      "type": "key",
+      "codeMap": [
+        "E"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 230,
+      "y": 144,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "E",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-r",
+      "type": "key",
+      "codeMap": [
+        "R"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 290,
+      "y": 144,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "R",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-t",
+      "type": "key",
+      "codeMap": [
+        "T"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 350,
+      "y": 144,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "T",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-y",
+      "type": "key",
+      "codeMap": [
+        "Y"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 410,
+      "y": 144,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "Y",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-u",
+      "type": "key",
+      "codeMap": [
+        "U"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 470,
+      "y": 144,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "U",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-i",
+      "type": "key",
+      "codeMap": [
+        "I"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 530,
+      "y": 144,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "I",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-o",
+      "type": "key",
+      "codeMap": [
+        "O"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 590,
+      "y": 144,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "O",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-p",
+      "type": "key",
+      "codeMap": [
+        "P"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 650,
+      "y": 144,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "P",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-[",
+      "type": "key",
+      "codeMap": [
+        "["
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 710,
+      "y": 144,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "[",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-]",
+      "type": "key",
+      "codeMap": [
+        "]"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 770,
+      "y": 144,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "]",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-backslash",
+      "type": "key",
+      "codeMap": [
+        "\\"
+      ],
+      "width": 80,
+      "height": 52,
+      "x": 830,
+      "y": 144,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "\\",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-capslock",
+      "type": "key",
+      "codeMap": [
+        "capslock"
+      ],
+      "width": 96,
+      "height": 52,
+      "x": 20,
+      "y": 206,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "caps",
+        "x": 0,
+        "y": 0,
+        "size": 14,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-a",
+      "type": "key",
+      "codeMap": [
+        "A"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 120,
+      "y": 206,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "A",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-s",
+      "type": "key",
+      "codeMap": [
+        "S"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 180,
+      "y": 206,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "S",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-d",
+      "type": "key",
+      "codeMap": [
+        "D"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 240,
+      "y": 206,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "D",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-f",
+      "type": "key",
+      "codeMap": [
+        "F"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 300,
+      "y": 206,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "F",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-g",
+      "type": "key",
+      "codeMap": [
+        "G"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 360,
+      "y": 206,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "G",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-h",
+      "type": "key",
+      "codeMap": [
+        "H"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 420,
+      "y": 206,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "H",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-j",
+      "type": "key",
+      "codeMap": [
+        "J"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 480,
+      "y": 206,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "J",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-k",
+      "type": "key",
+      "codeMap": [
+        "K"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 540,
+      "y": 206,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "K",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-l",
+      "type": "key",
+      "codeMap": [
+        "L"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 600,
+      "y": 206,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "L",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-;",
+      "type": "key",
+      "codeMap": [
+        ";"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 660,
+      "y": 206,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": ";",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-quote",
+      "type": "key",
+      "codeMap": [
+        "'"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 720,
+      "y": 206,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "'",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-enter",
+      "type": "key",
+      "codeMap": [
+        "enter"
+      ],
+      "width": 110,
+      "height": 52,
+      "x": 780,
+      "y": 206,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "return",
+        "x": 0,
+        "y": 0,
+        "size": 14,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-shift-left",
+      "type": "key",
+      "codeMap": [
+        "shift"
+      ],
+      "width": 120,
+      "height": 52,
+      "x": 20,
+      "y": 268,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "shift",
+        "x": 0,
+        "y": 0,
+        "size": 14,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-z",
+      "type": "key",
+      "codeMap": [
+        "Z"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 140,
+      "y": 268,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "Z",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-x",
+      "type": "key",
+      "codeMap": [
+        "X"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 200,
+      "y": 268,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "X",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-c",
+      "type": "key",
+      "codeMap": [
+        "C"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 260,
+      "y": 268,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "C",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-v",
+      "type": "key",
+      "codeMap": [
+        "V"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 320,
+      "y": 268,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "V",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-b",
+      "type": "key",
+      "codeMap": [
+        "B"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 380,
+      "y": 268,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "B",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-n",
+      "type": "key",
+      "codeMap": [
+        "N"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 440,
+      "y": 268,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "N",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-m",
+      "type": "key",
+      "codeMap": [
+        "M"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 500,
+      "y": 268,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "M",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-comma",
+      "type": "key",
+      "codeMap": [
+        ","
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 560,
+      "y": 268,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": ",",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-period",
+      "type": "key",
+      "codeMap": [
+        "."
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 620,
+      "y": 268,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": ".",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-slash",
+      "type": "key",
+      "codeMap": [
+        "/"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 680,
+      "y": 268,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "/",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-shift-right",
+      "type": "key",
+      "codeMap": [
+        "shift"
+      ],
+      "width": 140,
+      "height": 52,
+      "x": 740,
+      "y": 268,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "shift",
+        "x": 0,
+        "y": 0,
+        "size": 14,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-fn",
+      "type": "key",
+      "codeMap": [
+        "fn"
+      ],
+      "width": 70,
+      "height": 52,
+      "x": 20,
+      "y": 330,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "fn",
+        "x": 0,
+        "y": 0,
+        "size": 14,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-ctrl-left",
+      "type": "key",
+      "codeMap": [
+        "control"
+      ],
+      "width": 70,
+      "height": 52,
+      "x": 90,
+      "y": 330,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "control",
+        "x": 0,
+        "y": 0,
+        "size": 12,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-option-left",
+      "type": "key",
+      "codeMap": [
+        "alt"
+      ],
+      "width": 80,
+      "height": 52,
+      "x": 170,
+      "y": 330,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "option",
+        "x": 0,
+        "y": 0,
+        "size": 12,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-command-left",
+      "type": "key",
+      "codeMap": [
+        "control"
+      ],
+      "width": 96,
+      "height": 52,
+      "x": 260,
+      "y": 330,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "command",
+        "x": 0,
+        "y": 0,
+        "size": 12,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-space",
+      "type": "key",
+      "codeMap": [
+        "Space"
+      ],
+      "width": 320,
+      "height": 52,
+      "x": 360,
+      "y": 330,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "space",
+        "x": 0,
+        "y": 0,
+        "size": 14,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-command-right",
+      "type": "key",
+      "codeMap": [
+        "control"
+      ],
+      "width": 96,
+      "height": 52,
+      "x": 700,
+      "y": 330,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "command",
+        "x": 0,
+        "y": 0,
+        "size": 12,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-option-right",
+      "type": "key",
+      "codeMap": [
+        "alt"
+      ],
+      "width": 80,
+      "height": 52,
+      "x": 800,
+      "y": 330,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "option",
+        "x": 0,
+        "y": 0,
+        "size": 12,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-arrow-up",
+      "type": "key",
+      "codeMap": [
+        "up"
+      ],
+      "width": 52,
+      "height": 44,
+      "x": 948,
+      "y": 300,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "↑",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-arrow-down",
+      "type": "key",
+      "codeMap": [
+        "down"
+      ],
+      "width": 52,
+      "height": 44,
+      "x": 948,
+      "y": 348,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "↓",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-arrow-left",
+      "type": "key",
+      "codeMap": [
+        "left"
+      ],
+      "width": 52,
+      "height": 44,
+      "x": 892,
+      "y": 348,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "←",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mba22-arrow-right",
+      "type": "key",
+      "codeMap": [
+        "right"
+      ],
+      "width": 52,
+      "height": 44,
+      "x": 1004,
+      "y": 348,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "→",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    }
+  ]
+}

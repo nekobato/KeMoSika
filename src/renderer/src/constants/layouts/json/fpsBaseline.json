@@ -1,0 +1,254 @@
+{
+  "id": "builtin-fps-baseline",
+  "name": "FPS テンプレート",
+  "width": 960,
+  "height": 320,
+  "background": {
+    "color": "#252525",
+    "image": ""
+  },
+  "keys": [
+    {
+      "id": "key-esc",
+      "type": "key",
+      "codeMap": [
+        "escape"
+      ],
+      "width": 52,
+      "height": 52,
+      "x": 32,
+      "y": 24,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "Esc",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "key-w",
+      "type": "key",
+      "codeMap": [
+        "W"
+      ],
+      "width": 64,
+      "height": 64,
+      "x": 220,
+      "y": 84,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "W",
+        "x": 0,
+        "y": 0,
+        "size": 20,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "key-a",
+      "type": "key",
+      "codeMap": [
+        "A"
+      ],
+      "width": 64,
+      "height": 64,
+      "x": 160,
+      "y": 148,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "A",
+        "x": 0,
+        "y": 0,
+        "size": 20,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "key-s",
+      "type": "key",
+      "codeMap": [
+        "S"
+      ],
+      "width": 64,
+      "height": 64,
+      "x": 220,
+      "y": 148,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "S",
+        "x": 0,
+        "y": 0,
+        "size": 20,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "key-d",
+      "type": "key",
+      "codeMap": [
+        "D"
+      ],
+      "width": 64,
+      "height": 64,
+      "x": 280,
+      "y": 148,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "D",
+        "x": 0,
+        "y": 0,
+        "size": 20,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "key-space",
+      "type": "key",
+      "codeMap": [
+        "Space"
+      ],
+      "width": 360,
+      "height": 52,
+      "x": 140,
+      "y": 236,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "Space",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "key-shift",
+      "type": "key",
+      "codeMap": [
+        "shift"
+      ],
+      "width": 140,
+      "height": 52,
+      "x": 24,
+      "y": 236,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "Shift",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "key-ctrl",
+      "type": "key",
+      "codeMap": [
+        "control"
+      ],
+      "width": 96,
+      "height": 52,
+      "x": 24,
+      "y": 176,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "Ctrl",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "key-tab",
+      "type": "key",
+      "codeMap": [
+        "tab"
+      ],
+      "width": 96,
+      "height": 52,
+      "x": 24,
+      "y": 116,
+      "rotation": 0,
+      "images": {
+        "keyDefault": "key_default",
+        "keyActive": "key_active",
+        "keyLocked": ""
+      },
+      "text": {
+        "isVisible": true,
+        "character": "Tab",
+        "x": 0,
+        "y": 0,
+        "size": 16,
+        "color": "#71d4fe"
+      }
+    },
+    {
+      "id": "mouse-fps",
+      "type": "mouse",
+      "x": 640,
+      "y": 92,
+      "width": 120,
+      "height": 160,
+      "rotation": 0,
+      "images": {
+        "mouseDefault": "",
+        "mouseLeftClick": "",
+        "mouseRightClick": "",
+        "mouseMiddleClick": "",
+        "mouseScrollUp": "",
+        "mouseScrollDown": ""
+      }
+    }
+  ]
+}

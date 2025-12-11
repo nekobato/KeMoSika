@@ -217,7 +217,10 @@ app
           return { started: false, reason: "permission" };
         }
 
-        visualizerWindow?.setSize(options.size.width, options.size.height);
+        visualizerWindow?.setContentSize(
+          options.size.width,
+          options.size.height
+        );
         visualizerWindow?.show();
         console.log("visualizer:start", options);
         visualizerWindow?.webContents.send("visualizer:start", options);
