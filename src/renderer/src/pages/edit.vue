@@ -275,8 +275,48 @@ const onSelectImage = async ({
       }
     } else if (item.type === "mouse") {
       const mouseItem = item as MouseData;
-      if (type !== "keyDefault" && type !== "keyActive") {
-        mouseItem.images[type as keyof typeof mouseItem.images] = imageId;
+      if (!mouseItem.ring) {
+        mouseItem.ring = {
+          size: Math.max(mouseItem.width, mouseItem.height),
+          color: "#ffffff",
+          images: {
+            ring: "",
+            pointer: ""
+          }
+        };
+      }
+      if (!mouseItem.buttonOverlays) {
+        mouseItem.buttonOverlays = {
+          left: { default: "", active: "" },
+          right: { default: "", active: "" },
+          middle: { default: "", active: "" }
+        };
+      }
+      if (
+        type === "mouseDefault" ||
+        type === "mouseLeftClick" ||
+        type === "mouseMiddleClick" ||
+        type === "mouseRightClick" ||
+        type === "mouseScrollUp" ||
+        type === "mouseScrollDown"
+      ) {
+        mouseItem.images[type] = imageId;
+      } else if (type === "ring") {
+        mouseItem.ring.images.ring = imageId;
+      } else if (type === "pointer") {
+        mouseItem.ring.images.pointer = imageId;
+      } else if (type === "leftDefault") {
+        mouseItem.buttonOverlays.left.default = imageId;
+      } else if (type === "leftActive") {
+        mouseItem.buttonOverlays.left.active = imageId;
+      } else if (type === "rightDefault") {
+        mouseItem.buttonOverlays.right.default = imageId;
+      } else if (type === "rightActive") {
+        mouseItem.buttonOverlays.right.active = imageId;
+      } else if (type === "middleDefault") {
+        mouseItem.buttonOverlays.middle.default = imageId;
+      } else if (type === "middleActive") {
+        mouseItem.buttonOverlays.middle.active = imageId;
       }
     }
     await store.updateItem(layout.value?.id || "", item);

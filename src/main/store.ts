@@ -69,6 +69,9 @@ const schema: Schema<ConfigSchema> = {
               height: {
                 type: "number"
               },
+              rotation: {
+                type: "number"
+              },
               images: {
                 type: "object",
                 properties: {
@@ -90,11 +93,59 @@ const schema: Schema<ConfigSchema> = {
                   mouseMiddleClick: {
                     type: "string"
                   },
-                  mousesScrollUp: {
+                  mouseScrollUp: {
                     type: "string"
                   },
-                  mousesScrollDown: {
+                  mouseScrollDown: {
                     type: "string"
+                  }
+                }
+              },
+              buttonOverlays: {
+                type: "object",
+                properties: {
+                  left: {
+                    type: "object",
+                    properties: {
+                      default: { type: "string" },
+                      active: { type: "string" }
+                    }
+                  },
+                  right: {
+                    type: "object",
+                    properties: {
+                      default: { type: "string" },
+                      active: { type: "string" }
+                    }
+                  },
+                  middle: {
+                    type: "object",
+                    properties: {
+                      default: { type: "string" },
+                      active: { type: "string" }
+                    }
+                  }
+                }
+              },
+              ring: {
+                type: "object",
+                properties: {
+                  size: {
+                    type: "number"
+                  },
+                  color: {
+                    type: "string"
+                  },
+                  images: {
+                    type: "object",
+                    properties: {
+                      ring: {
+                        type: "string"
+                      },
+                      pointer: {
+                        type: "string"
+                      }
+                    }
                   }
                 }
               },

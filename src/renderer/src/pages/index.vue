@@ -5,7 +5,7 @@ import { Icon } from "@iconify/vue";
 import ConfigLayout from "@/components/layouts/ConfigLayout.vue";
 import KeyboardButton from "@/components/KeyboardButton.vue";
 import { KeyboardKeyData, LayoutData } from "@shared/types";
-import { useRouter } from "vue-router";
+import { type NavigationFailure, useRoute, useRouter } from "vue-router";
 import Header from "@/components/Header.vue";
 import Mouse from "@/components/Mouse.vue";
 import Divider from "primevue/divider";
@@ -14,67 +14,110 @@ import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 import InputText from "primevue/inputtext";
 import FloatActions from "@/components/FloatActions/FloatActions.vue";
+import Tree from "primevue/tree";
 
 type LayoutSource = "user" | "builtin";
 
 const router = useRouter();
+const route = useRoute();
 const store = useStore();
 
 const userLayouts = computed(() => store.$state.layouts || []);
-const builtinLayouts = computed(() => store.builtinLayouts || []);
+const builtinLayoutTree = computed(() => store.builtinLayoutTree || []);
+const builtinLayouts = computed(() =>
+  builtinLayoutTree.value.flatMap((group) => group.layouts) || []
+);
+const treeSelection = ref<Record<string, boolean>>({});
+const expandedKeys = ref<Record<string, boolean>>({});
 
-const selectedLayoutKey = ref("user:0");
+const treeNodes = computed(() =>
+  builtinLayoutTree.value.map((group) => ({
+    key: `group-${group.id}`,
+    label: group.name,
+    children: group.layouts.map((layout) => ({
+      key: layout.id,
+      label: layout.name,
+      data: layout,
+      type: "layout"
+    }))
+  }))
+);
+
 const copyTargetLayout = ref<LayoutData | null>(null);
 const showCopyDialog = ref(false);
 const copyName = ref("");
 
-const parseSelectionKey = (
-  value: string
-): { source: LayoutSource; index: number } => {
-  const [source, index] = value.split(":");
-  const parsedSource: LayoutSource = source === "builtin" ? "builtin" : "user";
-  const parsedIndex = Number.isFinite(Number(index)) ? Number(index) : 0;
-  return { source: parsedSource, index: Math.max(0, parsedIndex) };
+const findLayoutById = (layoutId?: string) => {
+  if (!layoutId) return undefined;
+  return (
+    userLayouts.value.find((layout) => layout.id === layoutId) ??
+    builtinLayouts.value.find((layout) => layout.id === layoutId)
+  );
+};
+
+const findLayoutSource = (layoutId?: string): LayoutSource | null => {
+  if (!layoutId) return null;
+  if (userLayouts.value.some((layout) => layout.id === layoutId)) return "user";
+  if (builtinLayouts.value.some((layout) => layout.id === layoutId))
+    return "builtin";
+  return null;
+};
+
+const navigateOnKeydown = (
+  navigateFn: (e?: MouseEvent) => Promise<void | NavigationFailure>
+) => {
+  void navigateFn();
+};
+
+const navigateToLayout = (layoutId: string, replace = false) => {
+  const currentId = route.query.layoutId as string | undefined;
+  if (currentId === layoutId) return;
+  const navigate = replace ? router.replace : router.push;
+  navigate({ name: "Index", query: { layoutId } });
 };
 
 const ensureValidSelection = () => {
-  const userLength = userLayouts.value.length;
-  const builtinLength = builtinLayouts.value.length;
-  const { source, index } = parseSelectionKey(selectedLayoutKey.value);
-
-  if (source === "user") {
-    if (userLength === 0 && builtinLength > 0) {
-      selectedLayoutKey.value = "builtin:0";
-      return;
-    }
-    if (index >= userLength && userLength > 0) {
-      selectedLayoutKey.value = `user:${userLength - 1}`;
-      return;
-    }
-  }
-
-  if (source === "builtin") {
-    if (builtinLength === 0 && userLength > 0) {
-      selectedLayoutKey.value = "user:0";
-      return;
-    }
-    if (index >= builtinLength && builtinLength > 0) {
-      selectedLayoutKey.value = `builtin:${builtinLength - 1}`;
-    }
+  if (!userLayouts.value.length && !builtinLayouts.value.length) return;
+  const layoutId = route.query.layoutId as string | undefined;
+  if (findLayoutById(layoutId)) return;
+  const fallback = userLayouts.value[0] ?? builtinLayouts.value[0];
+  if (fallback) {
+    navigateToLayout(fallback.id, true);
   }
 };
 
-watch([userLayouts, builtinLayouts], ensureValidSelection, { immediate: true });
+watch(
+  [userLayouts, builtinLayouts, () => route.query.layoutId],
+  ensureValidSelection,
+  {
+    immediate: true
+  }
+);
 
-const selectedLayout = computed<LayoutData | undefined>(() => {
-  const { source, index } = parseSelectionKey(selectedLayoutKey.value);
-  return source === "builtin"
-    ? builtinLayouts.value[index]
-    : userLayouts.value[index];
-});
+const selectedLayout = computed<LayoutData | undefined>(() =>
+  findLayoutById(route.query.layoutId as string | undefined)
+);
 
-const selectedLayoutSource = computed<LayoutSource>(
-  () => parseSelectionKey(selectedLayoutKey.value).source
+const selectedLayoutSource = computed<LayoutSource | null>(() =>
+  findLayoutSource(route.query.layoutId as string | undefined)
+);
+
+watch(
+  [builtinLayoutTree, () => route.query.layoutId],
+  ([groups, layoutId]) => {
+    const nextExpanded: Record<string, boolean> = {};
+    groups.forEach((g) => {
+      nextExpanded[`group-${g.id}`] = true;
+    });
+    expandedKeys.value = nextExpanded;
+
+    if (layoutId) {
+      treeSelection.value = { [layoutId as string]: true };
+    } else {
+      treeSelection.value = {};
+    }
+  },
+  { immediate: true }
 );
 
 const layoutStyle = computed(() => {
@@ -93,8 +136,8 @@ const mouses = computed(() => {
 });
 
 const addLayout = async () => {
-  await store.addLayout();
-  selectedLayoutKey.value = `user:${Math.max(store.$state.layouts.length - 1, 0)}`;
+  const layout = await store.addLayout();
+  navigateToLayout(layout.id);
 };
 
 const deleteLayout = async (index: number) => {
@@ -121,8 +164,8 @@ const openCopyDialog = (layout: LayoutData) => {
 const confirmCopyLayout = async () => {
   if (!copyTargetLayout.value) return;
   const name = copyName.value.trim() || copyTargetLayout.value.name;
-  await store.addLayout(copyTargetLayout.value, name);
-  selectedLayoutKey.value = `user:${Math.max(store.$state.layouts.length - 1, 0)}`;
+  const layout = await store.addLayout(copyTargetLayout.value, name);
+  navigateToLayout(layout.id);
   closeCopyDialog();
 };
 
@@ -152,6 +195,12 @@ const handleLeftAction = () => {
     openCopyDialog(selectedLayout.value);
   } else {
     gotoEdit();
+  }
+};
+
+const onTreeSelect = (node: any) => {
+  if (node?.type === "layout" && node?.key) {
+    navigateToLayout(node.key);
   }
 };
 </script>
@@ -211,64 +260,71 @@ const handleLeftAction = () => {
       <aside class="list-column">
         <div class="layout-list">
           <p class="category-title">マイレイアウト</p>
-          <label
-            class="list-item"
+          <RouterLink
             v-for="(layout, index) in userLayouts"
-            :class="{
-              selected: selectedLayoutKey === `user:${index}`
-            }"
+            :key="layout.id"
+            :to="{ name: 'Index', query: { layoutId: layout.id } }"
+            custom
+            v-slot="{ navigate }"
           >
-            <input
-              class="radio"
-              type="radio"
-              key="layout"
-              :value="`user:${index}`"
-              v-model="selectedLayoutKey"
-            />
-            <span class="label">{{ layout.name }}</span>
-            <Button
-              class="nn-button delete-button"
-              text
-              severity="secondary"
-              @click.stop="deleteLayout(index)"
-              aria-label="Delete Layout"
+            <div
+              class="list-item"
+              :class="{ selected: selectedLayout?.id === layout.id }"
+              role="link"
+              tabindex="0"
+              @click="navigate"
+              @keydown.enter.prevent="navigateOnKeydown(navigate)"
+              @keydown.space.prevent="navigateOnKeydown(navigate)"
             >
-              <Icon icon="mingcute:delete-2-line" class="nn-icon" />
-            </Button>
-          </label>
-          <Button class="nn-button" @click="addLayout" aria-label="Add Layout">
+              <span class="label">{{ layout.name }}</span>
+              <Button
+                class="nn-button delete-button"
+                text
+                severity="secondary"
+                @click.stop="deleteLayout(index)"
+                aria-label="Delete Layout"
+              >
+                <Icon icon="mingcute:delete-2-line" class="nn-icon" />
+              </Button>
+            </div>
+          </RouterLink>
+          <Button
+            class="nn-button"
+            @click="addLayout"
+            aria-label="Add Layout"
+            size="small"
+          >
             <Icon icon="mingcute:file-new-line" class="nn-icon" />
             <span>新規作成</span>
           </Button>
         </div>
         <Divider />
-        <div class="layout-list">
+        <div class="layout-tree">
           <p class="category-title">デフォルトレイアウト</p>
-          <label
-            class="list-item"
-            v-for="(layout, index) in builtinLayouts"
-            :class="{
-              selected: selectedLayoutKey === `builtin:${index}`
-            }"
+          <Tree
+            :value="treeNodes"
+            selectionMode="single"
+            v-model:selectionKeys="treeSelection"
+            :expandedKeys="expandedKeys"
+            @node-select="onTreeSelect"
+            class="nn-tree"
           >
-            <input
-              class="radio"
-              type="radio"
-              key="layout"
-              :value="`builtin:${index}`"
-              v-model="selectedLayoutKey"
-            />
-            <span class="label">{{ layout.name }}</span>
-            <Button
-              class="nn-button copy-button"
-              text
-              severity="secondary"
-              @click.stop="openCopyDialog(layout)"
-              aria-label="Copy Layout"
-            >
-              <Icon icon="mingcute:file-copy-2-line" class="nn-icon" />
-            </Button>
-          </label>
+            <template #default="{ node }">
+              <div class="tree-node">
+                <span class="label">{{ node.label }}</span>
+                <Button
+                  v-if="node.type === 'layout'"
+                  class="nn-button copy-button"
+                  text
+                  severity="secondary"
+                  @click.stop="openCopyDialog(node.data)"
+                  aria-label="Copy Layout"
+                >
+                  <Icon icon="mingcute:file-copy-2-line" class="nn-icon" />
+                </Button>
+              </div>
+            </template>
+          </Tree>
         </div>
       </aside>
     </template>
@@ -405,6 +461,49 @@ const handleLeftAction = () => {
   .nn-button {
     margin-top: 8px;
   }
+}
+.layout-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0 16px 16px;
+}
+
+.layout-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.group-title {
+  font-size: 14px;
+  color: var(--color-grey-400);
+  margin: 0 0 2px 4px;
+}
+
+.nn-tree {
+  background: transparent;
+  border: none;
+  color: #fff;
+}
+
+.tree-node {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+}
+
+.p-treenode-content {
+  border-radius: 8px;
+}
+
+.p-highlight > .p-treenode-content {
+  background: var(--color-teal-400);
+}
+
+.p-tree-toggler {
+  color: #ccc;
 }
 
 .copy-dialog {

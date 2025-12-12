@@ -31,6 +31,19 @@ export type MouseData = {
   x: number;
   y: number;
   rotation: number;
+  buttonOverlays: {
+    left: { default: string; active: string };
+    right: { default: string; active: string };
+    middle: { default: string; active: string };
+  };
+  ring: {
+    size: number;
+    color: string;
+    images: {
+      ring: string;
+      pointer: string;
+    };
+  };
   images: {
     mouseDefault: string;
     mouseLeftClick: string;
@@ -49,7 +62,15 @@ export type imageType =
   | "mouseRightClick"
   | "mouseMiddleClick"
   | "mouseScrollUp"
-  | "mouseScrollDown";
+  | "mouseScrollDown"
+  | "ring"
+  | "pointer"
+  | "leftDefault"
+  | "leftActive"
+  | "rightDefault"
+  | "rightActive"
+  | "middleDefault"
+  | "middleActive";
 
 export type LayoutItemData = KeyboardKeyData | MouseData;
 export type LayoutData = {

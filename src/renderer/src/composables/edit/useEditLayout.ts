@@ -37,14 +37,29 @@ export const useEditLayout = () => {
     if (!store.activeLayout) {
       return;
     }
+    const defaultWidth = 48;
+    const defaultHeight = 48;
     store.addItem(store.activeLayout.id, {
       id: `mouse-${nanoid()}`,
       type: "mouse",
       x: (store.activeLayout?.width || 0) / 2,
       y: (store.activeLayout?.height || 0) / 2,
-      width: 48,
-      height: 48,
+      width: defaultWidth,
+      height: defaultHeight,
       rotation: 0,
+      buttonOverlays: {
+        left: { default: "", active: "" },
+        right: { default: "", active: "" },
+        middle: { default: "", active: "" }
+      },
+      ring: {
+        size: Math.max(defaultWidth, defaultHeight),
+        color: "#ffffff",
+        images: {
+          ring: "",
+          pointer: ""
+        }
+      },
       images: {
         mouseDefault: "",
         mouseLeftClick: "",
