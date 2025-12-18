@@ -3,7 +3,8 @@ import {
   LayoutData,
   LayoutItemData,
   LayoutItemImage,
-  MouseData
+  MouseData,
+  KeyboardKeyData
 } from "@shared/types";
 import { computed, ref, toRaw } from "vue";
 import { useManualRefHistory } from "@vueuse/core";
@@ -43,20 +44,28 @@ const ensureButtonOverlays = (
 });
 
 const normalizeLayoutItem = (item: LayoutItemData): LayoutItemData => {
-  if (item.type !== "mouse") return item;
-  const mouse = item as MouseData;
+  if (item.type === "mouse") {
+    const mouse = item as MouseData;
+    return {
+      ...mouse,
+      shadow: mouse.shadow ?? true,
+      buttonOverlays: ensureButtonOverlays(mouse),
+      ring: ensureMouseRing(mouse),
+      images: {
+        mouseDefault: mouse.images?.mouseDefault ?? "",
+        mouseLeftClick: mouse.images?.mouseLeftClick ?? "",
+        mouseRightClick: mouse.images?.mouseRightClick ?? "",
+        mouseMiddleClick: mouse.images?.mouseMiddleClick ?? "",
+        mouseScrollUp: mouse.images?.mouseScrollUp ?? "",
+        mouseScrollDown: mouse.images?.mouseScrollDown ?? ""
+      }
+    };
+  }
+
+  const key = item as KeyboardKeyData;
   return {
-    ...mouse,
-    buttonOverlays: ensureButtonOverlays(mouse),
-    ring: ensureMouseRing(mouse),
-    images: {
-      mouseDefault: mouse.images?.mouseDefault ?? "",
-      mouseLeftClick: mouse.images?.mouseLeftClick ?? "",
-      mouseRightClick: mouse.images?.mouseRightClick ?? "",
-      mouseMiddleClick: mouse.images?.mouseMiddleClick ?? "",
-      mouseScrollUp: mouse.images?.mouseScrollUp ?? "",
-      mouseScrollDown: mouse.images?.mouseScrollDown ?? ""
-    }
+    ...key,
+    shadow: key.shadow ?? true
   };
 };
 

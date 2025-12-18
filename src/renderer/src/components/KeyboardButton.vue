@@ -29,6 +29,21 @@ const textStyle = computed(() => {
       }
     : {};
 });
+
+const shadowEnabled = computed(() => props.keyData.shadow !== false);
+const keyShadowFilter = computed(() =>
+  shadowEnabled.value
+    ? "drop-shadow(0px 3px 8px rgba(0,0,0,0.45)) drop-shadow(0px 1px 2px rgba(0,0,0,0.35))"
+    : "none"
+);
+const keyShadowFilterDown = computed(() =>
+  shadowEnabled.value
+    ? "drop-shadow(0px 1px 3px rgba(0,0,0,0.35)) drop-shadow(0px 0px 1px rgba(0,0,0,0.25))"
+    : "none"
+);
+const fallbackBoxShadow = computed(() =>
+  shadowEnabled.value ? "0px 3px 6px rgba(0, 0, 0, 0.7)" : "none"
+);
 </script>
 
 <template>
@@ -38,7 +53,14 @@ const textStyle = computed(() => {
       down: props.isDown,
       'no-image': !props.keyData.images.keyDefault
     }"
-    :style="buttonStyle"
+    :style="[
+      buttonStyle,
+      {
+        '--shadow-filter': keyShadowFilter,
+        '--shadow-filter-down': keyShadowFilterDown,
+        '--fallback-shadow': fallbackBoxShadow
+      }
+    ]"
   >
     <img
       v-if="props.keyData.images.keyDefault"
@@ -80,7 +102,7 @@ const textStyle = computed(() => {
     background: #2f3336;
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
-    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.7);
+    box-shadow: var(--fallback-shadow);
   }
 
   .key-image.default {
@@ -114,16 +136,11 @@ const textStyle = computed(() => {
   object-fit: contain;
   position: absolute;
   z-index: 0;
-  filter:
-    drop-shadow(0px 3px 8px rgba(0, 0, 0, 0.45))
-    drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.35));
+  filter: var(--shadow-filter);
   transition: filter 80ms ease;
-
-  .down & {
-    filter:
-      drop-shadow(0px 1px 3px rgba(0, 0, 0, 0.35))
-      drop-shadow(0px 0px 1px rgba(0, 0, 0, 0.25));
-  }
+}
+.key.down .key-image {
+  filter: var(--shadow-filter-down);
 }
 
 .text {

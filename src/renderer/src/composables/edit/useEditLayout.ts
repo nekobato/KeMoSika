@@ -17,6 +17,7 @@ export const useEditLayout = () => {
       width: 48,
       height: 48,
       rotation: 0,
+      shadow: true,
       text: {
         isVisible: true,
         character: "A",
@@ -47,6 +48,7 @@ export const useEditLayout = () => {
       width: defaultWidth,
       height: defaultHeight,
       rotation: 0,
+      shadow: true,
       buttonOverlays: {
         left: { default: "", active: "" },
         right: { default: "", active: "" },

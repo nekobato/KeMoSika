@@ -7,6 +7,7 @@ export type KeyboardKeyData = {
   x: number;
   y: number;
   rotation: number;
+  shadow?: boolean;
   images: {
     keyDefault: string;
     keyActive: string;
@@ -31,6 +32,7 @@ export type MouseData = {
   x: number;
   y: number;
   rotation: number;
+  shadow?: boolean;
   buttonOverlays: {
     left: { default: string; active: string };
     right: { default: string; active: string };

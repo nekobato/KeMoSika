@@ -101,6 +101,9 @@ const schema: Schema<ConfigSchema> = {
                   }
                 }
               },
+              shadow: {
+                type: "boolean"
+              },
               buttonOverlays: {
                 type: "object",
                 properties: {

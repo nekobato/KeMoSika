@@ -13,6 +13,7 @@ import Divider from "primevue/divider";
 import IconField from "primevue/iconfield";
 import InputIcon from "primevue/inputicon";
 import ColorPicker from "primevue/colorpicker";
+import ToggleSwitch from "primevue/toggleswitch";
 
 const props = defineProps({
   mouseData: {
@@ -50,6 +51,7 @@ const onChangeInput = (key: string, value: any) => {
     case "width":
     case "height":
     case "rotation":
+    case "shadow":
       emit("change", {
         ...props.mouseData,
         [key]: value
@@ -150,6 +152,17 @@ const selectImage = (type: MouseImageType) => {
           @update:modelValue="onChangeInput('rotation', $event)"
         />
       </IconField>
+
+      <div class="checkbox-field grid-span-2">
+        <ToggleSwitch
+          inputId="mouse-shadow"
+          size="small"
+          binary
+          v-model="mouseData.shadow"
+          @update:modelValue="onChangeInput('shadow', $event)"
+        />
+        <label for="mouse-shadow">影を付ける</label>
+      </div>
 
       <IconField class="grid-span-2">
         <InputIcon><span>D</span></InputIcon>
@@ -345,5 +358,10 @@ const selectImage = (type: MouseImageType) => {
     font-size: 12px;
     color: #4c4d4f;
   }
+}
+.checkbox-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 </style>

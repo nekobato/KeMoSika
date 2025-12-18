@@ -132,43 +132,64 @@ const getMouseImage = () => {
 
   return undefined;
 };
+
+const dropShadowStyle = computed(() =>
+  props.data.shadow === false
+    ? "none"
+    : "drop-shadow(0px 3px 8px rgba(0,0,0,0.45)) drop-shadow(0px 1px 2px rgba(0,0,0,0.35))"
+);
 </script>
 
 <template>
   <div class="mouse-container" :style="buttonStyle">
-    <div class="mouse">
-      <img v-if="getMouseImage()" :src="getMouseImage()" class="mouse-image" />
-      <div v-else class="mouse-body"></div>
+  <div class="mouse">
+    <img
+      v-if="getMouseImage()"
+      :src="getMouseImage()"
+      class="mouse-image"
+      :style="{ filter: dropShadowStyle }"
+    />
+    <div
+      v-else
+      class="mouse-body"
+      :style="{ filter: dropShadowStyle }"
+    ></div>
       <template v-if="overlayData">
         <img
           v-if="overlayData.left.default"
           :src="`media://images/${overlayData.left.default}.png`"
           class="mouse-overlay"
+          :style="{ filter: dropShadowStyle }"
         />
         <img
           v-if="overlayData.left.active && isButtonDown(LEFT_BUTTON)"
           :src="`media://images/${overlayData.left.active}.png`"
           class="mouse-overlay"
+          :style="{ filter: dropShadowStyle }"
         />
         <img
           v-if="overlayData.right.default"
           :src="`media://images/${overlayData.right.default}.png`"
           class="mouse-overlay"
+          :style="{ filter: dropShadowStyle }"
         />
         <img
           v-if="overlayData.right.active && isButtonDown(RIGHT_BUTTON)"
           :src="`media://images/${overlayData.right.active}.png`"
           class="mouse-overlay"
+          :style="{ filter: dropShadowStyle }"
         />
         <img
           v-if="overlayData.middle.default"
           :src="`media://images/${overlayData.middle.default}.png`"
           class="mouse-overlay"
+          :style="{ filter: dropShadowStyle }"
         />
         <img
           v-if="overlayData.middle.active && isButtonDown(MIDDLE_BUTTON)"
           :src="`media://images/${overlayData.middle.active}.png`"
           class="mouse-overlay"
+          :style="{ filter: dropShadowStyle }"
         />
       </template>
     </div>
