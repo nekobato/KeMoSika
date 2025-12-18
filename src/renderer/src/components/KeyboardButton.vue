@@ -66,7 +66,7 @@ const textStyle = computed(() => {
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.7);
+  box-shadow: none;
   color: #71d4fe;
   text-shadow:
     0px 0px 40px #71d4fe,
@@ -80,9 +80,10 @@ const textStyle = computed(() => {
     background: #2f3336;
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.7);
   }
 
-  .keyimage.default {
+  .key-image.default {
     visibility: visible;
   }
 
@@ -91,7 +92,6 @@ const textStyle = computed(() => {
   }
 
   &.down {
-    box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.7);
     color: #2f3336;
     background: #71d4fe;
     text-shadow:
@@ -114,6 +114,16 @@ const textStyle = computed(() => {
   object-fit: contain;
   position: absolute;
   z-index: 0;
+  filter:
+    drop-shadow(0px 3px 8px rgba(0, 0, 0, 0.45))
+    drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.35));
+  transition: filter 80ms ease;
+
+  .down & {
+    filter:
+      drop-shadow(0px 1px 3px rgba(0, 0, 0, 0.35))
+      drop-shadow(0px 0px 1px rgba(0, 0, 0, 0.25));
+  }
 }
 
 .text {
