@@ -61,13 +61,16 @@ const textStyle = computed(() => {
 
 <style scoped>
 .key {
+  background-color: transparent;
   position: absolute;
   display: inline-flex;
   justify-content: center;
   align-items: center;
   box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.7);
   color: #71d4fe;
-  text-shadow: 0px 0px 40px #71d4fe, 0px 0px 80px #71d4fe;
+  text-shadow:
+    0px 0px 40px #71d4fe,
+    0px 0px 80px #71d4fe;
   width: 64px;
   height: 64px;
   text-align: center;
@@ -91,7 +94,9 @@ const textStyle = computed(() => {
     box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.7);
     color: #2f3336;
     background: #71d4fe;
-    text-shadow: 0px 0px 40px #2f3336, 0px 0px 80px #2f3336;
+    text-shadow:
+      0px 0px 40px #2f3336,
+      0px 0px 80px #2f3336;
 
     .key-image.default {
       visibility: hidden;

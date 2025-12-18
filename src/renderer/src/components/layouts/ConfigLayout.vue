@@ -16,7 +16,7 @@
 .config {
   display: grid;
   grid-template-rows: 40px 1fr;
-  grid-template-columns: 1fr 240px;
+  grid-template-columns: 1fr 320px;
   position: relative;
   width: 100%;
   height: 100vh;

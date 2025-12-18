@@ -12,7 +12,7 @@ export const createEditorWindow = () => {
       sandbox: false
     },
     width: 800,
-    height: 600,
+    height: 450,
     frame: true,
     transparent: false,
     show: true,

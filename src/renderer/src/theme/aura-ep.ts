@@ -1,4 +1,4 @@
-import Aura from "@primevue/themes/aura";
+import Aura from "@primeuix/themes/aura";
 
 // Element Plus の既定プライマリーパレットを PrimeVue のデザイントークンへ写経したプリセット拡張
 const AuraEP = {

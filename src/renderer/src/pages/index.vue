@@ -5,16 +5,17 @@ import { Icon } from "@iconify/vue";
 import ConfigLayout from "@/components/layouts/ConfigLayout.vue";
 import KeyboardButton from "@/components/KeyboardButton.vue";
 import { KeyboardKeyData, LayoutData } from "@shared/types";
-import { type NavigationFailure, useRoute, useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import Header from "@/components/Header.vue";
 import Mouse from "@/components/Mouse.vue";
-import Divider from "primevue/divider";
 import ButtonGroup from "primevue/buttongroup";
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 import InputText from "primevue/inputtext";
-import FloatActions from "@/components/FloatActions/FloatActions.vue";
 import Tree from "primevue/tree";
+import FloatActions from "@/components/FloatActions/FloatActions.vue";
+import type { TreeExpandedKeys, TreeSelectionKeys } from "primevue/tree";
+import type { TreeNode } from "primevue/treenode";
 
 type LayoutSource = "user" | "builtin";
 
@@ -24,28 +25,71 @@ const store = useStore();
 
 const userLayouts = computed(() => store.$state.layouts || []);
 const builtinLayoutTree = computed(() => store.builtinLayoutTree || []);
-const builtinLayouts = computed(() =>
-  builtinLayoutTree.value.flatMap((group) => group.layouts) || []
-);
-const treeSelection = ref<Record<string, boolean>>({});
-const expandedKeys = ref<Record<string, boolean>>({});
-
-const treeNodes = computed(() =>
-  builtinLayoutTree.value.map((group) => ({
-    key: `group-${group.id}`,
-    label: group.name,
-    children: group.layouts.map((layout) => ({
-      key: layout.id,
-      label: layout.name,
-      data: layout,
-      type: "layout"
-    }))
-  }))
+const builtinLayouts = computed(
+  () => builtinLayoutTree.value.flatMap((group) => group.layouts) || []
 );
 
 const copyTargetLayout = ref<LayoutData | null>(null);
 const showCopyDialog = ref(false);
 const copyName = ref("");
+
+const folderIcons = {
+  // PrimeVue v4 treats presence of expanded/collapsedIcon as custom toggle icons.
+  // Leaving only the node icon avoids blank toggle buttons.
+  icon: "pi pi-folder"
+};
+
+const treeValue = computed<TreeNode[]>(() => {
+  const userNodes: TreeNode[] = userLayouts.value.length
+    ? userLayouts.value.map((layout) => ({
+        key: layout.id,
+        label: layout.name,
+        type: "layout",
+        data: layout,
+        icon: "pi pi-th-large",
+        selectable: true
+      }))
+    : [
+        {
+          key: "custom-empty",
+          label: "カスタムレイアウトがありません",
+          selectable: false,
+          icon: "pi pi-info-circle"
+        }
+      ];
+
+  const builtinNodes: TreeNode[] = builtinLayoutTree.value.map((group) => ({
+    key: `group-${group.id}`,
+    label: group.name,
+    ...folderIcons,
+    selectable: false,
+    children: group.layouts.map((layout) => ({
+      key: layout.id,
+      label: layout.name,
+      type: "layout",
+      data: layout,
+      icon: "pi pi-desktop",
+      selectable: true
+    }))
+  }));
+
+  return [
+    {
+      key: "custom-layouts",
+      label: "カスタムレイアウト",
+      ...folderIcons,
+      selectable: false,
+      children: userNodes
+    },
+    {
+      key: "builtin-layouts",
+      label: "デフォルトレイアウト",
+      ...folderIcons,
+      selectable: false,
+      children: builtinNodes
+    }
+  ];
+});
 
 const findLayoutById = (layoutId?: string) => {
   if (!layoutId) return undefined;
@@ -61,12 +105,6 @@ const findLayoutSource = (layoutId?: string): LayoutSource | null => {
   if (builtinLayouts.value.some((layout) => layout.id === layoutId))
     return "builtin";
   return null;
-};
-
-const navigateOnKeydown = (
-  navigateFn: (e?: MouseEvent) => Promise<void | NavigationFailure>
-) => {
-  void navigateFn();
 };
 
 const navigateToLayout = (layoutId: string, replace = false) => {
@@ -102,24 +140,6 @@ const selectedLayoutSource = computed<LayoutSource | null>(() =>
   findLayoutSource(route.query.layoutId as string | undefined)
 );
 
-watch(
-  [builtinLayoutTree, () => route.query.layoutId],
-  ([groups, layoutId]) => {
-    const nextExpanded: Record<string, boolean> = {};
-    groups.forEach((g) => {
-      nextExpanded[`group-${g.id}`] = true;
-    });
-    expandedKeys.value = nextExpanded;
-
-    if (layoutId) {
-      treeSelection.value = { [layoutId as string]: true };
-    } else {
-      treeSelection.value = {};
-    }
-  },
-  { immediate: true }
-);
-
 const layoutStyle = computed(() => {
   return {
     width: `${selectedLayout.value?.width ?? 0}px`,
@@ -138,11 +158,6 @@ const mouses = computed(() => {
 const addLayout = async () => {
   const layout = await store.addLayout();
   navigateToLayout(layout.id);
-};
-
-const deleteLayout = async (index: number) => {
-  await store.deleteLayout(index);
-  ensureValidSelection();
 };
 
 const resetCopyDialog = () => {
@@ -189,6 +204,35 @@ const isBuiltinLayoutSelected = computed(
   () => selectedLayoutSource.value === "builtin" && !!selectedLayout.value
 );
 
+const expandedKeys = ref<TreeExpandedKeys>({});
+const selectionKeys = ref<TreeSelectionKeys>({});
+
+watch(
+  treeValue,
+  (nodes) => {
+    const nextExpanded: TreeExpandedKeys = {};
+    const traverse = (treeNodes: TreeNode[]) => {
+      treeNodes.forEach((node) => {
+        if (node.children?.length) {
+          nextExpanded[node.key] = true;
+          traverse(node.children);
+        }
+      });
+    };
+    traverse(nodes);
+    expandedKeys.value = nextExpanded;
+  },
+  { immediate: true }
+);
+
+watch(
+  selectedLayout,
+  (layout) => {
+    selectionKeys.value = layout ? { [layout.id]: true } : {};
+  },
+  { immediate: true }
+);
+
 const handleLeftAction = () => {
   if (!selectedLayout.value) return;
   if (isBuiltinLayoutSelected.value) {
@@ -198,10 +242,10 @@ const handleLeftAction = () => {
   }
 };
 
-const onTreeSelect = (node: any) => {
-  if (node?.type === "layout" && node?.key) {
-    navigateToLayout(node.key);
-  }
+const handleNodeSelect = (node: TreeNode) => {
+  const layout = node.data as LayoutData | undefined;
+  if (!layout) return;
+  navigateToLayout(layout.id);
 };
 </script>
 
@@ -258,38 +302,9 @@ const onTreeSelect = (node: any) => {
     </template>
     <template #aside>
       <aside class="list-column">
-        <div class="layout-list">
-          <p class="category-title">マイレイアウト</p>
-          <RouterLink
-            v-for="(layout, index) in userLayouts"
-            :key="layout.id"
-            :to="{ name: 'Index', query: { layoutId: layout.id } }"
-            custom
-            v-slot="{ navigate }"
-          >
-            <div
-              class="list-item"
-              :class="{ selected: selectedLayout?.id === layout.id }"
-              role="link"
-              tabindex="0"
-              @click="navigate"
-              @keydown.enter.prevent="navigateOnKeydown(navigate)"
-              @keydown.space.prevent="navigateOnKeydown(navigate)"
-            >
-              <span class="label">{{ layout.name }}</span>
-              <Button
-                class="nn-button delete-button"
-                text
-                severity="secondary"
-                @click.stop="deleteLayout(index)"
-                aria-label="Delete Layout"
-              >
-                <Icon icon="mingcute:delete-2-line" class="nn-icon" />
-              </Button>
-            </div>
-          </RouterLink>
+        <div class="aside-header">
           <Button
-            class="nn-button"
+            class="nn-button primary"
             @click="addLayout"
             aria-label="Add Layout"
             size="small"
@@ -298,34 +313,19 @@ const onTreeSelect = (node: any) => {
             <span>新規作成</span>
           </Button>
         </div>
-        <Divider />
-        <div class="layout-tree">
-          <p class="category-title">デフォルトレイアウト</p>
-          <Tree
-            :value="treeNodes"
-            selectionMode="single"
-            v-model:selectionKeys="treeSelection"
-            :expandedKeys="expandedKeys"
-            @node-select="onTreeSelect"
-            class="nn-tree"
-          >
-            <template #default="{ node }">
-              <div class="tree-node">
-                <span class="label">{{ node.label }}</span>
-                <Button
-                  v-if="node.type === 'layout'"
-                  class="nn-button copy-button"
-                  text
-                  severity="secondary"
-                  @click.stop="openCopyDialog(node.data)"
-                  aria-label="Copy Layout"
-                >
-                  <Icon icon="mingcute:file-copy-2-line" class="nn-icon" />
-                </Button>
-              </div>
-            </template>
-          </Tree>
-        </div>
+        <Tree
+          class="layout-tree"
+          :value="treeValue"
+          selectionMode="single"
+          :expandedKeys="expandedKeys"
+          v-model:selectionKeys="selectionKeys"
+          @node-select="handleNodeSelect"
+          @nodeSelect="handleNodeSelect"
+          :pt="{
+            root: { class: 'layout-tree-root' },
+            node: { class: 'layout-tree-node' }
+          }"
+        />
       </aside>
     </template>
     <template #dialog>
@@ -379,12 +379,8 @@ const onTreeSelect = (node: any) => {
 
 <style lang="scss" scoped>
 .list-column {
-  width: 240px;
-  height: 100%;
-  background-color: #252525;
-  overflow-y: scroll;
+  width: 100%;
 }
-
 .preview-container {
   width: 100%;
   height: 100%;
@@ -392,7 +388,7 @@ const onTreeSelect = (node: any) => {
   position: relative;
   background-color: #e5e5e5;
   overflow: scroll;
-  padding-right: 240px;
+  padding-right: 320px;
 }
 
 .preview {
@@ -402,108 +398,52 @@ const onTreeSelect = (node: any) => {
 
 .category-title {
   font-size: 20px;
-  margin: 16px auto auto 16px;
+  margin: 16px auto auto 0;
 }
 
-.layout-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 16px;
-  flex-wrap: nowrap;
-
-  .list-item {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    padding: 8px 16px;
-    cursor: pointer;
-    border-radius: 8px;
-
-    &:hover {
-      background-color: var(--color-white-t50);
-
-      .delete-button,
-      .copy-button {
-        visibility: visible;
-      }
-    }
-
-    &.selected {
-      background-color: var(--color-teal-400);
-      cursor: default;
-    }
-
-    .label {
-      font-size: var(--font-size-14);
-      font-weight: bold;
-    }
-
-    .delete-button {
-      position: absolute;
-      right: 8px;
-      width: 24px;
-      height: 24px;
-      margin: auto 0 auto auto;
-      visibility: hidden;
-    }
-
-    .copy-button {
-      position: absolute;
-      right: 8px;
-      width: 24px;
-      height: 24px;
-      margin: auto 0 auto auto;
-      visibility: hidden;
-    }
-  }
-
-  .nn-button {
-    margin-top: 8px;
-  }
+.aside-header {
+  padding: 16px 16px 0;
 }
+
 .layout-tree {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 0 16px 16px;
+  padding: 8px 0 0;
 }
 
-.layout-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.group-title {
-  font-size: 14px;
-  color: var(--color-grey-400);
-  margin: 0 0 2px 4px;
-}
-
-.nn-tree {
-  background: transparent;
+:deep(.p-tree) {
   border: none;
+  background: transparent;
   color: #fff;
 }
 
-.tree-node {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+:deep(.p-tree .p-tree-node-content) {
   padding: 6px 8px;
+  border-radius: 6px;
 }
 
-.p-treenode-content {
-  border-radius: 8px;
+:deep(.p-tree .p-treenode-content) {
+  gap: 6px;
 }
 
-.p-highlight > .p-treenode-content {
+:deep(.p-tree .p-tree-toggler) {
+  color: #fff;
+  margin-right: 4px;
+}
+
+:deep(.p-tree .p-treenode-selectable .p-tree-node-content) {
+  cursor: pointer;
+}
+
+:deep(.p-tree .p-highlight > .p-tree-node-content) {
   background: var(--color-teal-400);
+  color: #000;
 }
 
-.p-tree-toggler {
-  color: #ccc;
+:deep(.p-tree .p-treenode .p-tree-node-content:hover) {
+  background: var(--color-white-t50);
+}
+
+:deep(.p-tree .p-treenode-children) {
+  padding-left: 16px;
 }
 
 .copy-dialog {
