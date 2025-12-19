@@ -50,7 +50,6 @@ const keyboardEventToKeyArray = (e: KeyboardEvent): string[] => {
 
 const onKeyDownOnShortcut = async (e: KeyboardEvent) => {
   const shortcut = keyboardEventToKeyArray(e);
-  console.log(shortcut);
 
   if (shortcut.length === 0 || shortcut === props.value) {
     return;

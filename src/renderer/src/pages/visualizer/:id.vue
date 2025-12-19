@@ -69,7 +69,6 @@ window.ipc.on(
         );
         break;
       case InputEventType.EVENT_MOUSE_MOVED:
-        console.log(e);
         mouseStates.value.from.x = mouseStates.value.to.x;
         mouseStates.value.from.y = mouseStates.value.to.y;
         mouseStates.value.to.x = e.x;

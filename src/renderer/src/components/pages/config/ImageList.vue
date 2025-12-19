@@ -49,7 +49,6 @@ const onDragLeave = (_: DragEvent) => {
 };
 
 const selectImage = (index: number) => {
-  console.log("selectImage", index, props.item, props.type);
   if (!props.item || !props.type) return;
 
   emit("select", {

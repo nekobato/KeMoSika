@@ -55,11 +55,12 @@ const layout = computed<LayoutData | undefined>(() =>
 );
 const items = computed(() => (layout.value ? layout.value.keys : []));
 const itemsCount = computed(() => (items.value ? items.value.length : 0));
-const itemIdSelectors = computed(() => {
-  return activeKeyIndexes.value.map((index) =>
-    items.value ? `#${items.value[index].id}` : ""
-  );
-});
+const itemIdSelectors = computed(() =>
+  activeKeyIndexes.value
+    .map((index) => items.value?.[index])
+    .filter((item): item is LayoutItemData => Boolean(item))
+    .map((item) => `#${item.id}`)
+);
 
 const keys = computed<KeyboardKeyData[]>(() =>
   items.value.filter((key) => key.type === "key")
@@ -76,6 +77,9 @@ const layoutStyle = computed(() => {
 });
 
 const addPicture = () => {};
+
+const isConnectedTarget = (target?: HTMLElement | null): target is HTMLElement =>
+  Boolean(target && target.isConnected);
 
 const updateSelectionFrame = () => {
   nextTick(() => {
@@ -129,6 +133,7 @@ const onClickGround = (e: MouseEvent) => {
 };
 
 const onDrag = (e: OnDrag) => {
+  if (!isConnectedTarget(e.target)) return;
   const item = items.value?.find((item) => item.id === e.target.id);
   if (item) {
     item.x = e.left;
@@ -137,6 +142,7 @@ const onDrag = (e: OnDrag) => {
 };
 
 const onDragStart = (e: OnDragStart) => {
+  if (!isConnectedTarget(e.target)) return;
   const item = items.value?.find((item) => item.id === e.target.id);
   if (item) {
     // item.isModifying = true;
@@ -144,6 +150,7 @@ const onDragStart = (e: OnDragStart) => {
 };
 
 const onDragEnd = (e: OnDragEnd) => {
+  if (!isConnectedTarget(e.target)) return;
   const item = items.value?.find((item) => item.id === e.target.id);
 
   if (item && layout.value) {
@@ -153,6 +160,7 @@ const onDragEnd = (e: OnDragEnd) => {
 
 const onDragGroup = (e: OnDragGroup) => {
   e.events.forEach((ev: any) => {
+    if (!isConnectedTarget(ev.target)) return;
     const item = items.value?.find((item) => item.id === ev.target.id);
     if (item) {
       item.x = ev.left;
@@ -183,6 +191,7 @@ const persistRotation = async (targetIds: string[]) => {
 };
 
 const onRotate = (e: OnRotate) => {
+  if (!isConnectedTarget(e.target)) return;
   e.inputEvent.preventDefault();
   setRotation(e.target.id, e.rotation);
 };
@@ -194,6 +203,7 @@ const onRotateGroup = (e: OnRotateGroup) => {
 };
 
 const onRotateEnd = async (e: OnRotateEnd) => {
+  if (!isConnectedTarget(e.target)) return;
   await persistRotation([e.target.id]);
 };
 
@@ -243,7 +253,7 @@ const onKeyDown = (e: KeyboardEvent) => {
       ctrlKey: e.ctrlKey,
       metaKey: e.metaKey
     },
-    activeKeyIndexes.value
+    activeKeyIndexes
   );
 
   if (shouldUpdateRect) {
@@ -265,7 +275,6 @@ const onSelectImage = async ({
   type: InputImageType;
   imageId: string;
 }) => {
-  console.log(itemId, type, imageId);
   const item = items.value?.find((item) => item.id === itemId);
   if (item) {
     if (item.type === "key") {

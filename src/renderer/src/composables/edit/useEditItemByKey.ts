@@ -1,4 +1,5 @@
 import { useStore } from "@/store";
+import type { Ref } from "vue";
 
 export const useEditItemByKey = () => {
   const store = useStore();
@@ -15,15 +16,16 @@ export const useEditItemByKey = () => {
       ctrlKey: boolean;
       metaKey: boolean;
     },
-    activeKeys: any[]
+    activeKeys: Ref<number[]>
   ) => {
     let shouldUpdateRect = false;
+    const selectedIndexes = activeKeys.value;
 
     // delete key
     if (key === "Delete" || key === "Backspace") {
-      if (activeKeys.length > 0 && store.activeLayout) {
-        store.removeItems(store.activeLayout.id, activeKeys);
-        activeKeys = [];
+      if (selectedIndexes.length > 0 && store.activeLayout) {
+        store.removeItems(store.activeLayout.id, selectedIndexes);
+        activeKeys.value = [];
         shouldUpdateRect = true;
       }
     }
@@ -32,7 +34,7 @@ export const useEditItemByKey = () => {
     if (key === "z" && (ctrlKey || metaKey) && !shiftKey) {
       // [0] is empty initial state
       if (store.history && store.history.length > 2) {
-        activeKeys = [];
+        activeKeys.value = [];
         store.undo();
         shouldUpdateRect = true;
       }
@@ -42,7 +44,7 @@ export const useEditItemByKey = () => {
     if (key === "z" && (ctrlKey || metaKey) && shiftKey) {
       // [0] is empty initial state
       if (store.history && store.history.length > 2) {
-        activeKeys = [];
+        activeKeys.value = [];
         store.redo();
         shouldUpdateRect = true;
       }
@@ -50,24 +52,24 @@ export const useEditItemByKey = () => {
 
     // move
     if (key === "ArrowUp" || key === "ArrowDown") {
-      if (activeKeys.length === 0) {
+      if (selectedIndexes.length === 0) {
         return {};
       }
       let move = key === "ArrowUp" ? -1 : 1;
       move *= shiftKey ? 10 : 1;
-      activeKeys.forEach((index) => {
+      selectedIndexes.forEach((index) => {
         store.activeLayout.keys[index].y += move;
       });
       shouldUpdateRect = true;
     }
 
     if (key === "ArrowLeft" || key === "ArrowRight") {
-      if (activeKeys.length === 0) {
+      if (selectedIndexes.length === 0) {
         return {};
       }
       let move = key === "ArrowLeft" ? -1 : 1;
       move *= shiftKey ? 10 : 1;
-      activeKeys.forEach((index) => {
+      selectedIndexes.forEach((index) => {
         store.activeLayout.keys[index].x += move;
       });
       shouldUpdateRect = true;
