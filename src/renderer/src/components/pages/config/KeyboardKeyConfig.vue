@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { PropType } from "vue";
+import { onMounted, PropType, ref } from "vue";
 import { Icon } from "@iconify/vue";
 import { keyboardEventToElectronAccelerator } from "@/utils/key";
 import { KeyboardKeyData } from "@shared/types";
@@ -22,6 +22,36 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["change", "openImageDialog"]);
+
+const fontListId = "system-font-list";
+const systemFonts = ref<string[]>([]);
+const fontLoadError = ref<string | null>(null);
+const isFontLoading = ref(false);
+
+/**
+ * Fetch system font list from the main process and cache it locally.
+ */
+const loadSystemFonts = async () => {
+  if (systemFonts.value.length > 0 || isFontLoading.value) return;
+
+  isFontLoading.value = true;
+  fontLoadError.value = null;
+
+  try {
+    const fonts = await window.ipc.invoke("font:list");
+    systemFonts.value = Array.isArray(fonts) ? fonts : [];
+  } catch (error) {
+    console.error("font:list failed", error);
+    fontLoadError.value = "failed";
+    systemFonts.value = [];
+  } finally {
+    isFontLoading.value = false;
+  }
+};
+
+onMounted(() => {
+  void loadSystemFonts();
+});
 
 const onKeyDownShortcutInput = async (e: KeyboardEvent, index: number) => {
   e.preventDefault();
@@ -61,6 +91,7 @@ const onChangeInput = (key: string, value: any) => {
     case "text.y":
     case "text.size":
     case "text.color":
+    case "text.font":
       emit("change", {
         ...props.keyData,
         text: {
@@ -278,6 +309,25 @@ const selectImage = (type: InputImageType) => {
             @update:modelValue="onChangeInput('text.size', $event)"
           />
         </IconField>
+
+        <IconField class="grid-span-2">
+          <InputIcon><span>F</span></InputIcon>
+          <InputText
+            id="key-text-font"
+            size="small"
+            fluid
+            :list="fontListId"
+            v-model="keyData.text.font"
+            @update:modelValue="onChangeInput('text.font', $event)"
+            placeholder="Font family"
+          />
+        </IconField>
+        <datalist :id="fontListId">
+          <option v-for="font in systemFonts" :key="font" :value="font" />
+        </datalist>
+        <div class="grid-span-2 font-hint" v-if="fontLoadError">
+          フォント一覧を取得できませんでした
+        </div>
       </div>
     </div>
 
@@ -390,6 +440,10 @@ const selectImage = (type: InputImageType) => {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+}
+.font-hint {
+  font-size: 12px;
+  color: #9aa0a6;
 }
 .key-image {
   width: 100%;

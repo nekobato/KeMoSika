@@ -16,6 +16,7 @@ import { uIOhook } from "uiohook-napi";
 import * as store from "./store";
 import { initSentry } from "./utils/sentry";
 import { deleteImage, imagePath, saveImage, saveImageBuffer } from "./utils/image";
+import { listSystemFonts } from "./utils/font";
 import { nanoid } from "nanoid/non-secure";
 import { createEditorWindow } from "./windows/editor-wIndow";
 import { createVisualizerWindow } from "./windows/visualizer-window";
@@ -200,6 +201,10 @@ app
       return store.getStore().images.map((image) => {
         return { ...image, path: path.join(imagePath, image.fileName) };
       });
+    });
+
+    ipcMain.handle("font:list", async () => {
+      return listSystemFonts();
     });
 
     ipcMain.handle(

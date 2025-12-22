@@ -20,14 +20,23 @@ const buttonStyle = computed(() => {
 });
 
 const textStyle = computed(() => {
-  return props.keyData.text
-    ? {
-        left: `${props.keyData.text.x}px`,
-        top: `${props.keyData.text.y}px`,
-        fontSize: `${props.keyData.text.size}px`,
-        color: props.keyData.text.color
-      }
-    : {};
+  if (!props.keyData.text) {
+    return {};
+  }
+
+  const style: Record<string, string> = {
+    left: `${props.keyData.text.x}px`,
+    top: `${props.keyData.text.y}px`,
+    fontSize: `${props.keyData.text.size}px`,
+    color: props.keyData.text.color
+  };
+
+  const fontFamily = props.keyData.text.font?.trim();
+  if (fontFamily) {
+    style.fontFamily = fontFamily;
+  }
+
+  return style;
 });
 
 const shadowEnabled = computed(() => props.keyData.shadow !== false);
