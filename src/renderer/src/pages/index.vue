@@ -283,11 +283,14 @@ const handleNodeSelect = (node: TreeNode) => {
             <Icon
               :icon="
                 isBuiltinLayoutSelected
-                  ? 'mingcute:file-copy-2-line'
+                  ? 'mingcute:copy-2-line'
                   : 'mingcute:edit-4-line'
               "
               class="action-icon"
             />
+            <span class="action-label">{{
+              isBuiltinLayoutSelected ? "コピー" : "編集"
+            }}</span>
           </Button>
           <Button
             class="float-action-button type-primary"
@@ -296,6 +299,7 @@ const handleNodeSelect = (node: TreeNode) => {
             aria-label="Open Visualizer"
           >
             <Icon icon="mingcute:play-fill" class="action-icon" />
+            <span class="action-label">ビジュアライザー</span>
           </Button>
         </ButtonGroup>
       </FloatActions>

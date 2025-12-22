@@ -78,8 +78,32 @@ const layoutStyle = computed(() => {
 
 const addPicture = () => {};
 
-const isConnectedTarget = (target?: HTMLElement | null): target is HTMLElement =>
+const isConnectedTarget = (target?: Element | null): target is Element =>
   Boolean(target && target.isConnected);
+
+const getPreviewPadding = () => {
+  const preview = previewRef.value;
+  if (!preview) return 0;
+
+  const style = window.getComputedStyle(preview);
+  const left = Number.parseFloat(style.paddingLeft);
+
+  return Number.isFinite(left) ? left : 0;
+};
+
+const centerPreview = () => {
+  const preview = previewRef.value;
+  const layoutEl = document.getElementById("layout-area");
+
+  if (!preview || !layoutEl) return;
+
+  const padding = getPreviewPadding();
+  const scrollX = Math.max(0, (layoutEl.offsetWidth + padding * 2 - preview.clientWidth) / 2);
+  const scrollY = Math.max(0, (layoutEl.offsetHeight + padding * 2 - preview.clientHeight) / 2);
+
+  preview.scrollLeft = scrollX;
+  preview.scrollTop = scrollY;
+};
 
 const updateSelectionFrame = () => {
   nextTick(() => {
@@ -244,6 +268,22 @@ const onChangeLayout = (layout: LayoutData) => {
   store.updateLayout(layout);
 };
 
+/**
+ * Deletes the current layout after user confirmation and returns to the list.
+ */
+const onDeleteLayout = async () => {
+  if (!layout.value) return;
+  const layoutIndex = store.$state.layouts.findIndex(
+    (item) => item.id === layout.value?.id
+  );
+  if (layoutIndex < 0) return;
+  const layoutName = layout.value.name?.trim() || "このレイアウト";
+  const confirmed = window.confirm(`「${layoutName}」を削除しますか？`);
+  if (!confirmed) return;
+  await store.deleteLayout(layoutIndex);
+  await router.replace({ name: "Index" });
+};
+
 const onKeyDown = (e: KeyboardEvent) => {
   e.preventDefault();
   const { shouldUpdateRect } = updateItemByKey(
@@ -378,6 +418,9 @@ onMounted(async () => {
 
     store.changeActiveLayout(activeLayoutIndex);
   }
+
+  await nextTick();
+  centerPreview();
 });
 
 onUnmounted(() => {
@@ -457,49 +500,67 @@ onUnmounted(() => {
             @click="addKey"
             aria-label="Add Key"
           >
-            <Icon icon="mingcute:add-fill" class="action-icon add-icon" />
-            <Icon icon="mingcute:hotkey-line" class="action-icon size-small" />
+            <Icon icon="mingcute:hotkey-line" class="action-icon" />
+            <span class="action-label">キー追加</span>
           </Button>
           <Button
             class="float-action-button"
             @click="addMouse"
             aria-label="Add Mouse"
           >
-            <Icon icon="mingcute:add-fill" class="action-icon add-icon" />
-            <Icon icon="mingcute:mouse-line" class="action-icon size-small" />
+            <Icon icon="mingcute:mouse-line" class="action-icon" />
+            <span class="action-label">マウス追加</span>
           </Button>
           <Button
             class="float-action-button"
             @click="addPicture"
             aria-label="Add Image"
           >
-            <Icon icon="mingcute:pic-line" class="action-icon size-small" />
+            <Icon icon="mingcute:pic-line" class="action-icon" />
+            <span class="action-label">画像追加</span>
           </Button>
         </ButtonGroup>
       </FloatActions>
     </template>
     <template #aside>
-      <aside>
-        <KeyboardKeyConfig
-          v-if="selectedKeyHead"
-          :keyData="selectedKeyHead"
-          @change="onChangeInput"
-          @keydown.stop
-          @open-image-dialog="openImageDialog"
-        />
-        <MouseConfig
-          v-if="selectedMouseHead"
-          :mouseData="selectedMouseHead"
-          @change="onChangeInput"
-          @keydown.stop
-          @open-image-dialog="openImageDialog"
-        />
-        <LayoutConfig
-          v-if="activeKeyIndexes.length === 0"
-          :layout="layout"
-          @change="onChangeLayout"
-          @keydown.stop
-        />
+      <aside class="edit-aside">
+        <div class="aside-content">
+          <KeyboardKeyConfig
+            v-if="selectedKeyHead"
+            :keyData="selectedKeyHead"
+            @change="onChangeInput"
+            @keydown.stop
+            @open-image-dialog="openImageDialog"
+          />
+          <MouseConfig
+            v-if="selectedMouseHead"
+            :mouseData="selectedMouseHead"
+            @change="onChangeInput"
+            @keydown.stop
+            @open-image-dialog="openImageDialog"
+          />
+          <LayoutConfig
+            v-if="activeKeyIndexes.length === 0"
+            :layout="layout"
+            @change="onChangeLayout"
+            @keydown.stop
+          />
+        </div>
+        <div
+          class="aside-footer"
+          v-if="layout && activeKeyIndexes.length === 0"
+        >
+          <Button
+            class="layout-delete-button"
+            severity="danger"
+            size="small"
+            @click="onDeleteLayout"
+            aria-label="Delete Layout"
+          >
+            <Icon icon="mingcute:delete-2-line" class="layout-delete-icon" />
+            <span>レイアウト削除</span>
+          </Button>
+        </div>
       </aside>
     </template>
     <template #dialog>
@@ -549,6 +610,30 @@ main {
   padding: 80px;
   background-color: var(--color-grey-100);
   overflow: scroll;
+}
+.edit-aside {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  width: 100%;
+}
+.aside-content {
+  flex: 1 1 auto;
+  width: 100%;
+}
+.aside-footer {
+  margin-top: auto;
+  padding: 16px;
+  display: flex;
+  justify-content: flex-end;
+}
+.layout-delete-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.layout-delete-icon {
+  font-size: 1rem;
 }
 .layout-area {
 }
