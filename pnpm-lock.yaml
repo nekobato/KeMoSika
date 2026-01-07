@@ -11,6 +11,9 @@ importers:
       electron-store:
         specifier: ^11.0.2
         version: 11.0.2
+      font-list:
+        specifier: ^2.0.1
+        version: 2.0.1
       node-gyp-build:
         specifier: ^4.8.4
         version: 4.8.4
@@ -2897,6 +2900,9 @@ packages:
     peerDependenciesMeta:
       debug:
         optional: true
+
+  font-list@2.0.1:
+    resolution: {integrity: sha512-vYOrRyJ6n+/v7lw/EhZXxt+jtd8++OgaaL+B3C8vi0XVw5awCX2WR1crcCtoWg5p+lbmI+hehFwqWo0BYNtofQ==}
 
   foreground-child@3.3.1:
     resolution: {integrity: sha512-gIXjKqtFuWEgzFRJA9WCQeSJLZDjgJUOMCMzxtvFq/37KojM1BFGufqsCy0r4qSQmYLsZYMeyRqzIWOMup03sw==}
@@ -8567,6 +8573,8 @@ snapshots:
       - supports-color
 
   follow-redirects@1.15.11: {}
+
+  font-list@2.0.1: {}
 
   foreground-child@3.3.1:
     dependencies:

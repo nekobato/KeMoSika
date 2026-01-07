@@ -13,6 +13,7 @@ import ColorPicker from "primevue/colorpicker";
 import Divider from "primevue/divider";
 import IconField from "primevue/iconfield";
 import InputIcon from "primevue/inputicon";
+import Select from "primevue/select";
 
 const props = defineProps({
   keyData: {
@@ -23,7 +24,6 @@ const props = defineProps({
 
 const emit = defineEmits(["change", "openImageDialog"]);
 
-const fontListId = "system-font-list";
 const systemFonts = ref<string[]>([]);
 const fontLoadError = ref<string | null>(null);
 const isFontLoading = ref(false);
@@ -312,19 +312,20 @@ const selectImage = (type: InputImageType) => {
 
         <IconField class="grid-span-2">
           <InputIcon><span>F</span></InputIcon>
-          <InputText
-            id="key-text-font"
+          <Select
+            inputId="key-text-font"
             size="small"
             fluid
-            :list="fontListId"
+            filter
+            editable
+            showClear
+            :loading="isFontLoading"
+            :options="systemFonts"
             v-model="keyData.text.font"
             @update:modelValue="onChangeInput('text.font', $event)"
             placeholder="Font family"
           />
         </IconField>
-        <datalist :id="fontListId">
-          <option v-for="font in systemFonts" :key="font" :value="font" />
-        </datalist>
         <div class="grid-span-2 font-hint" v-if="fontLoadError">
           フォント一覧を取得できませんでした
         </div>

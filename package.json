@@ -32,6 +32,7 @@
   "packageManager": "pnpm@10.24.0",
   "dependencies": {
     "electron-store": "^11.0.2",
+    "font-list": "^2.0.1",
     "node-gyp-build": "^4.8.4",
     "uiohook-napi": "^1.5.4"
   },
