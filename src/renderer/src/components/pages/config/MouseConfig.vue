@@ -192,11 +192,7 @@ const selectImage = (type: MouseImageType) => {
       <Divider class="grid-span-2" />
 
       <div class="section-title grid-span-2">ポインターリング</div>
-      <div
-        class="image-cell"
-        v-for="type in ringImageTypes"
-        :key="type.key"
-      >
+      <div class="image-cell" v-for="type in ringImageTypes" :key="type.key">
         <img
           class="mouse-image"
           v-if="mouseData.ring.images[type.key]"
@@ -219,11 +215,7 @@ const selectImage = (type: MouseImageType) => {
       <p class="helper grid-span-2">
         各ボタンの透明PNGを本体画像の上に重ねます。同時押しも自動で合成されますわ。
       </p>
-      <div
-        class="image-cell"
-        v-for="type in overlayImageTypes"
-        :key="type.key"
-      >
+      <div class="image-cell" v-for="type in overlayImageTypes" :key="type.key">
         <img
           class="mouse-image"
           v-if="
@@ -233,9 +225,7 @@ const selectImage = (type: MouseImageType) => {
                 : type.key.startsWith('right')
                   ? 'right'
                   : 'middle'
-            ]?.[
-              type.key.endsWith('Active') ? 'active' : 'default'
-            ]
+            ]?.[type.key.endsWith('Active') ? 'active' : 'default']
           "
           :src="`media://images/${
             mouseData.buttonOverlays?.[
@@ -244,9 +234,7 @@ const selectImage = (type: MouseImageType) => {
                 : type.key.startsWith('right')
                   ? 'right'
                   : 'middle'
-            ]?.[
-              type.key.endsWith('Active') ? 'active' : 'default'
-            ]
+            ]?.[type.key.endsWith('Active') ? 'active' : 'default']
           }.png`"
           @click="selectImage(type.key as MouseImageType)"
         />

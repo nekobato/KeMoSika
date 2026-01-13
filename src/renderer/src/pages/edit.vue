@@ -573,6 +573,9 @@ onUnmounted(() => {
         appendTo="body"
         style="width: calc(100% - 48px)"
       >
+        <template #closeicon="{ class: iconClass }">
+          <Icon :class="iconClass" icon="mingcute:close-line" />
+        </template>
         <template #header>
           <div class="image-dialog-header">
             <span class="image-dialog-title">Select Image</span>
@@ -584,7 +587,14 @@ onUnmounted(() => {
               :auto="true"
               customUpload
               @uploader="uploadImages"
-            />
+            >
+              <template #chooseicon>
+                <Icon
+                  icon="mingcute:upload-line"
+                  class="p-button-icon p-button-icon-left"
+                />
+              </template>
+            </FileUpload>
           </div>
         </template>
         <ImageList

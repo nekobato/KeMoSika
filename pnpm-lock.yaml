@@ -81,9 +81,6 @@ importers:
       primeflex:
         specifier: ^4.0.0
         version: 4.0.0
-      primeicons:
-        specifier: ^7.0.0
-        version: 7.0.0
       primevue:
         specifier: ^4.4.1
         version: 4.5.0(vue@3.5.25(typescript@5.9.3))
@@ -4141,9 +4138,6 @@ packages:
 
   primeflex@4.0.0:
     resolution: {integrity: sha512-UOEZCRjR36+sm5bUpDhS1xbA068l9VC6y1aTNVqQPtXuKIdPTqAWHRUxj3mKAoPrQ9W373ooJJMgNVXfiaw04g==}
-
-  primeicons@7.0.0:
-    resolution: {integrity: sha512-jK3Et9UzwzTsd6tzl2RmwrVY/b8raJ3QZLzoDACj+oTJ0oX7L9Hy+XnVwgo4QVKlKpnP/Ur13SXV/pVh4LzaDw==}
 
   primevue@4.5.0:
     resolution: {integrity: sha512-6Na39OPTNg03LE5gHxWMXrspbBC+sEKS/270qOg2Q2CzF3gcxZagESWRAA0IDRva/vaycElL9b8NUosFm41zIg==}
@@ -9863,8 +9857,6 @@ snapshots:
       parse-ms: 4.0.0
 
   primeflex@4.0.0: {}
-
-  primeicons@7.0.0: {}
 
   primevue@4.5.0(vue@3.5.25(typescript@5.9.3)):
     dependencies:

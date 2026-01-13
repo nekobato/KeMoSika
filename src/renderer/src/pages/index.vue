@@ -36,7 +36,7 @@ const copyName = ref("");
 const folderIcons = {
   // PrimeVue v4 treats presence of expanded/collapsedIcon as custom toggle icons.
   // Leaving only the node icon avoids blank toggle buttons.
-  icon: "pi pi-folder"
+  icon: "mingcute:folder-line"
 };
 
 const treeValue = computed<TreeNode[]>(() => {
@@ -46,7 +46,7 @@ const treeValue = computed<TreeNode[]>(() => {
         label: layout.name,
         type: "layout",
         data: layout,
-        icon: "pi pi-th-large",
+        icon: "mingcute:layout-grid-line",
         selectable: true
       }))
     : [
@@ -54,7 +54,7 @@ const treeValue = computed<TreeNode[]>(() => {
           key: "custom-empty",
           label: "カスタムレイアウトがありません",
           selectable: false,
-          icon: "pi pi-info-circle"
+          icon: "mingcute:information-line"
         }
       ];
 
@@ -68,7 +68,7 @@ const treeValue = computed<TreeNode[]>(() => {
       label: layout.name,
       type: "layout",
       data: layout,
-      icon: "pi pi-desktop",
+      icon: "mingcute:monitor-line",
       selectable: true
     }))
   }));
@@ -329,7 +329,17 @@ const handleNodeSelect = (node: TreeNode) => {
             root: { class: 'layout-tree-root' },
             node: { class: 'layout-tree-node' }
           }"
-        />
+        >
+          <template #nodeicon="{ node, class: iconClass }">
+            <Icon v-if="node.icon" :icon="node.icon" :class="iconClass" />
+          </template>
+          <template #nodetoggleicon="{ expanded }">
+            <Icon
+              :icon="expanded ? 'mingcute:down-line' : 'mingcute:right-line'"
+              class="p-tree-node-toggle-icon"
+            />
+          </template>
+        </Tree>
       </aside>
     </template>
     <template #dialog>
@@ -343,6 +353,9 @@ const handleNodeSelect = (node: TreeNode) => {
         class="copy-dialog"
         @hide="resetCopyDialog"
       >
+        <template #closeicon="{ class: iconClass }">
+          <Icon :class="iconClass" icon="mingcute:close-line" />
+        </template>
         <template #header>
           <div class="copy-dialog-header">
             <span class="copy-dialog-title">レイアウトをコピー</span>

@@ -125,7 +125,19 @@ const selectImage = (type: InputImageType) => {
             @keydown="onKeyDownShortcutInput($event, index)"
             tabindex="0"
             :label="mapKey || 'Empty'"
-          />
+          >
+            <template #removeicon="{ removeCallback, keydownCallback }">
+              <span
+                class="p-chip-remove-icon"
+                role="button"
+                tabindex="0"
+                @click="removeCallback"
+                @keydown="keydownCallback"
+              >
+                <Icon icon="mingcute:close-line" />
+              </span>
+            </template>
+          </Chip>
           <Button
             class="keymap add-button"
             size="small"
@@ -324,7 +336,29 @@ const selectImage = (type: InputImageType) => {
             v-model="keyData.text.font"
             @update:modelValue="onChangeInput('text.font', $event)"
             placeholder="Font family"
-          />
+          >
+            <template #clearicon="{ clearCallback }">
+              <span
+                class="p-select-clear-icon"
+                role="button"
+                tabindex="0"
+                @click="clearCallback"
+                @keydown.enter="clearCallback"
+                @keydown.space.prevent="clearCallback"
+              >
+                <Icon icon="mingcute:close-line" />
+              </span>
+            </template>
+            <template #dropdownicon="{ class: iconClass }">
+              <Icon :class="iconClass" icon="mingcute:down-line" />
+            </template>
+            <template #loadingicon="{ class: iconClass }">
+              <Icon :class="iconClass" icon="mingcute:loading-line" />
+            </template>
+            <template #filtericon>
+              <Icon icon="mingcute:filter-line" />
+            </template>
+          </Select>
         </IconField>
         <div class="grid-span-2 font-hint" v-if="fontLoadError">
           フォント一覧を取得できませんでした
