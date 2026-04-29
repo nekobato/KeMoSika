@@ -48,9 +48,11 @@ const isDown = (codes: string[]) => {
   return codes.some((code) => downKeys.value.includes(code));
 };
 
-window.ipc.on(
-  "input",
-  (_, e: UiohookKeyboardEvent | UiohookMouseEvent | UiohookWheelEvent) => {
+window.kemosikaApi.onInput((event) => {
+  const e = event as
+    | UiohookKeyboardEvent
+    | UiohookMouseEvent
+    | UiohookWheelEvent;
     switch (e.type) {
       case InputEventType.EVENT_KEY_PRESSED:
         downKeys.value.push(keyCodeMap[e.keycode]);
@@ -78,8 +80,7 @@ window.ipc.on(
         mouseStates.value.amount = e.amount;
         break;
     }
-  }
-);
+});
 </script>
 
 <template>

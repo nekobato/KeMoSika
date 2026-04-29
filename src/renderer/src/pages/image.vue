@@ -19,11 +19,11 @@ const onDrop = async (e: DragEvent) => {
   isDragOver.value = false;
   const imagePath = (e.dataTransfer?.files[0] as any)?.path;
   if (e.dataTransfer?.files && imagePath) {
-    await window.ipc.invoke("image:save", {
+    await window.kemosikaApi.saveImage({
       imagePath
     });
 
-    images.value = await window.ipc.invoke("image:list");
+    images.value = await window.kemosikaApi.listImages();
   }
 };
 
@@ -32,7 +32,7 @@ const onDragLeave = (_: DragEvent) => {
 };
 
 onMounted(async () => {
-  images.value = await window.ipc.invoke("image:list");
+  images.value = await window.kemosikaApi.listImages();
 });
 </script>
 

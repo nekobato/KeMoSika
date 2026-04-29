@@ -191,7 +191,8 @@ const gotoEdit = () => {
 
 const gotoVisualizer = () => {
   if (!selectedLayout.value) return;
-  window.ipc.invoke("visualizer:start", {
+
+  window.kemosikaApi.startVisualizer({
     layoutId: selectedLayout.value.id,
     size: {
       width: selectedLayout.value.width,
@@ -257,6 +258,7 @@ const handleNodeSelect = (node: TreeNode) => {
     <template #main>
       <main class="preview-container">
         <div
+          data-testid="layout-preview"
           class="preview kmsk-dotted-background"
           v-if="selectedLayout"
           :style="layoutStyle"
@@ -274,6 +276,7 @@ const handleNodeSelect = (node: TreeNode) => {
         <ButtonGroup>
           <Button
             class="float-action-button"
+            data-testid="layout-edit-button"
             :disabled="!selectedLayout"
             @click="handleLeftAction"
             :aria-label="
@@ -294,6 +297,7 @@ const handleNodeSelect = (node: TreeNode) => {
           </Button>
           <Button
             class="float-action-button type-primary"
+            data-testid="visualizer-start-button"
             :disabled="!selectedLayout"
             @click="gotoVisualizer"
             aria-label="Open Visualizer"
@@ -309,6 +313,7 @@ const handleNodeSelect = (node: TreeNode) => {
         <div class="aside-header">
           <Button
             class="nn-button primary"
+            data-testid="layout-create-button"
             @click="addLayout"
             aria-label="Add Layout"
             size="small"

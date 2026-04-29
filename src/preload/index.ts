@@ -1,19 +1,50 @@
 import { contextBridge, ipcRenderer, type IpcRendererEvent } from "electron";
+import type {
+  AppApi,
+  ConfigData,
+  ImageListItem,
+  ImageSaveResult
+} from "@shared/app-api";
+import type { LayoutData } from "@shared/types";
 
-contextBridge.exposeInMainWorld("ipc", {
-  send(event: string, payload: any) {
-    ipcRenderer.send(event, payload);
-  },
-  async invoke(event: string, payload: any) {
-    return await ipcRenderer.invoke(event, payload);
-  },
-  on(
-    event: string,
-    callback: (event: IpcRendererEvent, ...args: any[]) => void
-  ) {
-    ipcRenderer.on(event, callback);
-  }
-});
+/**
+ * Invokes an allowlisted Electron IPC channel.
+ */
+const invoke = async <T>(event: string, payload?: unknown): Promise<T> => {
+  return (await ipcRenderer.invoke(event, payload)) as T;
+};
+
+/**
+ * Registers an IPC listener without exposing the raw IpcRendererEvent.
+ */
+const onPayload = <T>(event: string, callback: (payload: T) => void): void => {
+  ipcRenderer.on(event, (_: IpcRendererEvent, payload: T) => {
+    callback(payload);
+  });
+};
+
+contextBridge.exposeInMainWorld("kemosikaApi", {
+  startInputHook: async () => await invoke<boolean>("uiohook:start"),
+  stopInputHook: async () => await invoke<boolean>("uiohook:stop"),
+  getConfig: async () => await invoke<ConfigData>("config:get"),
+  setConfig: async (data) => await invoke<ConfigData>("config:set", data),
+  getLayouts: async () => await invoke<LayoutData[]>("layout:get-all"),
+  saveLayout: async (layout) =>
+    await invoke<ConfigData>("layout:save", layout),
+  deleteLayout: async (id) =>
+    await invoke<ConfigData>("layout:delete", id),
+  saveImage: async (input) =>
+    await invoke<ImageSaveResult>("image:save", input),
+  deleteImage: async (id) =>
+    await invoke<ConfigData>("image:delete", id),
+  listImages: async () => await invoke<ImageListItem[]>("image:list"),
+  startVisualizer: async (options) =>
+    await invoke<boolean>("visualizer:start", options),
+  closeVisualizer: async () => await invoke<boolean>("visualizer:close"),
+  onInput: (callback) => onPayload("input", callback),
+  onVisualizerStart: (callback) => onPayload("visualizer:start", callback),
+  onVisualizerClose: (callback) => onPayload("visualizer:close", callback)
+} satisfies AppApi);
 
 contextBridge.exposeInMainWorld("openUrl", (e: Event, url: string) => {
   e.preventDefault();

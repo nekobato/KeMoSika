@@ -107,7 +107,7 @@ export const useStore = defineStore("store", () => {
   });
 
   const init = async () => {
-    const config = await window.ipc.invoke("config:get");
+    const config = await window.kemosikaApi.getConfig();
     layouts.value = (config.layouts ?? []).map(normalizeLayout);
     images.value = config.images ?? [];
 
@@ -118,7 +118,7 @@ export const useStore = defineStore("store", () => {
     const layout = createLayoutFromTemplate(template, name);
     layouts.value.push(layout);
     commit();
-    await window.ipc.invoke("layout:save", toRawDeep(layout));
+    await window.kemosikaApi.saveLayout(toRawDeep(layout));
     return layout;
   };
 
@@ -129,14 +129,14 @@ export const useStore = defineStore("store", () => {
   };
 
   const deleteLayout = async (index: number) => {
-    await window.ipc.invoke("layout:delete", toRaw(layouts.value[index].id));
+    await window.kemosikaApi.deleteLayout(toRaw(layouts.value[index].id));
     init();
   };
 
   const saveLayout = async (layoutId: string) => {
     const targetLayout = layouts.value.find((layout) => layout.id === layoutId);
     if (!targetLayout) return;
-    await window.ipc.invoke("layout:save", toRawDeep(targetLayout));
+    await window.kemosikaApi.saveLayout(toRawDeep(targetLayout));
   };
 
   const addItem = async (layoutId: string, key: LayoutItemData) => {
@@ -176,7 +176,7 @@ export const useStore = defineStore("store", () => {
   };
 
   const getImages = async () => {
-    images.value = await window.ipc.invoke("image:list");
+    images.value = await window.kemosikaApi.listImages();
   };
 
   return {

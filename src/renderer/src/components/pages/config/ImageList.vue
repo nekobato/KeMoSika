@@ -25,7 +25,7 @@ const isDragOver = ref(false);
 
 const saveImage = async (imagePath: string) => {
   try {
-    await window.ipc.invoke("image:save", { imagePath });
+    await window.kemosikaApi.saveImage({ imagePath });
     emit("update");
   } catch (error) {
     console.error("Failed to save image:", error);

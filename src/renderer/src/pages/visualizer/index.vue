@@ -4,18 +4,9 @@ import { useRouter } from "vue-router";
 
 const router = useRouter();
 
-window.ipc.on(
-  "visualizer:start",
-  (
-    _,
-    options: {
-      layoutId: string;
-      size: { width: number; height: number };
-    }
-  ) => {
-    router.replace(`/visualizer/${options.layoutId}`);
-  }
-);
+window.kemosikaApi.onVisualizerStart((options) => {
+  router.replace(`/visualizer/${options.layoutId}`);
+});
 </script>
 
 <template>

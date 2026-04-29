@@ -438,6 +438,7 @@ onUnmounted(() => {
         <div class="preview" ref="previewRef" v-if="layout">
           <div
             id="layout-area"
+            data-testid="layout-edit-area"
             class="container kmsk-dotted-background"
             :style="layoutStyle"
             @click="onClickGround"
@@ -497,6 +498,7 @@ onUnmounted(() => {
         <ButtonGroup>
           <Button
             class="float-action-button"
+            data-testid="edit-add-key-button"
             @click="addKey"
             aria-label="Add Key"
           >
@@ -505,6 +507,7 @@ onUnmounted(() => {
           </Button>
           <Button
             class="float-action-button"
+            data-testid="edit-add-mouse-button"
             @click="addMouse"
             aria-label="Add Mouse"
           >
@@ -513,6 +516,7 @@ onUnmounted(() => {
           </Button>
           <Button
             class="float-action-button"
+            data-testid="edit-add-picture-button"
             @click="addPicture"
             aria-label="Add Image"
           >

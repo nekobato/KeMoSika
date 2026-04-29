@@ -200,13 +200,16 @@ const schema: Schema<ConfigSchema> = {
   }
 };
 
+const configDirectory = process.env.KEMOSIKA_CONFIG_DIR;
+
 export const store = new Store({
   name: "config",
   schema: schema,
   defaults: {
     layouts: [],
     images: []
-  }
+  },
+  ...(configDirectory ? { cwd: configDirectory } : {})
 });
 
 export const getStore = () => store.store;

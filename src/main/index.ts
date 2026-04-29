@@ -166,11 +166,13 @@ app
 
     // save, update
     ipcMain.handle("layout:save", async (_, layout) => {
-      return store.setLayout(layout);
+      store.setLayout(layout);
+      return store.getStore();
     });
 
     ipcMain.handle("layout:delete", async (_, id) => {
-      return store.deleteLayout(id);
+      store.deleteLayout(id);
+      return store.getStore();
     });
 
     ipcMain.handle("image:save", async (_, data) => {
@@ -194,7 +196,8 @@ app
         deleteImage(images[index].fileName);
         images.splice(index, 1);
       }
-      return store.setImages(images);
+      store.setImages(images);
+      return store.getStore();
     });
 
     ipcMain.handle("image:list", async () => {
@@ -252,6 +255,7 @@ app
       visualizerWindow?.webContents.send("visualizer:close");
       visualizerWindow?.hide();
       visualizerWindow?.setSize(0, 0);
+      return true;
     });
 
     // media://xxxx.png
