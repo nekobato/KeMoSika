@@ -1,6 +1,7 @@
 import { BrowserWindow } from "electron";
 import path, { join } from "node:path";
 import * as statics from "../static";
+import { installNavigationGuards } from "../security";
 
 const pageName = "/visualizer";
 
@@ -9,8 +10,12 @@ export const createVisualizerWindow = () => {
     icon: path.join(statics.resourcesRoot, "icon.png"),
     webPreferences: {
       preload: statics.preload,
-      sandbox: false
-      // devTools: statics.isDevelopment
+      sandbox: true,
+      contextIsolation: true,
+      nodeIntegration: false,
+      webSecurity: true,
+      navigateOnDragDrop: false,
+      devTools: statics.isDevelopment
     },
     width: 800,
     height: 600,
@@ -23,6 +28,8 @@ export const createVisualizerWindow = () => {
   win.webContents.on("did-finish-load", () => {
     win?.webContents.send("main-process-message", new Date().toLocaleString());
   });
+
+  installNavigationGuards(win);
 
   win.on("close", (e) => {
     e.preventDefault();

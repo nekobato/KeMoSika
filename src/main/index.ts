@@ -4,24 +4,32 @@ import {
   globalShortcut,
   type MenuItem,
   type MenuItemConstructorOptions,
+  type IpcMainInvokeEvent,
   ipcMain,
   Menu,
-  protocol,
-  net,
   systemPreferences,
   dialog
 } from "electron";
-import path from "node:path";
 import { uIOhook } from "uiohook-napi";
 import * as store from "./store";
 import { initSentry } from "./utils/sentry";
-import { deleteImage, imagePath, saveImage, saveImageBuffer } from "./utils/image";
+import { deleteImage, saveImageBuffer } from "./utils/image";
 import { listSystemFonts } from "./utils/font";
 import { nanoid } from "nanoid/non-secure";
 import { createEditorWindow } from "./windows/editor-wIndow";
 import { createVisualizerWindow } from "./windows/visualizer-window";
-
-export const userDataPath = app.getPath("userData");
+import { assertAllowedIpcSender } from "./security";
+import {
+  registerMediaProtocol,
+  registerMediaSchemePrivileges
+} from "./media-protocol";
+import {
+  parseConfigData,
+  parseId,
+  parseImageSaveBufferInput,
+  parseLayoutData,
+  parseVisualizerStartOptions
+} from "./validation";
 
 initSentry();
 
@@ -40,6 +48,22 @@ const ensureAccessibilityPermission = (prompt = false) => {
   if (process.platform !== "darwin") return true;
   accessibilityTrusted = systemPreferences.isTrustedAccessibilityClient(prompt);
   return accessibilityTrusted;
+};
+
+/**
+ * Registers an IPC handler after validating the renderer origin.
+ */
+const handleRendererInvoke = <T>(
+  channel: string,
+  handler: (
+    event: IpcMainInvokeEvent,
+    payload: unknown
+  ) => Promise<T> | T
+): void => {
+  ipcMain.handle(channel, async (event, payload) => {
+    assertAllowedIpcSender(event);
+    return await handler(event, payload);
+  });
 };
 
 const showAccessibilityDialog = () => {
@@ -80,16 +104,7 @@ function setMenu() {
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 }
 
-protocol.registerSchemesAsPrivileged([
-  {
-    scheme: "media",
-    privileges: {
-      secure: true,
-      supportFetchAPI: true,
-      bypassCSP: true
-    }
-  }
-]);
+registerMediaSchemePrivileges();
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
@@ -107,7 +122,7 @@ app.on("before-quit", () => {
   uIOhook.stop();
   globalShortcut.unregisterAll();
   editorWindow?.removeAllListeners();
-  visualizerWindow.removeAllListeners();
+  visualizerWindow?.removeAllListeners();
   editorWindow = null;
   visualizerWindow = null;
 });
@@ -120,16 +135,9 @@ app
   })
   .then(setMenu)
   .then(() => {
-    editorWindow = createEditorWindow();
-    visualizerWindow = createVisualizerWindow();
+    registerMediaProtocol();
 
-    visualizerWindow?.on("hide", () => {
-      console.log("visualizer:hide");
-      uIOhook.stop();
-    });
-  })
-  .then(() => {
-    ipcMain.handle("uiohook:start", async () => {
+    handleRendererInvoke("uiohook:start", async () => {
       console.log("uiohook:start");
       if (!ensureAccessibilityPermission(true)) {
         showAccessibilityDialog();
@@ -145,51 +153,49 @@ app
       }
     });
 
-    ipcMain.handle("uiohook:stop", async () => {
-      console.log("uiohook:start");
+    handleRendererInvoke("uiohook:stop", async () => {
+      console.log("uiohook:stop");
       uIOhook.stop();
       return true;
     });
 
-    ipcMain.handle("config:get", async () => {
+    handleRendererInvoke("config:get", async () => {
       return store.getStore();
     });
 
-    ipcMain.handle("config:set", async (_, data) => {
+    handleRendererInvoke("config:set", async (_, data) => {
+      const config = parseConfigData(data);
       console.log("set:config", data);
-      return store.setStore(data);
+      return store.setStore(config);
     });
 
-    ipcMain.handle("layout:get-all", async () => {
+    handleRendererInvoke("layout:get-all", async () => {
       return store.getStore().layouts || [];
     });
 
     // save, update
-    ipcMain.handle("layout:save", async (_, layout) => {
+    handleRendererInvoke("layout:save", async (_, payload) => {
+      const layout = parseLayoutData(payload);
       store.setLayout(layout);
       return store.getStore();
     });
 
-    ipcMain.handle("layout:delete", async (_, id) => {
+    handleRendererInvoke("layout:delete", async (_, payload) => {
+      const id = parseId(payload);
       store.deleteLayout(id);
       return store.getStore();
     });
 
-    ipcMain.handle("image:save", async (_, data) => {
-      const id = nanoid();
-      const fileName = saveImage(id, data.imagePath);
-      store.createImage(id, fileName);
-      return { id, fileName };
-    });
-
-    ipcMain.handle("image:save-buffer", async (_, data) => {
+    handleRendererInvoke("image:save-buffer", async (_, payload) => {
+      const data = parseImageSaveBufferInput(payload);
       const id = nanoid();
       const fileName = saveImageBuffer(id, data.buffer);
       store.createImage(id, fileName);
       return { id, fileName };
     });
 
-    ipcMain.handle("image:delete", async (_, id) => {
+    handleRendererInvoke("image:delete", async (_, payload) => {
+      const id = parseId(payload);
       const images = store.getStore().images || [];
       const index = images.findIndex((item) => item.id === id);
       if (index > -1) {
@@ -200,25 +206,20 @@ app
       return store.getStore();
     });
 
-    ipcMain.handle("image:list", async () => {
+    handleRendererInvoke("image:list", async () => {
       return store.getStore().images.map((image) => {
-        return { ...image, path: path.join(imagePath, image.fileName) };
+        return { ...image, path: `images/${image.fileName}` };
       });
     });
 
-    ipcMain.handle("font:list", async () => {
+    handleRendererInvoke("font:list", async () => {
       return listSystemFonts();
     });
 
-    ipcMain.handle(
+    handleRendererInvoke(
       "visualizer:start",
-      async (
-        _,
-        options: {
-          layoutId: string;
-          size: { width: number; height: number };
-        }
-      ) => {
+      async (_, payload) => {
+        const options = parseVisualizerStartOptions(payload);
         const trusted = ensureAccessibilityPermission(true);
         if (!trusted) {
           showAccessibilityDialog();
@@ -251,16 +252,19 @@ app
       }
     );
 
-    ipcMain.handle("visualizer:close", async () => {
+    handleRendererInvoke("visualizer:close", async () => {
       visualizerWindow?.webContents.send("visualizer:close");
       visualizerWindow?.hide();
       visualizerWindow?.setSize(0, 0);
       return true;
     });
+  })
+  .then(() => {
+    editorWindow = createEditorWindow();
+    visualizerWindow = createVisualizerWindow();
 
-    // media://xxxx.png
-    protocol.handle("media", (req) => {
-      const mediaPath = req.url.replace("media://", "");
-      return net.fetch(`file://${userDataPath}/${mediaPath}`);
+    visualizerWindow?.on("hide", () => {
+      console.log("visualizer:hide");
+      uIOhook.stop();
     });
   });

@@ -5,8 +5,8 @@ export type ConfigData = {
   images: LayoutItemImage[];
 };
 
-export type ImageSaveInput = {
-  imagePath?: string;
+export type ImageSaveBufferInput = {
+  buffer: ArrayBuffer | Uint8Array;
 };
 
 export type ImageSaveResult = {
@@ -42,9 +42,10 @@ export type AppApi = {
   getLayouts: () => Promise<LayoutData[]>;
   saveLayout: (layout: LayoutData) => Promise<ConfigData>;
   deleteLayout: (id: string) => Promise<ConfigData>;
-  saveImage: (input: ImageSaveInput) => Promise<ImageSaveResult>;
+  saveImageBuffer: (input: ImageSaveBufferInput) => Promise<ImageSaveResult>;
   deleteImage: (id: string) => Promise<ConfigData>;
   listImages: () => Promise<ImageListItem[]>;
+  listFonts: () => Promise<string[]>;
   startVisualizer: (options: VisualizerStartOptions) => Promise<boolean>;
   closeVisualizer: () => Promise<boolean>;
   onInput: (listener: InputEventListener) => void;

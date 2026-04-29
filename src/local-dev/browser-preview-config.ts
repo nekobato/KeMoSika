@@ -46,6 +46,19 @@ export const createBrowserPreviewLayout = (): LayoutData => {
         width: 80,
         height: 80,
         rotation: 0,
+        buttonOverlays: {
+          left: { default: "", active: "" },
+          right: { default: "", active: "" },
+          middle: { default: "", active: "" }
+        },
+        ring: {
+          size: 80,
+          color: "#ffffff",
+          images: {
+            ring: "",
+            pointer: ""
+          }
+        },
         images: {
           mouseDefault: "",
           mouseLeftClick: "",

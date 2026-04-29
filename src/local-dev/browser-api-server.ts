@@ -3,7 +3,7 @@ import type { Plugin } from "vite";
 import type {
   ConfigData,
   ImageListItem,
-  ImageSaveInput,
+  ImageSaveBufferInput,
   ImageSaveResult
 } from "../shared/app-api";
 import type { LayoutData } from "../shared/types";
@@ -102,9 +102,9 @@ const deleteLayout = (id: string): ConfigData => {
 /**
  * Saves an image record into the in-memory dev config.
  */
-const saveImage = (input: ImageSaveInput = {}): ImageSaveResult => {
+const saveImage = (_input: ImageSaveBufferInput): ImageSaveResult => {
   const id = createId();
-  const fileName = input.imagePath?.split(/[\\/]/).pop() || `${id}.png`;
+  const fileName = `${id}.png`;
   config.images.push({ id, fileName });
   return { id, fileName };
 };
@@ -175,7 +175,7 @@ const handleApiRequest = async (
     }
 
     if (method === "POST" && path === "/api/images") {
-      const input = await readJsonBody<ImageSaveInput>(request);
+      const input = await readJsonBody<ImageSaveBufferInput>(request);
       sendJson(response, 200, saveImage(input));
       return true;
     }

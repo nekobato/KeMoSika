@@ -2,7 +2,7 @@ import type {
   AppApi,
   ConfigData,
   ImageListItem,
-  ImageSaveInput,
+  ImageSaveBufferInput,
   ImageSaveResult,
   InputEventListener,
   VisualizerStartListener,
@@ -116,7 +116,7 @@ const createBrowserDevApi = (): AppApi => {
         "DELETE"
       );
     },
-    saveImage: async (input: ImageSaveInput) => {
+    saveImageBuffer: async (input: ImageSaveBufferInput) => {
       return await sendJson<ImageSaveResult>("/api/images", "POST", input);
     },
     deleteImage: async (id: string) => {
@@ -127,6 +127,9 @@ const createBrowserDevApi = (): AppApi => {
     },
     listImages: async () => {
       return await fetchJson<ImageListItem[]>("/api/images");
+    },
+    listFonts: async () => {
+      return [];
     },
     startVisualizer: async (options: VisualizerStartOptions) => {
       const result = await sendJson<boolean>(

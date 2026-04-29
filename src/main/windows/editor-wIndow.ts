@@ -1,6 +1,7 @@
 import { BrowserWindow } from "electron";
 import path, { join } from "node:path";
 import * as statics from "../static";
+import { installNavigationGuards } from "../security";
 
 const pageName = "/";
 
@@ -9,7 +10,12 @@ export const createEditorWindow = () => {
     icon: path.join(statics.resourcesRoot, "icon.png"),
     webPreferences: {
       preload: statics.preload,
-      sandbox: false
+      sandbox: true,
+      contextIsolation: true,
+      nodeIntegration: false,
+      webSecurity: true,
+      navigateOnDragDrop: false,
+      devTools: statics.isDevelopment
     },
     width: 800,
     height: 450,
@@ -24,6 +30,8 @@ export const createEditorWindow = () => {
   win.webContents.on("did-finish-load", () => {
     win?.webContents.send("main-process-message", new Date().toLocaleString());
   });
+
+  installNavigationGuards(win);
 
   if (statics.isDevelopment) {
     win.loadURL(statics.pageRoot + "#" + pageName);

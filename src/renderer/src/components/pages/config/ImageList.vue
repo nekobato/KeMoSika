@@ -23,9 +23,10 @@ const emit = defineEmits<{
 
 const isDragOver = ref(false);
 
-const saveImage = async (imagePath: string) => {
+const saveImage = async (file: File) => {
   try {
-    await window.kemosikaApi.saveImage({ imagePath });
+    const buffer = await file.arrayBuffer();
+    await window.kemosikaApi.saveImageBuffer({ buffer });
     emit("update");
   } catch (error) {
     console.error("Failed to save image:", error);
@@ -38,9 +39,9 @@ const onDragOver = (_: DragEvent) => {
 
 const onDrop = async (e: DragEvent) => {
   isDragOver.value = false;
-  const imagePath = (e.dataTransfer?.files[0] as any)?.path;
-  if (imagePath) {
-    await saveImage(imagePath);
+  const file = e.dataTransfer?.files[0];
+  if (file) {
+    await saveImage(file);
   }
 };
 

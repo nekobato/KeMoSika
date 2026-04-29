@@ -33,11 +33,12 @@ contextBridge.exposeInMainWorld("kemosikaApi", {
     await invoke<ConfigData>("layout:save", layout),
   deleteLayout: async (id) =>
     await invoke<ConfigData>("layout:delete", id),
-  saveImage: async (input) =>
-    await invoke<ImageSaveResult>("image:save", input),
+  saveImageBuffer: async (input) =>
+    await invoke<ImageSaveResult>("image:save-buffer", input),
   deleteImage: async (id) =>
     await invoke<ConfigData>("image:delete", id),
   listImages: async () => await invoke<ImageListItem[]>("image:list"),
+  listFonts: async () => await invoke<string[]>("font:list"),
   startVisualizer: async (options) =>
     await invoke<boolean>("visualizer:start", options),
   closeVisualizer: async () => await invoke<boolean>("visualizer:close"),

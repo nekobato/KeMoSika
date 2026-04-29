@@ -385,15 +385,8 @@ const uploadImages = async (event: FileUploadUploaderEvent) => {
     : [];
 
   for (const file of files) {
-    const fileWithPath = file as File & { path?: string };
-
-    if (fileWithPath.path) {
-      await window.ipc.invoke("image:save", { imagePath: fileWithPath.path });
-      continue;
-    }
-
     const buffer = await file.arrayBuffer();
-    await window.ipc.invoke("image:save-buffer", { buffer });
+    await window.kemosikaApi.saveImageBuffer({ buffer });
   }
 
   await onUpdateImages();

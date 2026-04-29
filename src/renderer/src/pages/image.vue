@@ -17,11 +17,10 @@ const onDragOver = (_: DragEvent) => {
 
 const onDrop = async (e: DragEvent) => {
   isDragOver.value = false;
-  const imagePath = (e.dataTransfer?.files[0] as any)?.path;
-  if (e.dataTransfer?.files && imagePath) {
-    await window.kemosikaApi.saveImage({
-      imagePath
-    });
+  const file = e.dataTransfer?.files[0];
+  if (file) {
+    const buffer = await file.arrayBuffer();
+    await window.kemosikaApi.saveImageBuffer({ buffer });
 
     images.value = await window.kemosikaApi.listImages();
   }

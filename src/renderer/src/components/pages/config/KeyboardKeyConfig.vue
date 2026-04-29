@@ -38,7 +38,7 @@ const loadSystemFonts = async () => {
   fontLoadError.value = null;
 
   try {
-    const fonts = await window.ipc.invoke("font:list");
+    const fonts = await window.kemosikaApi.listFonts();
     systemFonts.value = Array.isArray(fonts) ? fonts : [];
   } catch (error) {
     console.error("font:list failed", error);
