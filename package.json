@@ -12,7 +12,6 @@
   "scripts": {
     "postinstall": "rm -rf node_modules/electron/dist && node node_modules/electron/install.js",
     "dev": "electron-vite dev",
-    "dev:browser": "vite --config vite.browser.config.mts --host 127.0.0.1 --port 5173",
     "build": "electron-vite build && electron-builder --config electron-builder.config.cjs",
     "release": "electron-vite build && electron-builder --publish always",
     "build:icon": "electron-icon-builder --input=./public/icon.png --output=./public",

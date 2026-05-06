@@ -41,7 +41,7 @@ const textStyle = computed(() => {
 
 const shadowEnabled = computed(() => props.keyData.shadow !== false);
 const hasKeyImage = computed(
-  () => !window.kemosikaBrowserUse && !!props.keyData.images.keyDefault
+  () => !!props.keyData.images.keyDefault
 );
 const keyDefaultImageSrc = computed(
   () => `media://images/${props.keyData.images.keyDefault}.png`

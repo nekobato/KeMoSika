@@ -11,8 +11,6 @@
   },
   "include": [
     "src/main/**/*.ts",
-    "src/shared/**/*.ts",
-    "src/local-dev/**/*.ts",
-    "vite.browser.config.mts"
+    "src/shared/**/*.ts"
   ]
 }

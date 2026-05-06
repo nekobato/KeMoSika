@@ -49,6 +49,21 @@ const previewRef = ref<HTMLDivElement>();
 const moveableRef = ref<Moveable>();
 const selectoRef = ref<Selecto>();
 const showImageDialog = ref(false);
+const canvasPadding = 2400;
+const panThreshold = 4;
+
+type CanvasPanState = {
+  pointerId: number;
+  startX: number;
+  startY: number;
+  scrollLeft: number;
+  scrollTop: number;
+  hasMoved: boolean;
+};
+
+const canvasPanState = ref<CanvasPanState | null>(null);
+const shouldSuppressGroundClick = ref(false);
+const isCanvasPanning = computed(() => Boolean(canvasPanState.value));
 
 const layout = computed<LayoutData | undefined>(() =>
   store.$state.layouts.find((layout) => layout.id === route.params.layoutId)
@@ -76,33 +91,151 @@ const layoutStyle = computed(() => {
   };
 });
 
+const canvasStyle = computed(() => {
+  return {
+    width: `${(layout.value?.width ?? 0) + canvasPadding * 2}px`,
+    height: `${(layout.value?.height ?? 0) + canvasPadding * 2}px`
+  };
+});
+
+const layoutPlacementStyle = computed(() => {
+  return {
+    left: `${canvasPadding}px`,
+    top: `${canvasPadding}px`
+  };
+});
+
 const addPicture = () => {};
 
 const isConnectedTarget = (target?: Element | null): target is Element =>
   Boolean(target && target.isConnected);
 
-const getPreviewPadding = () => {
-  const preview = previewRef.value;
-  if (!preview) return 0;
-
-  const style = window.getComputedStyle(preview);
-  const left = Number.parseFloat(style.paddingLeft);
-
-  return Number.isFinite(left) ? left : 0;
-};
-
+/**
+ * Scrolls the edit viewport so that the layout center starts at viewport center.
+ */
 const centerPreview = () => {
   const preview = previewRef.value;
   const layoutEl = document.getElementById("layout-area");
 
   if (!preview || !layoutEl) return;
 
-  const padding = getPreviewPadding();
-  const scrollX = Math.max(0, (layoutEl.offsetWidth + padding * 2 - preview.clientWidth) / 2);
-  const scrollY = Math.max(0, (layoutEl.offsetHeight + padding * 2 - preview.clientHeight) / 2);
+  const scrollX =
+    layoutEl.offsetLeft + layoutEl.offsetWidth / 2 - preview.clientWidth / 2;
+  const scrollY =
+    layoutEl.offsetTop + layoutEl.offsetHeight / 2 - preview.clientHeight / 2;
 
-  preview.scrollLeft = scrollX;
-  preview.scrollTop = scrollY;
+  preview.scrollLeft = Math.max(0, scrollX);
+  preview.scrollTop = Math.max(0, scrollY);
+};
+
+/**
+ * Clears the current item selection and refreshes Moveable/Selecto frames.
+ */
+const clearSelection = () => {
+  activeKeyIndexes.value = [];
+  updateSelectionFrame();
+};
+
+/**
+ * Returns whether a pointer target belongs to item editing controls.
+ */
+const isEditorControlTarget = (target: EventTarget | null): boolean => {
+  if (!(target instanceof HTMLElement)) return false;
+
+  return Boolean(
+    target.closest(
+      ".configurable, [class*='moveable'], [class*='selecto'], button, input, textarea, select, a"
+    )
+  );
+};
+
+/**
+ * Stops the active canvas pan operation and releases pointer listeners.
+ */
+const stopCanvasPan = (event?: PointerEvent) => {
+  const preview = previewRef.value;
+  const state = canvasPanState.value;
+
+  if (preview) {
+    preview.removeEventListener("pointermove", onCanvasPointerMove);
+    preview.removeEventListener("pointerup", onCanvasPointerUp);
+    preview.removeEventListener("pointercancel", onCanvasPointerCancel);
+
+    if (state && preview.hasPointerCapture(state.pointerId)) {
+      preview.releasePointerCapture(state.pointerId);
+    }
+  }
+
+  if (event && state && !state.hasMoved) {
+    clearSelection();
+  }
+
+  if (state?.hasMoved) {
+    shouldSuppressGroundClick.value = true;
+  }
+
+  canvasPanState.value = null;
+};
+
+/**
+ * Starts panning the large edit canvas from an empty canvas/background area.
+ */
+const onCanvasPointerDown = (event: PointerEvent) => {
+  const preview = previewRef.value;
+  if (!preview || event.button !== 0 || !event.isPrimary) return;
+  if (isEditorControlTarget(event.target)) return;
+
+  event.preventDefault();
+  event.stopPropagation();
+
+  canvasPanState.value = {
+    pointerId: event.pointerId,
+    startX: event.clientX,
+    startY: event.clientY,
+    scrollLeft: preview.scrollLeft,
+    scrollTop: preview.scrollTop,
+    hasMoved: false
+  };
+
+  preview.setPointerCapture(event.pointerId);
+  preview.addEventListener("pointermove", onCanvasPointerMove);
+  preview.addEventListener("pointerup", onCanvasPointerUp);
+  preview.addEventListener("pointercancel", onCanvasPointerCancel);
+};
+
+/**
+ * Applies scroll deltas while the user drags the canvas.
+ */
+const onCanvasPointerMove = (event: PointerEvent) => {
+  const preview = previewRef.value;
+  const state = canvasPanState.value;
+  if (!preview || !state || state.pointerId !== event.pointerId) return;
+
+  const deltaX = event.clientX - state.startX;
+  const deltaY = event.clientY - state.startY;
+  if (
+    !state.hasMoved &&
+    Math.hypot(deltaX, deltaY) >= panThreshold
+  ) {
+    state.hasMoved = true;
+  }
+
+  preview.scrollLeft = state.scrollLeft - deltaX;
+  preview.scrollTop = state.scrollTop - deltaY;
+};
+
+/**
+ * Ends canvas panning after pointer release.
+ */
+const onCanvasPointerUp = (event: PointerEvent) => {
+  stopCanvasPan(event);
+};
+
+/**
+ * Cancels canvas panning if the pointer stream is interrupted.
+ */
+const onCanvasPointerCancel = () => {
+  stopCanvasPan();
 };
 
 const updateSelectionFrame = () => {
@@ -150,9 +283,18 @@ const onClickGroup = (e: OnClickGroup) => {
 };
 
 const onClickGround = (e: MouseEvent) => {
-  if (e.target === previewRef.value) {
-    activeKeyIndexes.value = [];
-    updateSelectionFrame();
+  if (shouldSuppressGroundClick.value) {
+    shouldSuppressGroundClick.value = false;
+    return;
+  }
+
+  if (
+    e.target === previewRef.value ||
+    (e.target instanceof HTMLElement &&
+      (e.target.classList.contains("editor-canvas") ||
+        e.target.id === "layout-area"))
+  ) {
+    clearSelection();
   }
 };
 
@@ -418,6 +560,7 @@ onMounted(async () => {
 
 onUnmounted(() => {
   document.removeEventListener("keydown", onKeyDown);
+  stopCanvasPan();
 });
 </script>
 
@@ -428,62 +571,73 @@ onUnmounted(() => {
     </template>
     <template #main>
       <main @click="onClickGround">
-        <div class="preview" ref="previewRef" v-if="layout">
+        <div
+          class="preview"
+          :class="{ 'is-panning': isCanvasPanning }"
+          ref="previewRef"
+          v-if="layout"
+          @pointerdown.capture="onCanvasPointerDown"
+        >
           <div
-            id="layout-area"
-            data-testid="layout-edit-area"
-            class="container kmsk-dotted-background"
-            :style="layoutStyle"
-            @click="onClickGround"
+            class="editor-canvas kmsk-dotted-background"
+            :style="canvasStyle"
           >
-            <KeyboardButton
-              class="configurable"
-              v-for="key in keys"
-              :key="key.id"
-              :id="key.id"
-              :key-data="key"
-            />
-            <Mouse
-              class="configurable"
-              v-for="mouse in mouses"
-              :key="mouse.id"
-              :id="mouse.id"
-              :data="mouse"
-            />
-            <Moveable
-              ref="moveableRef"
-              :target="itemIdSelectors"
-              :draggable="true"
-              :scalable="false"
-              :rotatable="true"
-              :roundable="false"
-              :snappable="true"
-              :origin="false"
-              :element-guidelines="itemIdSelectors"
-              :stop-propagation="true"
-              :throttle-rotate="1"
-              :throttle-drag="1"
-              @click-group="onClickGroup"
-              @drag="onDrag"
-              @drag-group="onDragGroup"
-              @drag-start="onDragStart"
-              @drag-end="onDragEnd"
-              @rotate="onRotate"
-              @rotate-group="onRotateGroup"
-              @rotate-end="onRotateEnd"
-              @rotate-group-end="onRotateGroupEnd"
-            />
-            <Selecto
-              ref="selectoRef"
-              :container="previewRef"
-              :drag-container="previewRef"
-              :selectable-targets="['#layout-area .configurable']"
-              :selectBy-click="true"
-              :select-from-inside="false"
-              :continue-select="false"
-              :toggle-continue-select="['shift']"
-              @select-end="onSelectEnd"
-            />
+            <div
+              id="layout-area"
+              data-testid="layout-edit-area"
+              class="container"
+              :style="[layoutStyle, layoutPlacementStyle]"
+              @click="onClickGround"
+            >
+              <KeyboardButton
+                class="configurable"
+                v-for="key in keys"
+                :key="key.id"
+                :id="key.id"
+                :key-data="key"
+              />
+              <Mouse
+                class="configurable"
+                v-for="mouse in mouses"
+                :key="mouse.id"
+                :id="mouse.id"
+                :data="mouse"
+              />
+              <Moveable
+                ref="moveableRef"
+                :target="itemIdSelectors"
+                :draggable="true"
+                :scalable="false"
+                :rotatable="true"
+                :roundable="false"
+                :snappable="true"
+                :origin="false"
+                :element-guidelines="itemIdSelectors"
+                :stop-propagation="true"
+                :throttle-rotate="1"
+                :throttle-drag="1"
+                @click-group="onClickGroup"
+                @drag="onDrag"
+                @drag-group="onDragGroup"
+                @drag-start="onDragStart"
+                @drag-end="onDragEnd"
+                @rotate="onRotate"
+                @rotate-group="onRotateGroup"
+                @rotate-end="onRotateEnd"
+                @rotate-group-end="onRotateGroupEnd"
+              />
+              <Selecto
+                ref="selectoRef"
+                :container="previewRef"
+                :drag-container="previewRef"
+                :selectable-targets="['#layout-area .configurable']"
+                :selectBy-click="true"
+                :select-from-inside="false"
+                :continue-select="false"
+                :toggle-continue-select="['shift']"
+                @select-end="onSelectEnd"
+              />
+            </div>
           </div>
         </div>
       </main>
@@ -609,14 +763,26 @@ onUnmounted(() => {
 <style scoped lang="scss">
 main {
   width: 100%;
+  height: 100%;
 }
 .preview {
   position: relative;
-  min-width: 100%;
-  min-height: 100%;
-  padding: 80px;
+  width: 100%;
+  height: 100%;
   background-color: var(--color-grey-100);
   overflow: scroll;
+  cursor: grab;
+  overscroll-behavior: contain;
+
+  &.is-panning {
+    cursor: grabbing;
+    user-select: none;
+  }
+}
+.editor-canvas {
+  position: relative;
+  min-width: 100%;
+  min-height: 100%;
 }
 .edit-aside {
   display: flex;
@@ -642,8 +808,6 @@ main {
 .layout-delete-icon {
   font-size: 1rem;
 }
-.layout-area {
-}
 .button {
   position: fixed;
   width: 160px;
@@ -665,7 +829,10 @@ main {
 }
 
 .container {
-  position: relative;
+  position: absolute;
+}
+.configurable {
+  cursor: grab;
 }
 .layout-selector {
   position: absolute;
