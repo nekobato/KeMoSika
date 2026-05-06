@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, nextTick, onMounted, ref, watch } from "vue";
 import { useStore } from "../store";
 import { Icon } from "@iconify/vue";
 import ConfigLayout from "@/components/layouts/ConfigLayout.vue";
@@ -22,6 +22,9 @@ type LayoutSource = "user" | "builtin";
 const router = useRouter();
 const route = useRoute();
 const store = useStore();
+const previewContainerRef = ref<HTMLElement>();
+const previewRef = ref<HTMLElement>();
+const previewPadding = 1200;
 
 const userLayouts = computed(() => store.$state.layouts || []);
 const builtinLayoutTree = computed(() => store.builtinLayoutTree || []);
@@ -147,6 +150,40 @@ const layoutStyle = computed(() => {
   };
 });
 
+const previewCanvasStyle = computed(() => {
+  return {
+    width: `${(selectedLayout.value?.width ?? 0) + previewPadding * 2}px`,
+    height: `${(selectedLayout.value?.height ?? 0) + previewPadding * 2}px`
+  };
+});
+
+const previewPlacementStyle = computed(() => {
+  return {
+    left: `${previewPadding}px`,
+    top: `${previewPadding}px`
+  };
+});
+
+/**
+ * Re-centers the scroll viewport on the selected layout preview.
+ */
+const centerSelectedLayoutPreview = async () => {
+  await nextTick();
+
+  const container = previewContainerRef.value;
+  const preview = previewRef.value;
+
+  if (!container || !preview) return;
+
+  const scrollX =
+    preview.offsetLeft + preview.offsetWidth / 2 - container.clientWidth / 2;
+  const scrollY =
+    preview.offsetTop + preview.offsetHeight / 2 - container.clientHeight / 2;
+
+  container.scrollLeft = Math.max(0, scrollX);
+  container.scrollTop = Math.max(0, scrollY);
+};
+
 const keys = computed<KeyboardKeyData[] | undefined>(() =>
   selectedLayout.value?.keys.filter((key) => key.type === "key")
 );
@@ -230,9 +267,14 @@ watch(
   selectedLayout,
   (layout) => {
     selectionKeys.value = layout ? { [layout.id]: true } : {};
+    void centerSelectedLayoutPreview();
   },
-  { immediate: true }
+  { immediate: true, flush: "post" }
 );
+
+onMounted(() => {
+  void centerSelectedLayoutPreview();
+});
 
 const handleLeftAction = () => {
   if (!selectedLayout.value) return;
@@ -256,20 +298,23 @@ const handleNodeSelect = (node: TreeNode) => {
       <Header class="header" />
     </template>
     <template #main>
-      <main class="preview-container">
-        <div
-          data-testid="layout-preview"
-          class="preview kmsk-dotted-background"
-          v-if="selectedLayout"
-          :style="layoutStyle"
-        >
-          <KeyboardButton
-            v-for="key in keys"
-            class="keyboard-key"
-            :key-data="key as KeyboardKeyData"
-            :is-down="false"
-          />
-          <Mouse v-for="mouse in mouses" :data="mouse" />
+      <main class="preview-container" ref="previewContainerRef">
+        <div class="preview-canvas" :style="previewCanvasStyle">
+          <div
+            data-testid="layout-preview"
+            class="preview kmsk-dotted-background"
+            ref="previewRef"
+            v-if="selectedLayout"
+            :style="[layoutStyle, previewPlacementStyle]"
+          >
+            <KeyboardButton
+              v-for="key in keys"
+              class="keyboard-key"
+              :key-data="key as KeyboardKeyData"
+              :is-down="false"
+            />
+            <Mouse v-for="mouse in mouses" :data="mouse" />
+          </div>
         </div>
       </main>
       <FloatActions>
@@ -406,16 +451,25 @@ const handleNodeSelect = (node: TreeNode) => {
 .preview-container {
   width: 100%;
   height: 100%;
-  padding: 80px;
   position: relative;
-  background-color: #e5e5e5;
   overflow: scroll;
-  padding-right: 320px;
+  background-color: #c9ccd2;
+  overscroll-behavior: contain;
+}
+
+.preview-canvas {
+  position: relative;
+  min-width: 100%;
+  min-height: 100%;
+  background-color: #d0d3d8;
 }
 
 .preview {
   flex: 0 0 auto;
-  position: relative;
+  position: absolute;
+  box-shadow:
+    0 20px 48px rgba(0, 0, 0, 0.24),
+    0 0 0 1px rgba(255, 255, 255, 0.18);
 }
 
 .category-title {

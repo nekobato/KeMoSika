@@ -81,7 +81,8 @@ const onChangeInput = (key: string, value: any) => {
 
 <style scoped lang="scss">
 .layout-config {
-  padding: 24px;
+  padding: 20px;
+  color: #eef1f3;
 }
 .form {
   display: grid;

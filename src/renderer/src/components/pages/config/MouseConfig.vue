@@ -276,7 +276,8 @@ const selectImage = (type: MouseImageType) => {
 
 <style scoped lang="scss">
 .mouse-config {
-  padding: 16px;
+  padding: 16px 20px 20px;
+  color: #eef1f3;
 }
 .grid {
   margin: 0;
@@ -294,14 +295,20 @@ const selectImage = (type: MouseImageType) => {
 .image-cell {
   min-height: 100px;
 }
+.section-title {
+  margin-bottom: 8px;
+  color: #dfe5ea;
+  font-size: 12px;
+  font-weight: 700;
+}
 .color-picker-field {
   display: flex;
   align-items: center;
   gap: 12px;
 
   label {
-    font-size: 14px;
-    color: #ccc;
+    color: #cbd3da;
+    font-size: 12px;
   }
 }
 .mouse-image {
@@ -309,17 +316,18 @@ const selectImage = (type: MouseImageType) => {
   height: 100px;
   object-fit: contain;
   cursor: pointer;
-  border: 1px solid #333;
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 6px;
 
   &:hover {
-    border: 1px solid #409eff;
+    border-color: #67c7d9;
   }
 }
 .helper {
   margin: -4px 0 4px;
   font-size: 12px;
-  color: #9ea0a3;
+  color: #aeb6bd;
 }
 .mouse-image-placeholder {
   width: 100%;
@@ -329,27 +337,35 @@ const selectImage = (type: MouseImageType) => {
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  border: 1px dashed #4c4d4f;
-  border-radius: 4px;
+  color: #aeb6bd;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px dashed rgba(255, 255, 255, 0.22);
+  border-radius: 6px;
 
   &:hover {
-    border: 1px dashed #409eff;
+    background: rgba(103, 199, 217, 0.08);
+    border-color: #67c7d9;
   }
 
   .icon {
     font-size: 24px;
-    color: #4c4d4f;
+    color: #aeb6bd;
   }
 
   span {
     margin-top: 4px;
     font-size: 12px;
-    color: #4c4d4f;
+    color: #cbd3da;
   }
 }
 .checkbox-field {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+
+  label {
+    color: #cbd3da;
+    font-size: 12px;
+  }
 }
 </style>

@@ -408,13 +408,14 @@ const selectImage = (type: InputImageType) => {
 
 <style scoped lang="scss">
 .keyboard-key-config {
-  padding: 16px;
+  padding: 16px 20px 20px;
+  color: #eef1f3;
 }
 .form {
   width: 100%;
 }
 .keymap-group {
-  padding: 0 0 16px;
+  padding: 0 0 10px;
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
@@ -448,7 +449,9 @@ const selectImage = (type: InputImageType) => {
 }
 .section-title {
   margin-bottom: 8px;
-  font-size: 14px;
+  color: #dfe5ea;
+  font-size: 12px;
+  font-weight: 700;
 }
 .grid {
   margin: 0;
@@ -461,12 +464,6 @@ const selectImage = (type: InputImageType) => {
     grid-column: 1 / -1;
   }
 }
-.keymap-group {
-  padding: 0 0 8px;
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
 .checkbox-field {
   padding-bottom: 12px;
 }
@@ -475,21 +472,28 @@ const selectImage = (type: InputImageType) => {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+
+  label,
+  span {
+    color: #cbd3da;
+    font-size: 12px;
+  }
 }
 .font-hint {
   font-size: 12px;
-  color: #9aa0a6;
+  color: #aeb6bd;
 }
 .key-image {
   width: 100%;
   height: 100px;
   object-fit: contain;
   cursor: pointer;
-  border: 1px solid #333;
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 6px;
 
   &:hover {
-    border: 1px solid #409eff;
+    border-color: #67c7d9;
   }
 }
 .image-grid {
@@ -509,22 +513,25 @@ const selectImage = (type: InputImageType) => {
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  border: 1px dashed #4c4d4f;
-  border-radius: 4px;
+  color: #aeb6bd;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px dashed rgba(255, 255, 255, 0.22);
+  border-radius: 6px;
 
   &:hover {
-    border: 1px dashed #409eff;
+    background: rgba(103, 199, 217, 0.08);
+    border-color: #67c7d9;
   }
 
   .icon {
     font-size: 24px;
-    color: #4c4d4f;
+    color: #aeb6bd;
   }
 
   span {
     margin-top: 4px;
     font-size: 12px;
-    color: #4c4d4f;
+    color: #cbd3da;
   }
 }
 </style>

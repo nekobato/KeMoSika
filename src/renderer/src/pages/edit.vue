@@ -70,6 +70,7 @@ const layout = computed<LayoutData | undefined>(() =>
 );
 const items = computed(() => (layout.value ? layout.value.keys : []));
 const itemsCount = computed(() => (items.value ? items.value.length : 0));
+const selectedItemsCount = computed(() => activeKeyIndexes.value.length);
 const itemIdSelectors = computed(() =>
   activeKeyIndexes.value
     .map((index) => items.value?.[index])
@@ -105,7 +106,23 @@ const layoutPlacementStyle = computed(() => {
   };
 });
 
-const addPicture = () => {};
+const layoutSizeLabel = computed(() =>
+  layout.value ? `${layout.value.width} x ${layout.value.height}` : ""
+);
+
+const selectionStatusLabel = computed(() =>
+  selectedItemsCount.value > 0
+    ? `${selectedItemsCount.value}個選択中`
+    : `${itemsCount.value}要素`
+);
+
+/**
+ * Opens the image library as a standalone upload/browse surface.
+ */
+const addPicture = () => {
+  activeKeyImageType.value = undefined;
+  showImageDialog.value = true;
+};
 
 const isConnectedTarget = (target?: Element | null): target is Element =>
   Boolean(target && target.isConnected);
@@ -268,6 +285,24 @@ const selectedMouseHead = computed(() => {
     : undefined;
 });
 
+const asidePanelTitle = computed(() => {
+  if (selectedKeyHead.value) return "キー設定";
+  if (selectedMouseHead.value) return "マウス設定";
+  return "レイアウト設定";
+});
+
+const asidePanelIcon = computed(() => {
+  if (selectedKeyHead.value) return "mingcute:hotkey-line";
+  if (selectedMouseHead.value) return "mingcute:mouse-line";
+  return "mingcute:layout-6-line";
+});
+
+const asidePanelMeta = computed(() =>
+  selectedItemsCount.value > 1
+    ? `${selectedItemsCount.value}個選択中`
+    : (layout.value?.name ?? "")
+);
+
 const imageSelectTargetItem = computed(() => {
   if (selectedItemHead.value && activeKeyImageType.value) {
     return {
@@ -277,6 +312,10 @@ const imageSelectTargetItem = computed(() => {
   }
   return undefined;
 });
+
+const imageDialogTitle = computed(() =>
+  imageSelectTargetItem.value ? "Select Image" : "画像ライブラリ"
+);
 
 const onClickGroup = (e: OnClickGroup) => {
   selectoRef.value?.clickTarget(e.inputEvent, e.inputTarget);
@@ -570,7 +609,12 @@ onUnmounted(() => {
       <Header />
     </template>
     <template #main>
-      <main @click="onClickGround">
+      <main class="edit-main" @click="onClickGround">
+        <div class="canvas-status" v-if="layout">
+          <strong class="canvas-status-name">{{ layout.name }}</strong>
+          <span class="canvas-status-pill">{{ layoutSizeLabel }}</span>
+          <span class="canvas-status-pill">{{ selectionStatusLabel }}</span>
+        </div>
         <div
           class="preview"
           :class="{ 'is-panning': isCanvasPanning }"
@@ -639,7 +683,7 @@ onUnmounted(() => {
         </div>
       </main>
       <FloatActions>
-        <ButtonGroup>
+        <ButtonGroup class="edit-action-bar" aria-label="Editor Actions">
           <Button
             class="float-action-button"
             data-testid="edit-add-key-button"
@@ -672,6 +716,13 @@ onUnmounted(() => {
     </template>
     <template #aside>
       <aside class="edit-aside">
+        <div class="aside-header" v-if="layout">
+          <div class="aside-title">
+            <Icon :icon="asidePanelIcon" class="aside-title-icon" />
+            <span>{{ asidePanelTitle }}</span>
+          </div>
+          <span class="aside-meta">{{ asidePanelMeta }}</span>
+        </div>
         <div class="aside-content">
           <KeyboardKeyConfig
             v-if="selectedKeyHead"
@@ -719,14 +770,14 @@ onUnmounted(() => {
         :draggable="false"
         :baseZIndex="5000"
         appendTo="body"
-        style="width: calc(100% - 48px)"
+        style="width: min(960px, calc(100vw - 48px))"
       >
         <template #closeicon="{ class: iconClass }">
           <Icon :class="iconClass" icon="mingcute:close-line" />
         </template>
         <template #header>
           <div class="image-dialog-header">
-            <span class="image-dialog-title">Select Image</span>
+            <span class="image-dialog-title">{{ imageDialogTitle }}</span>
             <FileUpload
               class="image-dialog-upload"
               mode="basic"
@@ -758,15 +809,56 @@ onUnmounted(() => {
 </template>
 
 <style scoped lang="scss">
-main {
+.edit-main {
+  position: relative;
   width: 100%;
   height: 100%;
 }
+
+.canvas-status {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 20;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: calc(100% - 32px);
+  padding: 6px;
+  color: #f4f6f8;
+  pointer-events: none;
+  background: rgba(25, 25, 25, 0.84);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(12px);
+}
+
+.canvas-status-name {
+  max-width: 220px;
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.canvas-status-pill {
+  flex: 0 0 auto;
+  padding: 4px 6px;
+  color: #cfd6dd;
+  font-size: 11px;
+  line-height: 1;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+}
+
 .preview {
   position: relative;
   width: 100%;
   height: 100%;
-  background-color: var(--color-grey-100);
+  background-color: #c9ccd2;
   overflow: scroll;
   cursor: default;
   overscroll-behavior: contain;
@@ -780,64 +872,82 @@ main {
   position: relative;
   min-width: 100%;
   min-height: 100%;
-  background-color: #d7d9dc;
+  background-color: #d0d3d8;
 }
 .edit-aside {
   display: flex;
   flex-direction: column;
   min-height: 100%;
   width: 100%;
+  color: #eef1f3;
+  background: #242629;
+}
+.aside-header {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 0 20px;
+  background: #202225;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.aside-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 700;
+}
+.aside-title-icon {
+  flex: 0 0 auto;
+  font-size: 16px;
+  color: #67c7d9;
+}
+.aside-meta {
+  min-width: 0;
+  margin-left: auto;
+  overflow: hidden;
+  color: #aeb6bd;
+  font-size: 11px;
+  line-height: 1.2;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .aside-content {
   flex: 1 1 auto;
   width: 100%;
+  overflow-y: auto;
 }
 .aside-footer {
   margin-top: auto;
-  padding: 16px;
+  padding: 12px 16px;
   display: flex;
   justify-content: flex-end;
+  background: #202225;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 .layout-delete-button {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
+  width: 100%;
 }
 .layout-delete-icon {
   font-size: 1rem;
 }
-.button {
-  position: fixed;
-  width: 160px;
-
-  &.type-back {
-    top: 16px;
-    left: 16px;
-    width: 40px;
-  }
-
-  &.type-addkey {
-    bottom: 16px;
-    left: 16px;
-  }
-  &.type-addmouse {
-    bottom: 16px;
-    left: 180px;
-  }
-}
-
 .container {
   position: absolute;
+  box-shadow:
+    0 20px 48px rgba(0, 0, 0, 0.24),
+    0 0 0 1px rgba(255, 255, 255, 0.18);
 }
 .configurable {
   cursor: grab;
 }
-.layout-selector {
-  position: absolute;
-  top: 16px;
-  left: 16px;
-}
-
 .image-dialog-header {
   display: flex;
   align-items: center;

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { LayoutItemData, LayoutItemImage } from "@shared/types";
 import { InputImageType } from "@/types/app";
 
@@ -22,6 +22,7 @@ const emit = defineEmits<{
 }>();
 
 const isDragOver = ref(false);
+const isSelectable = computed(() => Boolean(props.item && props.type));
 
 const saveImage = async (file: File) => {
   try {
@@ -70,11 +71,13 @@ const selectImage = (index: number) => {
   >
     <div
       class="image-list-item"
+      :class="{ 'is-selectable': isSelectable }"
       v-for="(image, index) in props.images"
       :key="image.id"
     >
       <img
         class="image"
+        :alt="image.fileName"
         :src="`media://images/${image.fileName}`"
         @click="selectImage(index)"
       />
@@ -84,29 +87,34 @@ const selectImage = (index: number) => {
 
 <style lang="scss" scoped>
 .image-list {
-  display: flex;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+  gap: 12px;
   width: 100%;
-  justify-content: start;
-  align-items: start;
-  align-content: start;
-  flex-wrap: wrap;
-  padding: 8px;
+  min-height: 240px;
+  padding: 12px;
+  background: #202225;
+  border-radius: 8px;
 
   &.is-dragover {
-    background-color: #252525;
+    background-color: rgba(103, 199, 217, 0.12);
   }
 
   .image-list-item {
-    width: 160px;
-    height: 160px;
+    aspect-ratio: 1;
     padding: 8px;
-    border: 1px solid #333;
-    cursor: pointer;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 6px;
 
-    &:hover {
-      border: 1px solid #fff;
+    &.is-selectable {
+      cursor: pointer;
+
+      &:hover {
+        border-color: #67c7d9;
+      }
     }
+
     .image {
       width: 100%;
       height: 100%;
