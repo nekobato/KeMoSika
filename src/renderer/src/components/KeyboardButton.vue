@@ -40,6 +40,15 @@ const textStyle = computed(() => {
 });
 
 const shadowEnabled = computed(() => props.keyData.shadow !== false);
+const hasKeyImage = computed(
+  () => !window.kemosikaBrowserUse && !!props.keyData.images.keyDefault
+);
+const keyDefaultImageSrc = computed(
+  () => `media://images/${props.keyData.images.keyDefault}.png`
+);
+const keyActiveImageSrc = computed(
+  () => `media://images/${props.keyData.images.keyActive}.png`
+);
 const keyShadowFilter = computed(() =>
   shadowEnabled.value
     ? "drop-shadow(0px 3px 8px rgba(0,0,0,0.45)) drop-shadow(0px 1px 2px rgba(0,0,0,0.35))"
@@ -60,7 +69,7 @@ const fallbackBoxShadow = computed(() =>
     class="key"
     :class="{
       down: props.isDown,
-      'no-image': !props.keyData.images.keyDefault
+      'no-image': !hasKeyImage
     }"
     :style="[
       buttonStyle,
@@ -72,14 +81,14 @@ const fallbackBoxShadow = computed(() =>
     ]"
   >
     <img
-      v-if="props.keyData.images.keyDefault"
+      v-if="hasKeyImage"
       class="key-image default"
-      :src="`media://images/${props.keyData.images.keyDefault}.png`"
+      :src="keyDefaultImageSrc"
     />
     <img
-      v-if="props.keyData.images.keyActive"
+      v-if="hasKeyImage && props.keyData.images.keyActive"
       class="key-image active"
-      :src="`media://images/${props.keyData.images.keyActive}.png`"
+      :src="keyActiveImageSrc"
     />
     <span
       class="text"

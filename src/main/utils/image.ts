@@ -5,11 +5,31 @@ import fs from "fs";
 export const userDataPath = app.getPath("userData");
 export const imagePath = path.join(userDataPath, "images");
 const imageFileNamePattern = /^[a-zA-Z0-9_-]+\.png$/;
-const defaultImagePath = path.resolve(
-  app.getAppPath(),
-  "resources",
-  "default-images"
-);
+
+/**
+ * Returns candidate directories for bundled default image assets.
+ */
+const getDefaultImagePathCandidates = (): string[] => [
+  path.resolve(app.getAppPath(), "resources", "default-images"),
+  path.resolve(process.cwd(), "resources", "default-images")
+];
+
+/**
+ * Resolves the default image asset directory for packaged and test launches.
+ */
+const resolveDefaultImagePath = (): string => {
+  const resolvedPath = getDefaultImagePathCandidates().find((candidate) =>
+    fs.existsSync(candidate)
+  );
+
+  if (!resolvedPath) {
+    throw new Error("Default image directory was not found");
+  }
+
+  return resolvedPath;
+};
+
+const defaultImagePath = resolveDefaultImagePath();
 
 if (!fs.existsSync(imagePath)) {
   fs.mkdirSync(imagePath, { recursive: true });

@@ -315,7 +315,7 @@ const handleNodeSelect = (node: TreeNode) => {
             class="nn-button primary"
             data-testid="layout-create-button"
             @click="addLayout"
-            aria-label="Add Layout"
+            aria-label="新規作成"
             size="small"
           >
             <Icon icon="mingcute:file-new-line" class="nn-icon" />
