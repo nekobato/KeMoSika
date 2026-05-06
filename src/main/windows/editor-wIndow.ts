@@ -17,8 +17,10 @@ export const createEditorWindow = () => {
       navigateOnDragDrop: false,
       devTools: statics.isDevelopment
     },
-    width: 800,
-    height: 450,
+    width: 1200,
+    height: 800,
+    minWidth: 960,
+    minHeight: 640,
     frame: true,
     transparent: false,
     show: true,

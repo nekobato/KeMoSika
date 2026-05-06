@@ -578,14 +578,11 @@ onUnmounted(() => {
           v-if="layout"
           @pointerdown.capture="onCanvasPointerDown"
         >
-          <div
-            class="editor-canvas kmsk-dotted-background"
-            :style="canvasStyle"
-          >
+          <div class="editor-canvas" :style="canvasStyle">
             <div
               id="layout-area"
               data-testid="layout-edit-area"
-              class="container"
+              class="container kmsk-dotted-background"
               :style="[layoutStyle, layoutPlacementStyle]"
               @click="onClickGround"
             >
@@ -771,11 +768,11 @@ main {
   height: 100%;
   background-color: var(--color-grey-100);
   overflow: scroll;
-  cursor: grab;
+  cursor: default;
   overscroll-behavior: contain;
 
   &.is-panning {
-    cursor: grabbing;
+    cursor: default;
     user-select: none;
   }
 }
@@ -783,6 +780,7 @@ main {
   position: relative;
   min-width: 100%;
   min-height: 100%;
+  background-color: #d7d9dc;
 }
 .edit-aside {
   display: flex;
