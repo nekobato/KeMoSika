@@ -151,7 +151,7 @@ const fallbackBoxShadow = computed(() =>
 .key-image {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: fill;
   position: absolute;
   z-index: 0;
   filter: var(--shadow-filter);

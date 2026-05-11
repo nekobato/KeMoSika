@@ -57,6 +57,15 @@ test.describe("KeMoSika editor", () => {
     await appWindow.getByText("ANSI US 60%", { exact: true }).click();
     await expect(appWindow).toHaveURL(/layoutId=builtin-ansi-us-60/);
     await expectPreviewCentered(appWindow);
+    const spaceKey = appWindow.getByRole("button", {
+      name: "Space",
+      exact: true
+    });
+    await expect(spaceKey).toHaveCSS("width", "320px");
+    await expect(spaceKey.locator(".key-image.default")).toHaveCSS(
+      "object-fit",
+      "fill"
+    );
 
     expect(
       rendererConsole.filter((message) => message.startsWith("[pageerror]"))
