@@ -13,6 +13,20 @@ import { toRawDeep } from "./utils/toRawDeep";
 import { builtInLayouts, builtInLayoutTree } from "@/constants/defaultLayouts";
 
 const DEFAULT_RING_COLOR = "#ffffff";
+const DEFAULT_BACKGROUND: LayoutData["background"] = {
+  color: "#252525",
+  image: ""
+};
+
+/**
+ * Adds a default background for layouts created before background settings.
+ */
+const ensureBackground = (
+  layout: Partial<LayoutData>
+): LayoutData["background"] => ({
+  color: layout.background?.color ?? DEFAULT_BACKGROUND.color,
+  image: layout.background?.image ?? DEFAULT_BACKGROUND.image
+});
 
 const ensureMouseRing = (mouse: Partial<MouseData>): MouseData["ring"] => {
   const fallbackSize = Math.max(mouse.width ?? 0, mouse.height ?? 0);
@@ -71,6 +85,7 @@ const normalizeLayoutItem = (item: LayoutItemData): LayoutItemData => {
 
 const normalizeLayout = (layout: LayoutData): LayoutData => ({
   ...layout,
+  background: ensureBackground(layout),
   keys: layout.keys.map((item) => normalizeLayoutItem(item))
 });
 

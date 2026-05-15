@@ -1,6 +1,9 @@
 import type {
   ConfigData,
   ImageSaveBufferInput,
+  LayoutExportInput,
+  LayoutImportArchiveInput,
+  LayoutImportPathInput,
   VisualizerStartOptions
 } from "@shared/app-api";
 import type { LayoutData, LayoutItemData } from "@shared/types";
@@ -8,8 +11,13 @@ import type { LayoutData, LayoutItemData } from "@shared/types";
 const maxIdLength = 128;
 const maxTextLength = 10_000;
 const maxImageBufferBytes = 10 * 1024 * 1024;
+const maxImportArchiveBufferBytes = 100 * 1024 * 1024;
 const maxCanvasSize = 4096;
 const imageFileNamePattern = /^[a-zA-Z0-9_-]+\.png$/;
+const defaultBackground: LayoutData["background"] = {
+  color: "#252525",
+  image: ""
+};
 
 /**
  * Returns whether the value is a non-null object with string keys.
@@ -251,28 +259,98 @@ function assertLayoutData(
 }
 
 /**
+ * Adds default fields that may be absent from older persisted layouts.
+ */
+function normalizeLayoutPayload(payload: unknown): unknown {
+  if (!isRecord(payload)) return payload;
+
+  const background = isRecord(payload.background)
+    ? {
+        color: payload.background.color ?? defaultBackground.color,
+        image: payload.background.image ?? defaultBackground.image
+      }
+    : defaultBackground;
+
+  return {
+    ...payload,
+    background
+  };
+}
+
+/**
  * Parses an IPC payload as app config data.
  */
 export function parseConfigData(payload: unknown): ConfigData {
   assertPayload(isRecord(payload), "config must be an object");
   assertPayload(Array.isArray(payload.layouts), "config.layouts must be an array");
   assertPayload(Array.isArray(payload.images), "config.images must be an array");
-  payload.layouts.forEach((layout, index) => {
+  const layouts = payload.layouts.map((layout) => normalizeLayoutPayload(layout));
+
+  layouts.forEach((layout, index) => {
     assertLayoutData(layout, `config.layouts[${index}]`);
   });
   payload.images.forEach((image, index) => {
     assertImageRecord(image, `config.images[${index}]`);
   });
 
-  return payload as ConfigData;
+  return {
+    layouts: layouts as LayoutData[],
+    images: payload.images as ConfigData["images"]
+  };
 }
 
 /**
  * Parses an IPC payload as a layout.
  */
 export function parseLayoutData(payload: unknown): LayoutData {
-  assertLayoutData(payload, "layout");
-  return payload;
+  const layout = normalizeLayoutPayload(payload);
+  assertLayoutData(layout, "layout");
+  return layout;
+}
+
+/**
+ * Parses an IPC payload as a layout export request.
+ */
+export function parseLayoutExportInput(payload: unknown): LayoutExportInput {
+  assertPayload(isRecord(payload), "layout export input must be an object");
+  assertString(payload.layoutId, "layoutExport.layoutId", maxIdLength);
+  return payload as LayoutExportInput;
+}
+
+/**
+ * Parses an IPC payload as a layout import path request.
+ */
+export function parseLayoutImportPathInput(
+  payload: unknown
+): LayoutImportPathInput {
+  assertPayload(isRecord(payload), "layout import path input must be an object");
+  assertString(payload.path, "layoutImport.path");
+  return payload as LayoutImportPathInput;
+}
+
+/**
+ * Parses an IPC payload as a layout import archive request.
+ */
+export function parseLayoutImportArchiveInput(
+  payload: unknown
+): LayoutImportArchiveInput {
+  assertPayload(isRecord(payload), "layout import archive input must be an object");
+  assertString(payload.fileName, "layoutImport.fileName");
+
+  const buffer = payload.buffer;
+  const byteLength =
+    buffer instanceof ArrayBuffer || ArrayBuffer.isView(buffer)
+      ? buffer.byteLength
+      : null;
+
+  assertPayload(byteLength !== null, "layout import archive buffer is required");
+  assertPayload(byteLength > 0, "layout import archive buffer must not be empty");
+  assertPayload(
+    byteLength <= maxImportArchiveBufferBytes,
+    "layout import archive buffer exceeds the maximum size"
+  );
+
+  return payload as LayoutImportArchiveInput;
 }
 
 /**

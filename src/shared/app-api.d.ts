@@ -18,6 +18,32 @@ export type ImageListItem = LayoutItemImage & {
   path: string;
 };
 
+export type LayoutExportInput = {
+  layoutId: string;
+};
+
+export type LayoutExportResult = {
+  canceled: boolean;
+  filePath?: string;
+  imageCount?: number;
+};
+
+export type LayoutImportPathInput = {
+  path: string;
+};
+
+export type LayoutImportArchiveInput = {
+  buffer: ArrayBuffer | Uint8Array;
+  fileName: string;
+};
+
+export type LayoutImportResult = {
+  canceled: boolean;
+  layoutId?: string;
+  layoutName?: string;
+  imageCount?: number;
+};
+
 export type VisualizerStartOptions = {
   layoutId: string;
   size: {
@@ -42,6 +68,15 @@ export type AppApi = {
   getLayouts: () => Promise<LayoutData[]>;
   saveLayout: (layout: LayoutData) => Promise<ConfigData>;
   deleteLayout: (id: string) => Promise<ConfigData>;
+  exportLayout: (input: LayoutExportInput) => Promise<LayoutExportResult>;
+  selectLayoutImportDirectory: () => Promise<LayoutImportResult>;
+  importLayoutFromPath: (
+    input: LayoutImportPathInput
+  ) => Promise<LayoutImportResult>;
+  importLayoutArchive: (
+    input: LayoutImportArchiveInput
+  ) => Promise<LayoutImportResult>;
+  getPathForFile: (file: File) => string;
   saveImageBuffer: (input: ImageSaveBufferInput) => Promise<ImageSaveResult>;
   deleteImage: (id: string) => Promise<ConfigData>;
   listImages: () => Promise<ImageListItem[]>;

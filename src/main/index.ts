@@ -27,9 +27,23 @@ import {
   parseConfigData,
   parseId,
   parseImageSaveBufferInput,
+  parseLayoutExportInput,
+  parseLayoutImportArchiveInput,
+  parseLayoutImportPathInput,
   parseLayoutData,
   parseVisualizerStartOptions
 } from "./validation";
+import {
+  createLayoutExportFileName,
+  writeLayoutExportArchive
+} from "./layout-export";
+import {
+  prepareLayoutImport,
+  readLayoutImportPackageFromArchive,
+  readLayoutImportPackageFromPath,
+  type LayoutImportPackage
+} from "./layout-import";
+import type { LayoutImportResult } from "@shared/app-api";
 
 initSentry();
 
@@ -64,6 +78,54 @@ const handleRendererInvoke = <T>(
     assertAllowedIpcSender(event);
     return await handler(event, payload);
   });
+};
+
+/**
+ * Persists a validated layout import package without overwriting existing data.
+ */
+const saveImportedLayoutPackage = (
+  sourcePackage: LayoutImportPackage
+): LayoutImportResult => {
+  const config = store.getStore();
+  const preparedImport = prepareLayoutImport({
+    sourcePackage,
+    existingLayouts: config.layouts || [],
+    createId: nanoid
+  });
+  const savedImageFileNames: string[] = [];
+
+  try {
+    const importedImages = preparedImport.images.map((image) => {
+      const fileName = saveImageBuffer(image.id, image.data);
+      savedImageFileNames.push(fileName);
+
+      return {
+        id: image.id,
+        fileName
+      };
+    });
+
+    store.setStore({
+      layouts: [...(config.layouts || []), preparedImport.layout],
+      images: [...(config.images || []), ...importedImages]
+    });
+  } catch (error) {
+    savedImageFileNames.forEach((fileName) => {
+      try {
+        deleteImage(fileName);
+      } catch {
+        // Rollback should keep going even when an image was already absent.
+      }
+    });
+    throw error;
+  }
+
+  return {
+    canceled: false,
+    layoutId: preparedImport.layout.id,
+    layoutName: preparedImport.layout.name,
+    imageCount: preparedImport.images.length
+  };
 };
 
 const showAccessibilityDialog = () => {
@@ -184,6 +246,81 @@ app
       const id = parseId(payload);
       store.deleteLayout(id);
       return store.getStore();
+    });
+
+    handleRendererInvoke("layout:export", async (_, payload) => {
+      const input = parseLayoutExportInput(payload);
+      const layout = store
+        .getStore()
+        .layouts.find((item) => item.id === input.layoutId);
+
+      if (!layout) {
+        throw new Error("Layout was not found");
+      }
+
+      const saveDialogOptions = {
+        title: "レイアウトをエクスポート",
+        buttonLabel: "エクスポート",
+        defaultPath: createLayoutExportFileName(layout.name),
+        filters: [
+          { name: "KeMoSika Layout", extensions: ["kemosika-layout"] },
+          { name: "ZIP Archive", extensions: ["zip"] }
+        ]
+      };
+      const saveResult = editorWindow
+        ? await dialog.showSaveDialog(editorWindow, saveDialogOptions)
+        : await dialog.showSaveDialog(saveDialogOptions);
+
+      if (saveResult.canceled || !saveResult.filePath) {
+        return { canceled: true };
+      }
+
+      const archiveResult = await writeLayoutExportArchive({
+        layout,
+        images: store.getStore().images || [],
+        outputPath: saveResult.filePath
+      });
+
+      return {
+        canceled: false,
+        filePath: archiveResult.filePath,
+        imageCount: archiveResult.imageCount
+      };
+    });
+
+    handleRendererInvoke("layout:import-select-directory", async () => {
+      const openDialogOptions = {
+        title: "レイアウトをインポート",
+        buttonLabel: "インポート",
+        properties: ["openDirectory"] as const
+      };
+      const openResult = editorWindow
+        ? await dialog.showOpenDialog(editorWindow, openDialogOptions)
+        : await dialog.showOpenDialog(openDialogOptions);
+
+      if (openResult.canceled || !openResult.filePaths[0]) {
+        return { canceled: true };
+      }
+
+      const sourcePackage = await readLayoutImportPackageFromPath(
+        openResult.filePaths[0]
+      );
+      return saveImportedLayoutPackage(sourcePackage);
+    });
+
+    handleRendererInvoke("layout:import-from-path", async (_, payload) => {
+      const input = parseLayoutImportPathInput(payload);
+      const sourcePackage = await readLayoutImportPackageFromPath(input.path);
+      return saveImportedLayoutPackage(sourcePackage);
+    });
+
+    handleRendererInvoke("layout:import-archive", async (_, payload) => {
+      const input = parseLayoutImportArchiveInput(payload);
+      const sourcePackage = readLayoutImportPackageFromArchive(
+        input.buffer,
+        input.fileName
+      );
+      return saveImportedLayoutPackage(sourcePackage);
     });
 
     handleRendererInvoke("image:save-buffer", async (_, payload) => {

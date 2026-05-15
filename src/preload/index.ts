@@ -1,8 +1,15 @@
-import { contextBridge, ipcRenderer, type IpcRendererEvent } from "electron";
+import {
+  contextBridge,
+  ipcRenderer,
+  webUtils,
+  type IpcRendererEvent
+} from "electron";
 import type {
   AppApi,
   ConfigData,
   ImageListItem,
+  LayoutExportResult,
+  LayoutImportResult,
   ImageSaveResult
 } from "@shared/app-api";
 import type { LayoutData } from "@shared/types";
@@ -33,6 +40,15 @@ contextBridge.exposeInMainWorld("kemosikaApi", {
     await invoke<ConfigData>("layout:save", layout),
   deleteLayout: async (id) =>
     await invoke<ConfigData>("layout:delete", id),
+  exportLayout: async (input) =>
+    await invoke<LayoutExportResult>("layout:export", input),
+  selectLayoutImportDirectory: async () =>
+    await invoke<LayoutImportResult>("layout:import-select-directory"),
+  importLayoutFromPath: async (input) =>
+    await invoke<LayoutImportResult>("layout:import-from-path", input),
+  importLayoutArchive: async (input) =>
+    await invoke<LayoutImportResult>("layout:import-archive", input),
+  getPathForFile: (file) => webUtils.getPathForFile(file),
   saveImageBuffer: async (input) =>
     await invoke<ImageSaveResult>("image:save-buffer", input),
   deleteImage: async (id) =>

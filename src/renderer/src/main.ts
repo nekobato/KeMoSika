@@ -1,6 +1,7 @@
 import { createApp } from "vue";
 import { createPinia } from "pinia";
 import PrimeVue from "primevue/config";
+import ToastService from "primevue/toastservice";
 import AuraEP from "./theme/aura-ep";
 import "primeflex/primeflex.css";
 import "./assets/styles/index.scss";
@@ -17,4 +18,5 @@ createApp(App)
       preset: AuraEP
     }
   })
+  .use(ToastService)
   .mount("#app");

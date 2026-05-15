@@ -53,7 +53,7 @@ ensureDefaultImages();
 /**
  * Resolves a stored image file name to a path inside the image directory.
  */
-function resolveImageFilePath(name: string): string {
+export function resolveImageFilePath(name: string): string {
   if (!imageFileNamePattern.test(name)) {
     throw new Error("Invalid image file name");
   }
