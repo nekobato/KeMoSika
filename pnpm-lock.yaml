@@ -9,122 +9,125 @@ importers:
   .:
     dependencies:
       electron-store:
-        specifier: ^11.0.2
+        specifier: 11.0.2
         version: 11.0.2
+      fflate:
+        specifier: 0.8.2
+        version: 0.8.2
       font-list:
-        specifier: ^2.0.1
+        specifier: 2.0.2
         version: 2.0.2
       node-gyp-build:
-        specifier: ^4.8.4
+        specifier: 4.8.4
         version: 4.8.4
       uiohook-napi:
-        specifier: ^1.5.4
+        specifier: 1.5.5
         version: 1.5.5
     devDependencies:
       '@iconify/vue':
-        specifier: ^5.0.0
+        specifier: 5.0.1
         version: 5.0.1(vue@3.5.34(typescript@6.0.3))
       '@playwright/test':
-        specifier: ^1.59.1
+        specifier: 1.59.1
         version: 1.59.1
       '@primeuix/themes':
-        specifier: ^2.0.2
+        specifier: 2.0.3
         version: 2.0.3
       '@primevue/themes':
-        specifier: ^4.4.1
+        specifier: 4.5.4
         version: 4.5.4
       '@sentry/electron':
-        specifier: ^7.4.0
+        specifier: 7.13.0
         version: 7.13.0
       '@types/node':
-        specifier: ^25.6.0
+        specifier: 25.6.0
         version: 25.6.0
       '@vitejs/plugin-vue':
-        specifier: ^6.0.2
+        specifier: 6.0.6
         version: 6.0.6(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(sass-embedded@1.99.0)(sass@1.99.0)(tsx@4.21.0)(yaml@2.9.0))(vue@3.5.34(typescript@6.0.3))
       '@vueuse/core':
-        specifier: ^14.1.0
+        specifier: 14.3.0
         version: 14.3.0(vue@3.5.34(typescript@6.0.3))
       '@wdio/cli':
-        specifier: ^9.21.1
+        specifier: 9.27.1
         version: 9.27.1(@types/node@25.6.0)(expect-webdriverio@5.6.5)(puppeteer-core@22.15.0)
       '@wdio/local-runner':
-        specifier: ^9.21.0
+        specifier: 9.27.1
         version: 9.27.1(@wdio/globals@9.27.1)(webdriverio@9.27.1(puppeteer-core@22.15.0))
       '@wdio/mocha-framework':
-        specifier: ^9.21.0
+        specifier: 9.27.1
         version: 9.27.1
       '@wdio/spec-reporter':
-        specifier: ^9.20.0
+        specifier: 9.27.1
         version: 9.27.1
       dotenv:
-        specifier: ^17.2.3
+        specifier: 17.4.2
         version: 17.4.2
       electron:
-        specifier: ^42.0.0
+        specifier: 42.0.0
         version: 42.0.0
       electron-builder:
-        specifier: ^26.0.12
+        specifier: 26.8.1
         version: 26.8.1(electron-builder-squirrel-windows@26.0.12)
       electron-icon-builder:
-        specifier: ^2.0.1
+        specifier: 2.0.1
         version: 2.0.1
       electron-vite:
-        specifier: ^5.0.0
+        specifier: 5.0.0
         version: 5.0.0(vite@8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(sass-embedded@1.99.0)(sass@1.99.0)(tsx@4.21.0)(yaml@2.9.0))
       fs-extra:
-        specifier: ^11.3.2
+        specifier: 11.3.5
         version: 11.3.5
       nanoid:
-        specifier: ^5.1.6
+        specifier: 5.1.11
         version: 5.1.11
       pinia:
-        specifier: ^3.0.4
+        specifier: 3.0.4
         version: 3.0.4(typescript@6.0.3)(vue@3.5.34(typescript@6.0.3))
       playwright:
-        specifier: ^1.59.1
+        specifier: 1.59.1
         version: 1.59.1
       primeflex:
-        specifier: ^4.0.0
+        specifier: 4.0.0
         version: 4.0.0
       primevue:
-        specifier: ^4.4.1
+        specifier: 4.5.5
         version: 4.5.5(vue@3.5.34(typescript@6.0.3))
       sass-embedded:
-        specifier: ^1.93.3
+        specifier: 1.99.0
         version: 1.99.0
       typescript:
-        specifier: ^6.0.3
+        specifier: 6.0.3
         version: 6.0.3
       vite:
-        specifier: ^8.0.10
+        specifier: 8.0.10
         version: 8.0.10(@types/node@25.6.0)(esbuild@0.27.7)(jiti@2.7.0)(sass-embedded@1.99.0)(sass@1.99.0)(tsx@4.21.0)(yaml@2.9.0)
       vite-plugin-electron:
-        specifier: ^0.29.0
+        specifier: 0.29.1
         version: 0.29.1(vite-plugin-electron-renderer@0.14.7)
       vite-plugin-electron-renderer:
-        specifier: ^0.14.6
+        specifier: 0.14.7
         version: 0.14.7
       vite-svg-loader:
-        specifier: ^5.1.0
+        specifier: 5.1.1
         version: 5.1.1(vue@3.5.34(typescript@6.0.3))
       vue:
-        specifier: ^3.5.25
+        specifier: 3.5.34
         version: 3.5.34(typescript@6.0.3)
       vue-router:
-        specifier: ^5.0.6
+        specifier: 5.0.6
         version: 5.0.6(@vue/compiler-sfc@3.5.34)(pinia@3.0.4(typescript@6.0.3)(vue@3.5.34(typescript@6.0.3)))(vue@3.5.34(typescript@6.0.3))
       vue-tsc:
-        specifier: ^3.1.5
+        specifier: 3.2.8
         version: 3.2.8(typescript@6.0.3)
       vue3-moveable:
-        specifier: ^0.28.0
+        specifier: 0.28.0
         version: 0.28.0
       vue3-selecto:
-        specifier: ^1.12.3
+        specifier: 1.12.3
         version: 1.12.3
       wdio-electron-service:
-        specifier: ^9.2.1
+        specifier: 9.2.1
         version: 9.2.1(electron@42.0.0)(expect-webdriverio@5.6.5)(webdriverio@9.27.1(puppeteer-core@22.15.0))
 
 packages:
@@ -2986,6 +2989,9 @@ packages:
     peerDependenciesMeta:
       picomatch:
         optional: true
+
+  fflate@0.8.2:
+    resolution: {integrity: sha512-cPJU47OaAoCbg0pBvzsgpTPhmhqI5eJjh/JIu8tPj5q+T7iLvW/JAYUqmE7KOB4R1ZyEhzBaIQpQpardBF5z8A==}
 
   figures@6.1.0:
     resolution: {integrity: sha512-d+l3qxjSesT4V7v2fh+QnmFnUWv9lSpjarhShNTgBOfA0ttejbQUAlHLitbjkoRiDulW0OPoQPYIGhIC8ohejg==}
@@ -9130,6 +9136,8 @@ snapshots:
   fdir@6.5.0(picomatch@4.0.4):
     optionalDependencies:
       picomatch: 4.0.4
+
+  fflate@0.8.2: {}
 
   figures@6.1.0:
     dependencies:

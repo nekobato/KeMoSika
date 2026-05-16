@@ -14,6 +14,7 @@ import Dialog from "primevue/dialog";
 import InputText from "primevue/inputtext";
 import Tree from "primevue/tree";
 import FloatActions from "@/components/FloatActions/FloatActions.vue";
+import { useToast } from "primevue/usetoast";
 import type { TreeExpandedKeys, TreeSelectionKeys } from "primevue/tree";
 import type { TreeNode } from "primevue/treenode";
 
@@ -22,6 +23,7 @@ type LayoutSource = "user" | "builtin";
 const router = useRouter();
 const route = useRoute();
 const store = useStore();
+const toast = useToast();
 const previewContainerRef = ref<HTMLElement>();
 const previewRef = ref<HTMLElement>();
 const previewPadding = 1200;
@@ -35,6 +37,12 @@ const builtinLayouts = computed(
 const copyTargetLayout = ref<LayoutData | null>(null);
 const showCopyDialog = ref(false);
 const copyName = ref("");
+const isExporting = ref(false);
+const showExportErrorDialog = ref(false);
+const exportErrorMessage = ref("");
+const showImportDialog = ref(false);
+const isImporting = ref(false);
+const isImportDragOver = ref(false);
 
 const folderIcons = {
   // PrimeVue v4 treats presence of expanded/collapsedIcon as custom toggle icons.
@@ -242,6 +250,168 @@ const isBuiltinLayoutSelected = computed(
   () => selectedLayoutSource.value === "builtin" && !!selectedLayout.value
 );
 
+const isUserLayoutSelected = computed(
+  () => selectedLayoutSource.value === "user" && !!selectedLayout.value
+);
+
+/**
+ * Exports the selected user layout as a self-contained archive.
+ */
+const exportSelectedLayout = async () => {
+  if (!selectedLayout.value || !isUserLayoutSelected.value) return;
+
+  isExporting.value = true;
+  exportErrorMessage.value = "";
+
+  try {
+    await store.saveLayout(selectedLayout.value.id);
+    await window.kemosikaApi.exportLayout({
+      layoutId: selectedLayout.value.id
+    });
+  } catch (error) {
+    exportErrorMessage.value =
+      error instanceof Error
+        ? error.message
+        : "レイアウトのエクスポートに失敗しました。";
+    showExportErrorDialog.value = true;
+  } finally {
+    isExporting.value = false;
+  }
+};
+
+/**
+ * Returns whether a file name can be handled as a layout archive.
+ */
+const isImportArchiveFileName = (fileName: string): boolean => {
+  const normalizedName = fileName.toLowerCase();
+  return (
+    normalizedName.endsWith(".kemosika-layout") ||
+    normalizedName.endsWith(".zip")
+  );
+};
+
+/**
+ * Converts Electron IPC errors into concise toast details.
+ */
+const getImportErrorMessage = (error: unknown): string => {
+  const message =
+    error instanceof Error
+      ? error.message
+      : "レイアウトのインポートに失敗しました。";
+
+  return message
+    .replace(/^Error invoking remote method '[^']+': Error: /, "")
+    .replace(/^Error: /, "");
+};
+
+/**
+ * Shows an error toast for rejected import sources.
+ */
+const showImportErrorToast = (error: unknown) => {
+  toast.add({
+    severity: "error",
+    summary: "インポートに失敗しました",
+    detail: getImportErrorMessage(error),
+    life: 6000
+  });
+};
+
+/**
+ * Refreshes the layout list and selects the imported layout.
+ */
+const finishLayoutImport = async (layoutId?: string) => {
+  await store.init();
+  if (layoutId) {
+    navigateToLayout(layoutId);
+  }
+  showImportDialog.value = false;
+};
+
+/**
+ * Runs an import action with shared progress and error handling.
+ */
+const runLayoutImport = async (
+  importAction: () => ReturnType<typeof window.kemosikaApi.importLayoutFromPath>
+) => {
+  if (isImporting.value) return;
+
+  isImporting.value = true;
+
+  try {
+    const result = await importAction();
+    if (!result.canceled) {
+      await finishLayoutImport(result.layoutId);
+    }
+  } catch (error) {
+    showImportErrorToast(error);
+  } finally {
+    isImporting.value = false;
+  }
+};
+
+/**
+ * Opens the native folder picker and imports the selected directory.
+ */
+const selectImportDirectory = async () => {
+  await runLayoutImport(() => window.kemosikaApi.selectLayoutImportDirectory());
+};
+
+/**
+ * Imports a single dropped filesystem item.
+ */
+const importDroppedFile = async (file: File) => {
+  const filePath = window.kemosikaApi.getPathForFile(file);
+
+  if (filePath) {
+    await runLayoutImport(() =>
+      window.kemosikaApi.importLayoutFromPath({ path: filePath })
+    );
+    return;
+  }
+
+  if (!isImportArchiveFileName(file.name)) {
+    showImportErrorToast(new Error("対応していないインポートファイルです。"));
+    return;
+  }
+
+  const buffer = await file.arrayBuffer();
+  await runLayoutImport(() =>
+    window.kemosikaApi.importLayoutArchive({
+      buffer,
+      fileName: file.name
+    })
+  );
+};
+
+/**
+ * Highlights the drop area while a supported import source is over it.
+ */
+const onImportDragOver = () => {
+  isImportDragOver.value = true;
+};
+
+/**
+ * Clears the import drop highlight.
+ */
+const onImportDragLeave = () => {
+  isImportDragOver.value = false;
+};
+
+/**
+ * Imports exactly one dropped folder or archive file.
+ */
+const onImportDrop = async (event: DragEvent) => {
+  isImportDragOver.value = false;
+  const files = Array.from(event.dataTransfer?.files ?? []);
+
+  if (files.length !== 1) {
+    showImportErrorToast(new Error("インポート元は 1 つだけ指定してください。"));
+    return;
+  }
+
+  await importDroppedFile(files[0]);
+};
+
 const expandedKeys = ref<TreeExpandedKeys>({});
 const selectionKeys = ref<TreeSelectionKeys>({});
 
@@ -341,6 +511,16 @@ const handleNodeSelect = (node: TreeNode) => {
             }}</span>
           </Button>
           <Button
+            class="float-action-button"
+            data-testid="layout-export-button"
+            :disabled="!isUserLayoutSelected || isExporting"
+            @click="exportSelectedLayout"
+            aria-label="Export Layout"
+          >
+            <Icon icon="mingcute:download-2-line" class="action-icon" />
+            <span class="action-label">エクスポート</span>
+          </Button>
+          <Button
             class="float-action-button type-primary"
             data-testid="visualizer-start-button"
             :disabled="!selectedLayout"
@@ -365,6 +545,16 @@ const handleNodeSelect = (node: TreeNode) => {
           >
             <Icon icon="mingcute:file-new-line" class="nn-icon" />
             <span>新規作成</span>
+          </Button>
+          <Button
+            class="nn-button"
+            data-testid="layout-import-button"
+            @click="showImportDialog = true"
+            aria-label="インポート"
+            size="small"
+          >
+            <Icon icon="mingcute:upload-line" class="nn-icon" />
+            <span>インポート</span>
           </Button>
         </div>
         <Tree
@@ -440,6 +630,92 @@ const handleNodeSelect = (node: TreeNode) => {
           </div>
         </template>
       </Dialog>
+      <Dialog
+        v-model:visible="showImportDialog"
+        modal
+        :closable="true"
+        :draggable="false"
+        :baseZIndex="5000"
+        appendTo="body"
+        class="import-dialog"
+        style="width: min(560px, calc(100vw - 48px))"
+      >
+        <template #closeicon="{ class: iconClass }">
+          <Icon :class="iconClass" icon="mingcute:close-line" />
+        </template>
+        <template #header>
+          <div class="import-dialog-header">
+            <span class="import-dialog-title">レイアウトをインポート</span>
+          </div>
+        </template>
+        <div
+          class="import-drop-area"
+          :class="{ 'is-dragover': isImportDragOver }"
+          data-testid="layout-import-drop-area"
+          @dragover.prevent="onImportDragOver"
+          @dragleave.prevent="onImportDragLeave"
+          @drop.prevent="onImportDrop"
+        >
+          <Icon icon="mingcute:upload-2-line" class="import-drop-icon" />
+          <div class="import-drop-copy">
+            <span class="import-drop-title"
+              >フォルダまたはレイアウトファイルをドロップ</span
+            >
+            <span class="import-drop-description"
+              >.kemosika-layout / .zip も受け付けます</span
+            >
+          </div>
+        </div>
+        <template #footer>
+          <div class="import-dialog-actions">
+            <Button
+              label="キャンセル"
+              severity="secondary"
+              text
+              :disabled="isImporting"
+              @click="showImportDialog = false"
+            />
+            <Button
+              data-testid="layout-import-select-folder-button"
+              :loading="isImporting"
+              :disabled="isImporting"
+              @click="selectImportDirectory"
+            >
+              <Icon
+                icon="mingcute:folder-open-line"
+                class="p-button-icon p-button-icon-left"
+              />
+              <span>フォルダを選択</span>
+            </Button>
+          </div>
+        </template>
+      </Dialog>
+      <Dialog
+        v-model:visible="showExportErrorDialog"
+        modal
+        :closable="true"
+        :draggable="false"
+        :baseZIndex="5000"
+        appendTo="body"
+        class="export-error-dialog"
+      >
+        <template #closeicon="{ class: iconClass }">
+          <Icon :class="iconClass" icon="mingcute:close-line" />
+        </template>
+        <template #header>
+          <div class="export-error-dialog-header">
+            <span class="export-error-dialog-title">エクスポートに失敗しました</span>
+          </div>
+        </template>
+        <div class="export-error-dialog-body">
+          {{ exportErrorMessage }}
+        </div>
+        <template #footer>
+          <div class="export-error-dialog-actions">
+            <Button label="閉じる" @click="showExportErrorDialog = false" />
+          </div>
+        </template>
+      </Dialog>
     </template>
   </ConfigLayout>
 </template>
@@ -479,6 +755,14 @@ const handleNodeSelect = (node: TreeNode) => {
 
 .aside-header {
   padding: 16px 16px 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+
+  .nn-button {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 .layout-tree {
@@ -540,6 +824,80 @@ const handleNodeSelect = (node: TreeNode) => {
   }
 
   .copy-dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+}
+
+.export-error-dialog {
+  .export-error-dialog-body {
+    max-width: 480px;
+    padding: 8px 0 16px;
+    color: var(--color-grey-500);
+    line-height: 1.6;
+  }
+
+  .export-error-dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+}
+
+.import-dialog {
+  .import-dialog-header {
+    display: flex;
+    align-items: center;
+  }
+
+  .import-dialog-title {
+    font-weight: 700;
+  }
+
+  .import-drop-area {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-height: 180px;
+    padding: 24px;
+    margin: 4px 0 16px;
+    color: #eef1f3;
+    background: #202225;
+    border: 1px dashed rgba(255, 255, 255, 0.24);
+    border-radius: 8px;
+    transition:
+      background-color 0.16s ease,
+      border-color 0.16s ease;
+
+    &.is-dragover {
+      background-color: rgba(103, 199, 217, 0.12);
+      border-color: #67c7d9;
+    }
+  }
+
+  .import-drop-icon {
+    flex: 0 0 auto;
+    width: 44px;
+    height: 44px;
+    color: #67c7d9;
+  }
+
+  .import-drop-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .import-drop-title {
+    font-weight: 700;
+  }
+
+  .import-drop-description {
+    color: var(--color-grey-500);
+    font-size: 13px;
+  }
+
+  .import-dialog-actions {
     display: flex;
     justify-content: flex-end;
     gap: 8px;
