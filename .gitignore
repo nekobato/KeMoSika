@@ -29,6 +29,3 @@ release
 electron-builder.env
 out
 *.tsbuildinfo
-test-results
-playwright-report
-blob-report

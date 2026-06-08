@@ -18,16 +18,9 @@
     "build:win": "pnpm run build && electron-builder --win --config --x64",
     "build:mac": "pnpm run build && electron-builder --mac --config",
     "build:linux": "pnpm run build && electron-builder --linux --config",
-    "test:e2e:build": "electron-vite build",
-    "test:e2e:typecheck": "tsc --noEmit -p tsconfig.playwright.json",
-    "test:e2e": "pnpm run test:e2e:typecheck && pnpm run test:e2e:build && playwright test",
-    "test:e2e:headed": "pnpm run test:e2e:typecheck && pnpm run test:e2e:build && playwright test --headed",
-    "test:e2e:ui": "pnpm run test:e2e:typecheck && pnpm run test:e2e:build && playwright test --ui",
-    "test:e2e:report": "playwright show-report",
     "docs:dev": "vitepress dev doc",
     "docs:build": "vitepress build doc",
     "docs:preview": "vitepress preview doc",
-    "wdio": "wdio run ./wdio.conf.ts",
     "typecheck": "tsc --noEmit && vue-tsc --noEmit",
     "lint": "pnpm run typecheck"
   },
@@ -45,17 +38,12 @@
   },
   "devDependencies": {
     "@iconify/vue": "5.0.1",
-    "@playwright/test": "1.60.0",
     "@primeuix/themes": "2.0.3",
     "@primevue/themes": "4.5.4",
     "@sentry/electron": "7.13.0",
     "@types/node": "25.9.1",
     "@vitejs/plugin-vue": "6.0.7",
     "@vueuse/core": "14.3.0",
-    "@wdio/cli": "9.27.1",
-    "@wdio/local-runner": "9.27.1",
-    "@wdio/mocha-framework": "9.27.1",
-    "@wdio/spec-reporter": "9.27.1",
     "dotenv": "17.4.2",
     "electron": "42.2.0",
     "electron-builder": "26.8.1",
@@ -64,7 +52,6 @@
     "fs-extra": "11.3.5",
     "nanoid": "5.1.11",
     "pinia": "3.0.4",
-    "playwright": "1.60.0",
     "primeflex": "4.0.0",
     "primevue": "4.5.5",
     "sass-embedded": "1.100.0",
@@ -77,8 +64,7 @@
     "vue-router": "5.0.7",
     "vue-tsc": "3.3.1",
     "vue3-moveable": "0.28.0",
-    "vue3-selecto": "1.12.3",
-    "wdio-electron-service": "9.2.1"
+    "vue3-selecto": "1.12.3"
   },
   "main": "./out/main/index.mjs"
 }
