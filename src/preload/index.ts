@@ -14,6 +14,10 @@ import type {
 } from "@shared/app-api";
 import type { LayoutData } from "@shared/types";
 
+if (import.meta.env.PROD && import.meta.env.VITE_SENTRY_DSN) {
+  void import("@sentry/electron/preload");
+}
+
 /**
  * Invokes an allowlisted Electron IPC channel.
  */

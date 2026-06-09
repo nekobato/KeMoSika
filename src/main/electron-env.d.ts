@@ -18,5 +18,12 @@ declare namespace NodeJS {
     DIST: string;
     /** /dist/ or /public/ */
     VITE_PUBLIC: string;
+    SENTRY_DSN?: string;
+    VITE_SENTRY_DSN?: string;
   }
+}
+
+interface ImportMetaEnv {
+  readonly PROD: boolean;
+  readonly VITE_SENTRY_DSN: string;
 }

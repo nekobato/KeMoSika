@@ -30,6 +30,8 @@
   },
   "packageManager": "pnpm@10.24.0",
   "dependencies": {
+    "@sentry/electron": "7.13.0",
+    "@sentry/vue": "10.50.0",
     "electron-store": "11.0.2",
     "fflate": "0.8.3",
     "font-list": "2.1.0",
@@ -40,7 +42,6 @@
     "@iconify/vue": "5.0.1",
     "@primeuix/themes": "2.0.3",
     "@primevue/themes": "4.5.4",
-    "@sentry/electron": "7.13.0",
     "@types/node": "25.9.1",
     "@vitejs/plugin-vue": "6.0.7",
     "@vueuse/core": "14.3.0",
