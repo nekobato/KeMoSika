@@ -8,6 +8,27 @@ const LEFT_BUTTON = 1;
 const RIGHT_BUTTON = 2;
 const MIDDLE_BUTTON = 3;
 
+type DefaultMouseVisualState =
+  | "default"
+  | "leftClick"
+  | "rightClick"
+  | "middleClick"
+  | "scrollUp"
+  | "scrollDown";
+
+/** Resolves an image from the media protocol image store. */
+const getStoredImageSource = (imageName: string): string =>
+  `media://images/${imageName}.png`;
+
+const defaultMouseImages: Record<DefaultMouseVisualState, string> = {
+  default: getStoredImageSource("default_mouse_default"),
+  leftClick: getStoredImageSource("default_mouse_left_click"),
+  rightClick: getStoredImageSource("default_mouse_right_click"),
+  middleClick: getStoredImageSource("default_mouse_middle_click"),
+  scrollUp: getStoredImageSource("default_mouse_scroll_up"),
+  scrollDown: getStoredImageSource("default_mouse_scroll_down")
+};
+
 const props = defineProps({
   data: { type: Object as PropType<MouseData>, required: true },
   states: { type: Object as PropType<MouseState> }
@@ -95,43 +116,52 @@ const pointerStyle = computed(() => {
   };
 });
 
-const getMouseImage = () => {
+const getMouseImage = (): string => {
   // マウスの状態に応じた画像を返す
   if (props.states && props.states.buttons && props.states.buttons.length > 0) {
     // 左クリック
-    if (props.states.buttons.includes(1) && props.data.images.mouseLeftClick) {
-      return `media://images/${props.data.images.mouseLeftClick}.png`;
+    if (props.states.buttons.includes(LEFT_BUTTON)) {
+      return props.data.images.mouseLeftClick
+        ? getStoredImageSource(props.data.images.mouseLeftClick)
+        : defaultMouseImages.leftClick;
     }
     // 右クリック
-    if (props.states.buttons.includes(2) && props.data.images.mouseRightClick) {
-      return `media://images/${props.data.images.mouseRightClick}.png`;
+    if (props.states.buttons.includes(RIGHT_BUTTON)) {
+      return props.data.images.mouseRightClick
+        ? getStoredImageSource(props.data.images.mouseRightClick)
+        : defaultMouseImages.rightClick;
     }
     // 中クリック
-    if (
-      props.states.buttons.includes(3) &&
-      props.data.images.mouseMiddleClick
-    ) {
-      return `media://images/${props.data.images.mouseMiddleClick}.png`;
+    if (props.states.buttons.includes(MIDDLE_BUTTON)) {
+      return props.data.images.mouseMiddleClick
+        ? getStoredImageSource(props.data.images.mouseMiddleClick)
+        : defaultMouseImages.middleClick;
     }
   }
 
   // スクロール
   if (props.states && props.states.type === 2) {
-    if (props.states.amount > 0 && props.data.images.mouseScrollUp) {
-      return `media://images/${props.data.images.mouseScrollUp}.png`;
+    if (props.states.amount > 0) {
+      return props.data.images.mouseScrollUp
+        ? getStoredImageSource(props.data.images.mouseScrollUp)
+        : defaultMouseImages.scrollUp;
     }
-    if (props.states.amount < 0 && props.data.images.mouseScrollDown) {
-      return `media://images/${props.data.images.mouseScrollDown}.png`;
+    if (props.states.amount < 0) {
+      return props.data.images.mouseScrollDown
+        ? getStoredImageSource(props.data.images.mouseScrollDown)
+        : defaultMouseImages.scrollDown;
     }
   }
 
   // デフォルト
   if (props.data.images.mouseDefault) {
-    return `media://images/${props.data.images.mouseDefault}.png`;
+    return getStoredImageSource(props.data.images.mouseDefault);
   }
 
-  return undefined;
+  return defaultMouseImages.default;
 };
+
+const mouseImage = computed(() => getMouseImage());
 
 const dropShadowStyle = computed(() =>
   props.data.shadow === false
@@ -144,8 +174,8 @@ const dropShadowStyle = computed(() =>
   <div class="mouse-container" :style="buttonStyle">
   <div class="mouse">
     <img
-      v-if="getMouseImage()"
-      :src="getMouseImage()"
+      v-if="mouseImage"
+      :src="mouseImage"
       class="mouse-image"
       :style="{ filter: dropShadowStyle }"
     />
