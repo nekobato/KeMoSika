@@ -563,7 +563,6 @@ const handleNodeSelect = (node: TreeNode) => {
           selectionMode="single"
           :expandedKeys="expandedKeys"
           v-model:selectionKeys="selectionKeys"
-          @node-select="handleNodeSelect"
           @nodeSelect="handleNodeSelect"
           :pt="{
             root: { class: 'layout-tree-root' },

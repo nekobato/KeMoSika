@@ -8,6 +8,12 @@ importers:
 
   .:
     dependencies:
+      '@sentry/electron':
+        specifier: 7.15.0
+        version: 7.15.0(@opentelemetry/core@2.9.0(@opentelemetry/api@1.9.1))
+      '@sentry/vue':
+        specifier: 10.62.0
+        version: 10.62.0(pinia@3.0.4(typescript@6.0.3)(vue@3.5.39(typescript@6.0.3)))(vue@3.5.39(typescript@6.0.3))
       electron-store:
         specifier: 11.0.2
         version: 11.0.2
@@ -33,9 +39,6 @@ importers:
       '@primevue/themes':
         specifier: 4.5.4
         version: 4.5.4
-      '@sentry/electron':
-        specifier: 7.15.0
-        version: 7.15.0(@opentelemetry/core@2.9.0(@opentelemetry/api@1.9.1))
       '@types/node':
         specifier: 26.1.0
         version: 26.1.0
@@ -1253,6 +1256,19 @@ packages:
   '@sentry/server-utils@10.62.0':
     resolution: {integrity: sha512-S5szsj6kKBhxw97b2HA98fYp/PpWXvSizlisEzb2rnL4IH6RAJ8wP05/fnth8pSywTH+gtUu+i6Wn8e8rX5HvA==}
     engines: {node: '>=18'}
+
+  '@sentry/vue@10.62.0':
+    resolution: {integrity: sha512-aK3E302Zx/g1dqtUU30Q0jblvCW8MsVXuzwnxM4JSgO47o0jW74zaFh1K3Ym2uQWhLvP1rV2D49BYwCMUc4ovQ==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@tanstack/vue-router': ^1.64.0
+      pinia: 2.x || 3.x
+      vue: 2.x || 3.x
+    peerDependenciesMeta:
+      '@tanstack/vue-router':
+        optional: true
+      pinia:
+        optional: true
 
   '@sindresorhus/is@4.6.0':
     resolution: {integrity: sha512-t09vSN3MdfsyCHoFcTRCH/iUtG7OJ0CsjzB8cjAmKc/va/kIgeDI/TxsigdncE/4be734m0cvIYwNaV4i2XqAw==}
@@ -4480,7 +4496,7 @@ snapshots:
 
   '@electron/universal@2.0.1':
     dependencies:
-      '@electron/asar': 3.2.18
+      '@electron/asar': 3.4.1
       '@malept/cross-spawn-promise': 2.0.0
       debug: 4.4.3
       dir-compare: 4.2.0
@@ -5336,6 +5352,14 @@ snapshots:
       magic-string: 0.30.21
     transitivePeerDependencies:
       - supports-color
+
+  '@sentry/vue@10.62.0(pinia@3.0.4(typescript@6.0.3)(vue@3.5.39(typescript@6.0.3)))(vue@3.5.39(typescript@6.0.3))':
+    dependencies:
+      '@sentry/browser': 10.62.0
+      '@sentry/core': 10.62.0
+      vue: 3.5.39(typescript@6.0.3)
+    optionalDependencies:
+      pinia: 3.0.4(typescript@6.0.3)(vue@3.5.39(typescript@6.0.3))
 
   '@sindresorhus/is@4.6.0': {}
 

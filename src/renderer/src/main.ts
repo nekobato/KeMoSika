@@ -9,8 +9,11 @@ import App from "./App.vue";
 import router from "./router";
 import { initSentry } from "./utils/sentry";
 
-initSentry();
-createApp(App)
+const app = createApp(App);
+
+initSentry(app);
+
+app
   .use(createPinia())
   .use(router)
   .use(PrimeVue, {
