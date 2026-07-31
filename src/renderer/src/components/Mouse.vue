@@ -1,33 +1,18 @@
 <script setup lang="ts">
 import { computed, PropType } from "vue";
 import { MouseData, MouseState } from "@shared/types";
+import {
+  DEFAULT_MOUSE_BASE_IMAGE_ID,
+  DEFAULT_MOUSE_BUTTON_IMAGE_IDS,
+  resolveMouseVisualLayers
+} from "./mouseLayers";
 
 const DEFAULT_RING_COLOR = "#ffffff";
 const POINTER_SIZE = 16;
-const LEFT_BUTTON = 1;
-const RIGHT_BUTTON = 2;
-const MIDDLE_BUTTON = 3;
-
-type DefaultMouseVisualState =
-  | "default"
-  | "leftClick"
-  | "rightClick"
-  | "middleClick"
-  | "scrollUp"
-  | "scrollDown";
 
 /** Resolves an image from the media protocol image store. */
 const getStoredImageSource = (imageName: string): string =>
   `media://images/${imageName}.png`;
-
-const defaultMouseImages: Record<DefaultMouseVisualState, string> = {
-  default: getStoredImageSource("default_mouse_default"),
-  leftClick: getStoredImageSource("default_mouse_left_click"),
-  rightClick: getStoredImageSource("default_mouse_right_click"),
-  middleClick: getStoredImageSource("default_mouse_middle_click"),
-  scrollUp: getStoredImageSource("default_mouse_scroll_up"),
-  scrollDown: getStoredImageSource("default_mouse_scroll_down")
-};
 
 const props = defineProps({
   data: { type: Object as PropType<MouseData>, required: true },
@@ -63,10 +48,15 @@ const buttonStyle = computed(() => {
   };
 });
 
-const overlayData = computed(() => props.data.buttonOverlays);
-
-const isButtonDown = (button: number) =>
-  !!props.states?.buttons?.includes(button);
+const mouseLayers = computed(() =>
+  resolveMouseVisualLayers({
+    baseImageId: props.data.images.mouseDefault,
+    fallbackBaseImageId: DEFAULT_MOUSE_BASE_IMAGE_ID,
+    fallbackButtonImageIds: DEFAULT_MOUSE_BUTTON_IMAGE_IDS,
+    buttonOverlays: props.data.buttonOverlays,
+    pressedButtons: props.states?.buttons ?? []
+  })
+);
 
 const ringStyle = computed(() => {
   const { size, color, images } = ringData.value;
@@ -116,52 +106,9 @@ const pointerStyle = computed(() => {
   };
 });
 
-const getMouseImage = (): string => {
-  // マウスの状態に応じた画像を返す
-  if (props.states && props.states.buttons && props.states.buttons.length > 0) {
-    // 左クリック
-    if (props.states.buttons.includes(LEFT_BUTTON)) {
-      return props.data.images.mouseLeftClick
-        ? getStoredImageSource(props.data.images.mouseLeftClick)
-        : defaultMouseImages.leftClick;
-    }
-    // 右クリック
-    if (props.states.buttons.includes(RIGHT_BUTTON)) {
-      return props.data.images.mouseRightClick
-        ? getStoredImageSource(props.data.images.mouseRightClick)
-        : defaultMouseImages.rightClick;
-    }
-    // 中クリック
-    if (props.states.buttons.includes(MIDDLE_BUTTON)) {
-      return props.data.images.mouseMiddleClick
-        ? getStoredImageSource(props.data.images.mouseMiddleClick)
-        : defaultMouseImages.middleClick;
-    }
-  }
-
-  // スクロール
-  if (props.states && props.states.type === 2) {
-    if (props.states.amount > 0) {
-      return props.data.images.mouseScrollUp
-        ? getStoredImageSource(props.data.images.mouseScrollUp)
-        : defaultMouseImages.scrollUp;
-    }
-    if (props.states.amount < 0) {
-      return props.data.images.mouseScrollDown
-        ? getStoredImageSource(props.data.images.mouseScrollDown)
-        : defaultMouseImages.scrollDown;
-    }
-  }
-
-  // デフォルト
-  if (props.data.images.mouseDefault) {
-    return getStoredImageSource(props.data.images.mouseDefault);
-  }
-
-  return defaultMouseImages.default;
-};
-
-const mouseImage = computed(() => getMouseImage());
+const mouseImage = computed(() =>
+  getStoredImageSource(mouseLayers.value.baseImageId)
+);
 
 const dropShadowStyle = computed(() =>
   props.data.shadow === false
@@ -172,56 +119,22 @@ const dropShadowStyle = computed(() =>
 
 <template>
   <div class="mouse-container" :style="buttonStyle">
-  <div class="mouse">
-    <img
-      v-if="mouseImage"
-      :src="mouseImage"
-      class="mouse-image"
-      :style="{ filter: dropShadowStyle }"
-    />
-    <div
-      v-else
-      class="mouse-body"
-      :style="{ filter: dropShadowStyle }"
-    ></div>
-      <template v-if="overlayData">
-        <img
-          v-if="overlayData.left.default"
-          :src="`media://images/${overlayData.left.default}.png`"
-          class="mouse-overlay"
-          :style="{ filter: dropShadowStyle }"
-        />
-        <img
-          v-if="overlayData.left.active && isButtonDown(LEFT_BUTTON)"
-          :src="`media://images/${overlayData.left.active}.png`"
-          class="mouse-overlay"
-          :style="{ filter: dropShadowStyle }"
-        />
-        <img
-          v-if="overlayData.right.default"
-          :src="`media://images/${overlayData.right.default}.png`"
-          class="mouse-overlay"
-          :style="{ filter: dropShadowStyle }"
-        />
-        <img
-          v-if="overlayData.right.active && isButtonDown(RIGHT_BUTTON)"
-          :src="`media://images/${overlayData.right.active}.png`"
-          class="mouse-overlay"
-          :style="{ filter: dropShadowStyle }"
-        />
-        <img
-          v-if="overlayData.middle.default"
-          :src="`media://images/${overlayData.middle.default}.png`"
-          class="mouse-overlay"
-          :style="{ filter: dropShadowStyle }"
-        />
-        <img
-          v-if="overlayData.middle.active && isButtonDown(MIDDLE_BUTTON)"
-          :src="`media://images/${overlayData.middle.active}.png`"
-          class="mouse-overlay"
-          :style="{ filter: dropShadowStyle }"
-        />
-      </template>
+    <div class="mouse">
+      <img
+        :src="mouseImage"
+        class="mouse-image"
+        alt=""
+        aria-hidden="true"
+        :style="{ filter: dropShadowStyle }"
+      />
+      <img
+        v-for="layer in mouseLayers.buttonLayers"
+        :key="layer.button"
+        :src="`media://images/${layer.imageId}.png`"
+        class="mouse-overlay"
+        alt=""
+        aria-hidden="true"
+      />
     </div>
     <div class="pointer-ring" :style="ringStyle">
       <div class="pointer" :style="pointerStyle"></div>
@@ -248,18 +161,7 @@ const dropShadowStyle = computed(() =>
   align-items: center;
 }
 
-.mouse-body {
-  width: 100%;
-  height: 100%;
-  background: #888888;
-  border-radius: 8px;
-}
-
-.mouse-image {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
+.mouse-image,
 .mouse-overlay {
   position: absolute;
   top: 0;
@@ -267,6 +169,9 @@ const dropShadowStyle = computed(() =>
   width: 100%;
   height: 100%;
   object-fit: contain;
+}
+
+.mouse-overlay {
   pointer-events: none;
 }
 

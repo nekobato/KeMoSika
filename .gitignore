@@ -28,4 +28,5 @@ release
 .env
 electron-builder.env
 out
+output
 *.tsbuildinfo

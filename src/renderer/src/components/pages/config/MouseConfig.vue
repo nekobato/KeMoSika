@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { PropType } from "vue";
+import { computed, PropType } from "vue";
 import { Icon } from "@iconify/vue";
 import { MouseData } from "@shared/types";
 import {
@@ -14,6 +14,11 @@ import IconField from "primevue/iconfield";
 import InputIcon from "primevue/inputicon";
 import ColorPicker from "primevue/colorpicker";
 import ToggleSwitch from "primevue/toggleswitch";
+import {
+  DEFAULT_MOUSE_BASE_IMAGE_ID,
+  DEFAULT_MOUSE_BUTTON_IMAGE_IDS,
+  resolveMouseVisualLayers
+} from "@/components/mouseLayers";
 
 const props = defineProps({
   mouseData: {
@@ -23,26 +28,42 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["change", "openImageDialog"]);
-const imageTypes: { key: MouseBodyImageType; label: string }[] = [
-  { key: "mouseDefault", label: "本体（静的）" },
-  { key: "mouseLeftClick", label: "レガシー：左クリック本体" },
-  { key: "mouseRightClick", label: "レガシー：右クリック本体" },
-  { key: "mouseMiddleClick", label: "レガシー：中クリック本体" },
-  { key: "mouseScrollUp", label: "レガシー：スクロールアップ本体" },
-  { key: "mouseScrollDown", label: "レガシー：スクロールダウン本体" }
+const bodyImageTypes: { key: MouseBodyImageType; label: string }[] = [
+  { key: "mouseDefault", label: "マウス本体" }
 ];
 const ringImageTypes: { key: MouseRingImageType; label: string }[] = [
   { key: "ring", label: "リング画像" },
   { key: "pointer", label: "ポインタ画像" }
 ];
-const overlayImageTypes: { key: MouseOverlayImageType; label: string }[] = [
-  { key: "leftDefault", label: "左ボタン・未押下" },
-  { key: "leftActive", label: "左ボタン・押下" },
-  { key: "rightDefault", label: "右ボタン・未押下" },
-  { key: "rightActive", label: "右ボタン・押下" },
-  { key: "middleDefault", label: "中ボタン・未押下" },
-  { key: "middleActive", label: "中ボタン・押下" }
+const OVERLAY_IMAGE_TYPES: {
+  key: MouseOverlayImageType;
+  button: keyof MouseData["buttonOverlays"];
+  label: string;
+}[] = [
+  { key: "leftActive", button: "left", label: "左ボタン押下" },
+  { key: "rightActive", button: "right", label: "右ボタン押下" },
+  { key: "middleActive", button: "middle", label: "中ボタン押下" }
 ];
+
+const mouseImagePreview = computed(() =>
+  resolveMouseVisualLayers({
+    baseImageId: props.mouseData.images.mouseDefault,
+    fallbackBaseImageId: DEFAULT_MOUSE_BASE_IMAGE_ID,
+    fallbackButtonImageIds: DEFAULT_MOUSE_BUTTON_IMAGE_IDS,
+    buttonOverlays: props.mouseData.buttonOverlays,
+    pressedButtons: [1, 2, 3]
+  })
+);
+
+const overlayImageTypes = computed(() =>
+  OVERLAY_IMAGE_TYPES.map((type) => ({
+    ...type,
+    imageId:
+      mouseImagePreview.value.buttonLayers.find(
+        ({ button }) => button === type.button
+      )?.imageId ?? ""
+  }))
+);
 
 const onChangeInput = (key: string, value: any) => {
   switch (key) {
@@ -211,31 +232,15 @@ const selectImage = (type: MouseImageType) => {
 
       <Divider class="grid-span-2" />
 
-      <div class="section-title grid-span-2">ボタンオーバーレイ（合成用）</div>
+      <div class="section-title grid-span-2">第1層：マウス本体</div>
       <p class="helper grid-span-2">
-        各ボタンの透明PNGを本体画像の上に重ねます。同時押しも自動で合成されますわ。
+        押下状態にかかわらず表示し続ける、固定のマウス本体画像です。
       </p>
-      <div class="image-cell" v-for="type in overlayImageTypes" :key="type.key">
+      <div class="image-cell" v-for="type in bodyImageTypes" :key="type.key">
         <img
           class="mouse-image"
-          v-if="
-            mouseData.buttonOverlays?.[
-              type.key.startsWith('left')
-                ? 'left'
-                : type.key.startsWith('right')
-                  ? 'right'
-                  : 'middle'
-            ]?.[type.key.endsWith('Active') ? 'active' : 'default']
-          "
-          :src="`media://images/${
-            mouseData.buttonOverlays?.[
-              type.key.startsWith('left')
-                ? 'left'
-                : type.key.startsWith('right')
-                  ? 'right'
-                  : 'middle'
-            ]?.[type.key.endsWith('Active') ? 'active' : 'default']
-          }.png`"
+          v-if="mouseImagePreview.baseImageId"
+          :src="`media://images/${mouseImagePreview.baseImageId}.png`"
           @click="selectImage(type.key as MouseImageType)"
         />
         <div
@@ -250,15 +255,15 @@ const selectImage = (type: MouseImageType) => {
 
       <Divider class="grid-span-2" />
 
-      <div class="section-title grid-span-2">マウス画像</div>
+      <div class="section-title grid-span-2">第2層：ボタン押下</div>
       <p class="helper grid-span-2">
-        レガシー切替（本体を状態別に差し替え）。オーバーレイ優先で、未設定時のみ利用されますわ。
+        本体と同じサイズの透過PNGを登録します。押されているボタンの画像だけを重ね、同時押しは独立して合成します。
       </p>
-      <div class="image-cell" v-for="type in imageTypes" :key="type.key">
+      <div class="image-cell" v-for="type in overlayImageTypes" :key="type.key">
         <img
           class="mouse-image"
-          v-if="mouseData.images[type.key]"
-          :src="`media://images/${mouseData.images[type.key]}.png`"
+          v-if="type.imageId"
+          :src="`media://images/${type.imageId}.png`"
           @click="selectImage(type.key as MouseImageType)"
         />
         <div
