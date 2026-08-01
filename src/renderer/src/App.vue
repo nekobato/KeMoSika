@@ -2,7 +2,6 @@
 import { usePreferredColorScheme, useStorage } from "@vueuse/core";
 import { computed, onBeforeMount, onMounted } from "vue";
 import { RouterView, useRouter } from "vue-router";
-import Toast from "primevue/toast";
 import { useStore } from "./store";
 
 const savedTheme = useStorage("theme", undefined);
@@ -34,7 +33,6 @@ onMounted(() => {
 
 <template>
   <div class="theme" :class="[theme]">
-    <Toast />
     <RouterView />
   </div>
 </template>

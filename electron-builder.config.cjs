@@ -16,9 +16,7 @@ const config = {
     category: "public.app-category.productivity",
     entitlements: "build/entitlements.mac.plist",
     entitlementsInherit: "build/entitlements.mac.plist",
-    notarize: {
-      teamId: process.env.APPLE_TEAM_ID
-    },
+    notarize: Boolean(process.env.APPLE_TEAM_ID),
     publish: ["github"]
   },
   // win: {

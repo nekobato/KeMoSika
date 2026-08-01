@@ -1,9 +1,8 @@
 import { createApp } from "vue";
 import { createPinia } from "pinia";
-import PrimeVue from "primevue/config";
-import ToastService from "primevue/toastservice";
-import AuraEP from "./theme/aura-ep";
-import "primeflex/primeflex.css";
+import ElementPlus from "element-plus";
+import ja from "element-plus/es/locale/lang/ja";
+import "element-plus/dist/index.css";
 import "./assets/styles/index.scss";
 import App from "./App.vue";
 import router from "./router";
@@ -16,10 +15,5 @@ initSentry(app);
 app
   .use(createPinia())
   .use(router)
-  .use(PrimeVue, {
-    theme: {
-      preset: AuraEP
-    }
-  })
-  .use(ToastService)
+  .use(ElementPlus, { locale: ja })
   .mount("#app");

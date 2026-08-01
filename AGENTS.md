@@ -16,7 +16,7 @@ KeMoSika はキーボードとマウスの入力をリアルタイムに可視�
 - Electron / electron-vite
 - Vue 3 / TypeScript
 - Pinia
-- PrimeVue / PrimeFlex / @primeuix/themes
+- Element Plus
 - Sass (`sass-embedded`)
 - electron-store
 - uiohook-napi
@@ -71,7 +71,7 @@ KeMoSika はキーボードとマウスの入力をリアルタイムに可視�
 - Vue コンポーネント名は PascalCase、TypeScript ファイル名は camelCase を基本にする。
 - Pinia store は `defineStore` を使い、Composition API 形式で定義する。
 - renderer から main へ処理を委譲する場合は `window.kemosikaApi` 経由にする。
-- PrimeVue はフォーム、ボタン、ダイアログなどの標準 UI に使い、レイアウト編集体験に関わる独自 UI は既存デザインに合わせる。
+- Element Plus はフォーム、ボタン、ダイアログなどの標準 UI に使い、レイアウト編集体験に関わる独自 UI は既存デザインに合わせる。
 
 ## スタイリング
 
@@ -79,7 +79,7 @@ KeMoSika はキーボードとマウスの入力をリアルタイムに可視�
 - クラス名は kebab-case を使う。
 - テーマ・共通変数は `src/renderer/src/assets/styles` 配下に集約する。
 - SCSS 変数より CSS custom properties を優先する。
-- PrimeVue テーマ拡張は `src/renderer/src/theme` 配下に置く。
+- Element Plus のテーマ拡張は `src/renderer/src/assets/styles` 配下に置く。
 
 ## テスト / 検証
 

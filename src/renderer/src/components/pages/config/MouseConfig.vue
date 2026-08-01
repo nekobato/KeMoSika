@@ -1,39 +1,34 @@
 <script setup lang="ts">
-import { computed, PropType } from "vue";
+import { computed } from "vue";
+import type { PropType } from "vue";
 import { Icon } from "@iconify/vue";
-import { MouseData } from "@shared/types";
-import {
+import type { MouseData } from "@shared/types";
+import type {
   MouseBodyImageType,
   MouseImageType,
   MouseOverlayImageType,
-  MouseRingImageType
+  MouseRingImageType,
 } from "@/types/app";
-import InputNumber from "primevue/inputnumber";
-import Divider from "primevue/divider";
-import IconField from "primevue/iconfield";
-import InputIcon from "primevue/inputicon";
-import ColorPicker from "primevue/colorpicker";
-import ToggleSwitch from "primevue/toggleswitch";
 import {
   DEFAULT_MOUSE_BASE_IMAGE_ID,
   DEFAULT_MOUSE_BUTTON_IMAGE_IDS,
-  resolveMouseVisualLayers
+  resolveMouseVisualLayers,
 } from "@/components/mouseLayers";
 
 const props = defineProps({
   mouseData: {
     type: Object as PropType<MouseData>,
-    required: true
-  }
+    required: true,
+  },
 });
 
 const emit = defineEmits(["change", "openImageDialog"]);
 const bodyImageTypes: { key: MouseBodyImageType; label: string }[] = [
-  { key: "mouseDefault", label: "マウス本体" }
+  { key: "mouseDefault", label: "マウス本体" },
 ];
 const ringImageTypes: { key: MouseRingImageType; label: string }[] = [
   { key: "ring", label: "リング画像" },
-  { key: "pointer", label: "ポインタ画像" }
+  { key: "pointer", label: "ポインタ画像" },
 ];
 const OVERLAY_IMAGE_TYPES: {
   key: MouseOverlayImageType;
@@ -42,7 +37,7 @@ const OVERLAY_IMAGE_TYPES: {
 }[] = [
   { key: "leftActive", button: "left", label: "左ボタン押下" },
   { key: "rightActive", button: "right", label: "右ボタン押下" },
-  { key: "middleActive", button: "middle", label: "中ボタン押下" }
+  { key: "middleActive", button: "middle", label: "中ボタン押下" },
 ];
 
 const mouseImagePreview = computed(() =>
@@ -51,8 +46,8 @@ const mouseImagePreview = computed(() =>
     fallbackBaseImageId: DEFAULT_MOUSE_BASE_IMAGE_ID,
     fallbackButtonImageIds: DEFAULT_MOUSE_BUTTON_IMAGE_IDS,
     buttonOverlays: props.mouseData.buttonOverlays,
-    pressedButtons: [1, 2, 3]
-  })
+    pressedButtons: [1, 2, 3],
+  }),
 );
 
 const overlayImageTypes = computed(() =>
@@ -60,9 +55,9 @@ const overlayImageTypes = computed(() =>
     ...type,
     imageId:
       mouseImagePreview.value.buttonLayers.find(
-        ({ button }) => button === type.button
-      )?.imageId ?? ""
-  }))
+        ({ button }) => button === type.button,
+      )?.imageId ?? "",
+  })),
 );
 
 const onChangeInput = (key: string, value: any) => {
@@ -75,7 +70,7 @@ const onChangeInput = (key: string, value: any) => {
     case "shadow":
       emit("change", {
         ...props.mouseData,
-        [key]: value
+        [key]: value,
       });
       break;
     case "ring.size":
@@ -84,8 +79,8 @@ const onChangeInput = (key: string, value: any) => {
         ...props.mouseData,
         ring: {
           ...props.mouseData.ring,
-          [key.split(".")[1]]: value
-        }
+          [key.split(".")[1]]: value,
+        },
       });
       break;
   }
@@ -99,110 +94,103 @@ const selectImage = (type: MouseImageType) => {
 <template>
   <section class="mouse-config" v-if="mouseData">
     <div class="form grid">
-      <IconField>
-        <InputIcon><span>X</span></InputIcon>
-        <InputNumber
-          inputId="mouse-x"
-          size="small"
-          fluid
-          v-model="mouseData.x"
-          :useGrouping="false"
-          :min="0"
-          :max="999999"
-          :step="1"
-          @update:modelValue="onChangeInput('x', $event)"
-        />
-      </IconField>
-      <IconField>
-        <InputIcon><span>Y</span></InputIcon>
-        <InputNumber
-          inputId="mouse-y"
-          size="small"
-          fluid
-          v-model="mouseData.y"
-          :useGrouping="false"
-          :min="0"
-          :max="999999"
-          :step="1"
-          @update:modelValue="onChangeInput('y', $event)"
-        />
-      </IconField>
+      <ElInputNumber
+        id="mouse-x"
+        class="field-control"
+        size="small"
+        :controls="false"
+        v-model="mouseData.x"
+        :min="0"
+        :max="999999"
+        :step="1"
+        @update:modelValue="onChangeInput('x', $event)"
+      >
+        <template #prefix><span>X</span></template>
+      </ElInputNumber>
+      <ElInputNumber
+        id="mouse-y"
+        class="field-control"
+        size="small"
+        :controls="false"
+        v-model="mouseData.y"
+        :min="0"
+        :max="999999"
+        :step="1"
+        @update:modelValue="onChangeInput('y', $event)"
+      >
+        <template #prefix><span>Y</span></template>
+      </ElInputNumber>
 
-      <IconField>
-        <InputIcon><span>W</span></InputIcon>
-        <InputNumber
-          inputId="mouse-w"
-          size="small"
-          fluid
-          v-model="mouseData.width"
-          :useGrouping="false"
-          :min="0"
-          :max="999999"
-          :step="1"
-          @update:modelValue="onChangeInput('width', $event)"
-        />
-      </IconField>
-      <IconField>
-        <InputIcon><span>H</span></InputIcon>
-        <InputNumber
-          inputId="mouse-h"
-          size="small"
-          fluid
-          v-model="mouseData.height"
-          :useGrouping="false"
-          :min="0"
-          :max="999999"
-          :step="1"
-          @update:modelValue="onChangeInput('height', $event)"
-        />
-      </IconField>
+      <ElInputNumber
+        id="mouse-w"
+        class="field-control"
+        size="small"
+        :controls="false"
+        v-model="mouseData.width"
+        :min="0"
+        :max="999999"
+        :step="1"
+        @update:modelValue="onChangeInput('width', $event)"
+      >
+        <template #prefix><span>W</span></template>
+      </ElInputNumber>
+      <ElInputNumber
+        id="mouse-h"
+        class="field-control"
+        size="small"
+        :controls="false"
+        v-model="mouseData.height"
+        :min="0"
+        :max="999999"
+        :step="1"
+        @update:modelValue="onChangeInput('height', $event)"
+      >
+        <template #prefix><span>H</span></template>
+      </ElInputNumber>
 
-      <IconField class="grid-span-2">
-        <InputIcon
-          ><Icon icon="mingcute:clockwise-line" class="icon"
-        /></InputIcon>
-        <InputNumber
-          inputId="mouse-rotation"
-          size="small"
-          fluid
-          v-model="mouseData.rotation"
-          :useGrouping="false"
-          :min="-999999"
-          :max="999999"
-          :step="1"
-          @update:modelValue="onChangeInput('rotation', $event)"
-        />
-      </IconField>
+      <ElInputNumber
+        id="mouse-rotation"
+        class="field-control grid-span-2"
+        size="small"
+        :controls="false"
+        v-model="mouseData.rotation"
+        :min="-999999"
+        :max="999999"
+        :step="1"
+        @update:modelValue="onChangeInput('rotation', $event)"
+      >
+        <template #prefix>
+          <Icon icon="mingcute:clockwise-line" class="icon" />
+        </template>
+      </ElInputNumber>
 
       <div class="checkbox-field grid-span-2">
-        <ToggleSwitch
-          inputId="mouse-shadow"
+        <ElSwitch
+          id="mouse-shadow"
           size="small"
-          binary
           v-model="mouseData.shadow"
           @update:modelValue="onChangeInput('shadow', $event)"
         />
         <label for="mouse-shadow">影を付ける</label>
       </div>
 
-      <IconField class="grid-span-2">
-        <InputIcon><span>D</span></InputIcon>
-        <InputNumber
-          inputId="mouse-ring-size"
-          size="small"
-          fluid
-          v-model="mouseData.ring.size"
-          :useGrouping="false"
-          :min="0"
-          :max="999999"
-          :step="1"
-          @update:modelValue="onChangeInput('ring.size', $event)"
-        />
-      </IconField>
+      <ElInputNumber
+        id="mouse-ring-size"
+        class="field-control grid-span-2"
+        size="small"
+        :controls="false"
+        v-model="mouseData.ring.size"
+        :min="0"
+        :max="999999"
+        :step="1"
+        @update:modelValue="onChangeInput('ring.size', $event)"
+      >
+        <template #prefix><span>D</span></template>
+      </ElInputNumber>
 
       <div class="color-picker-field grid-span-2">
-        <ColorPicker
-          inputId="mouse-ring-color"
+        <ElColorPicker
+          id="mouse-ring-color"
           class="color-input"
           v-model="mouseData.ring.color"
           @update:modelValue="onChangeInput('ring.color', $event)"
@@ -210,7 +198,7 @@ const selectImage = (type: MouseImageType) => {
         <label for="mouse-ring-color">リングカラー</label>
       </div>
 
-      <Divider class="grid-span-2" />
+      <ElDivider class="grid-span-2" />
 
       <div class="section-title grid-span-2">ポインターリング</div>
       <div class="image-cell" v-for="type in ringImageTypes" :key="type.key">
@@ -230,7 +218,7 @@ const selectImage = (type: MouseImageType) => {
         </div>
       </div>
 
-      <Divider class="grid-span-2" />
+      <ElDivider class="grid-span-2" />
 
       <div class="section-title grid-span-2">第1層：マウス本体</div>
       <p class="helper grid-span-2">
@@ -253,7 +241,7 @@ const selectImage = (type: MouseImageType) => {
         </div>
       </div>
 
-      <Divider class="grid-span-2" />
+      <ElDivider class="grid-span-2" />
 
       <div class="section-title grid-span-2">第2層：ボタン押下</div>
       <p class="helper grid-span-2">
@@ -296,6 +284,9 @@ const selectImage = (type: MouseImageType) => {
   .grid-span-2 {
     grid-column: 1 / -1;
   }
+}
+.field-control {
+  width: 100%;
 }
 .image-cell {
   min-height: 100px;

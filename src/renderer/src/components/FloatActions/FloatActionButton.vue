@@ -1,15 +1,13 @@
 <script lang="ts" setup>
-import Button from "primevue/button";
-
 const props = defineProps<{
   label?: string;
 }>();
 </script>
 <template>
-  <Button class="nn-button" text severity="secondary">
+  <ElButton class="nn-button" text>
     <slot name="icon" />
     <span class="label" v-if="props.label">{{ props.label }}</span>
-  </Button>
+  </ElButton>
 </template>
 
 <style lang="scss" scoped>

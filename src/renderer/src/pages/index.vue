@@ -4,26 +4,27 @@ import { useStore } from "../store";
 import { Icon } from "@iconify/vue";
 import ConfigLayout from "@/components/layouts/ConfigLayout.vue";
 import KeyboardButton from "@/components/KeyboardButton.vue";
-import { KeyboardKeyData, LayoutData } from "@shared/types";
+import type { KeyboardKeyData, LayoutData } from "@shared/types";
 import { useRoute, useRouter } from "vue-router";
 import Header from "@/components/Header.vue";
 import Mouse from "@/components/Mouse.vue";
-import ButtonGroup from "primevue/buttongroup";
-import Button from "primevue/button";
-import Dialog from "primevue/dialog";
-import InputText from "primevue/inputtext";
-import Tree from "primevue/tree";
 import FloatActions from "@/components/FloatActions/FloatActions.vue";
-import { useToast } from "primevue/usetoast";
-import type { TreeExpandedKeys, TreeSelectionKeys } from "primevue/tree";
-import type { TreeNode } from "primevue/treenode";
+import type { TreeInstance } from "element-plus";
+import { showErrorMessage } from "@/services/message";
 
 type LayoutSource = "user" | "builtin";
+type LayoutTreeNode = {
+  key: string;
+  label: string;
+  icon: string;
+  data?: LayoutData;
+  children?: LayoutTreeNode[];
+};
 
 const router = useRouter();
 const route = useRoute();
 const store = useStore();
-const toast = useToast();
+const layoutTreeRef = ref<TreeInstance>();
 const previewContainerRef = ref<HTMLElement>();
 const previewRef = ref<HTMLElement>();
 const previewPadding = 1200;
@@ -31,7 +32,7 @@ const previewPadding = 1200;
 const userLayouts = computed(() => store.$state.layouts || []);
 const builtinLayoutTree = computed(() => store.builtinLayoutTree || []);
 const builtinLayouts = computed(
-  () => builtinLayoutTree.value.flatMap((group) => group.layouts) || []
+  () => builtinLayoutTree.value.flatMap((group) => group.layouts) || [],
 );
 
 const copyTargetLayout = ref<LayoutData | null>(null);
@@ -45,60 +46,52 @@ const isImporting = ref(false);
 const isImportDragOver = ref(false);
 
 const folderIcons = {
-  // PrimeVue v4 treats presence of expanded/collapsedIcon as custom toggle icons.
-  // Leaving only the node icon avoids blank toggle buttons.
-  icon: "mingcute:folder-line"
+  icon: "mingcute:folder-line",
 };
 
-const treeValue = computed<TreeNode[]>(() => {
-  const userNodes: TreeNode[] = userLayouts.value.length
+const treeValue = computed<LayoutTreeNode[]>(() => {
+  const userNodes: LayoutTreeNode[] = userLayouts.value.length
     ? userLayouts.value.map((layout) => ({
         key: layout.id,
         label: layout.name,
-        type: "layout",
         data: layout,
         icon: "mingcute:layout-grid-line",
-        selectable: true
       }))
     : [
         {
           key: "custom-empty",
           label: "カスタムレイアウトがありません",
-          selectable: false,
-          icon: "mingcute:information-line"
-        }
+          icon: "mingcute:information-line",
+        },
       ];
 
-  const builtinNodes: TreeNode[] = builtinLayoutTree.value.map((group) => ({
-    key: `group-${group.id}`,
-    label: group.name,
-    ...folderIcons,
-    selectable: false,
-    children: group.layouts.map((layout) => ({
-      key: layout.id,
-      label: layout.name,
-      type: "layout",
-      data: layout,
-      icon: "mingcute:monitor-line",
-      selectable: true
-    }))
-  }));
+  const builtinNodes: LayoutTreeNode[] = builtinLayoutTree.value.map(
+    (group) => ({
+      key: `group-${group.id}`,
+      label: group.name,
+      ...folderIcons,
+      children: group.layouts.map((layout) => ({
+        key: layout.id,
+        label: layout.name,
+        data: layout,
+        icon: "mingcute:monitor-line",
+      })),
+    }),
+  );
 
   return [
     {
       key: "custom-layouts",
       label: "カスタムレイアウト",
       ...folderIcons,
-      selectable: false,
-      children: userNodes
+      children: userNodes,
     },
     {
       key: "builtin-layouts",
       label: "デフォルトレイアウト",
       ...folderIcons,
-      selectable: false,
-      children: builtinNodes
-    }
+      children: builtinNodes,
+    },
   ];
 });
 
@@ -139,36 +132,36 @@ watch(
   [userLayouts, builtinLayouts, () => route.query.layoutId],
   ensureValidSelection,
   {
-    immediate: true
-  }
+    immediate: true,
+  },
 );
 
 const selectedLayout = computed<LayoutData | undefined>(() =>
-  findLayoutById(route.query.layoutId as string | undefined)
+  findLayoutById(route.query.layoutId as string | undefined),
 );
 
 const selectedLayoutSource = computed<LayoutSource | null>(() =>
-  findLayoutSource(route.query.layoutId as string | undefined)
+  findLayoutSource(route.query.layoutId as string | undefined),
 );
 
 const layoutStyle = computed(() => {
   return {
     width: `${selectedLayout.value?.width ?? 0}px`,
-    height: `${selectedLayout.value?.height ?? 0}px`
+    height: `${selectedLayout.value?.height ?? 0}px`,
   };
 });
 
 const previewCanvasStyle = computed(() => {
   return {
     width: `${(selectedLayout.value?.width ?? 0) + previewPadding * 2}px`,
-    height: `${(selectedLayout.value?.height ?? 0) + previewPadding * 2}px`
+    height: `${(selectedLayout.value?.height ?? 0) + previewPadding * 2}px`,
   };
 });
 
 const previewPlacementStyle = computed(() => {
   return {
     left: `${previewPadding}px`,
-    top: `${previewPadding}px`
+    top: `${previewPadding}px`,
   };
 });
 
@@ -193,7 +186,7 @@ const centerSelectedLayoutPreview = async () => {
 };
 
 const keys = computed<KeyboardKeyData[] | undefined>(() =>
-  selectedLayout.value?.keys.filter((key) => key.type === "key")
+  selectedLayout.value?.keys.filter((key) => key.type === "key"),
 );
 
 const mouses = computed(() => {
@@ -241,17 +234,17 @@ const gotoVisualizer = () => {
     layoutId: selectedLayout.value.id,
     size: {
       width: selectedLayout.value.width,
-      height: selectedLayout.value.height
-    }
+      height: selectedLayout.value.height,
+    },
   });
 };
 
 const isBuiltinLayoutSelected = computed(
-  () => selectedLayoutSource.value === "builtin" && !!selectedLayout.value
+  () => selectedLayoutSource.value === "builtin" && !!selectedLayout.value,
 );
 
 const isUserLayoutSelected = computed(
-  () => selectedLayoutSource.value === "user" && !!selectedLayout.value
+  () => selectedLayoutSource.value === "user" && !!selectedLayout.value,
 );
 
 /**
@@ -266,7 +259,7 @@ const exportSelectedLayout = async () => {
   try {
     await store.saveLayout(selectedLayout.value.id);
     await window.kemosikaApi.exportLayout({
-      layoutId: selectedLayout.value.id
+      layoutId: selectedLayout.value.id,
     });
   } catch (error) {
     exportErrorMessage.value =
@@ -291,7 +284,7 @@ const isImportArchiveFileName = (fileName: string): boolean => {
 };
 
 /**
- * Converts Electron IPC errors into concise toast details.
+ * Converts Electron IPC errors into concise message details.
  */
 const getImportErrorMessage = (error: unknown): string => {
   const message =
@@ -305,14 +298,12 @@ const getImportErrorMessage = (error: unknown): string => {
 };
 
 /**
- * Shows an error toast for rejected import sources.
+ * Shows an error message for rejected import sources.
  */
-const showImportErrorToast = (error: unknown) => {
-  toast.add({
-    severity: "error",
-    summary: "インポートに失敗しました",
+const showImportErrorMessage = (error: unknown) => {
+  showErrorMessage({
+    title: "インポートに失敗しました",
     detail: getImportErrorMessage(error),
-    life: 6000
   });
 };
 
@@ -331,7 +322,9 @@ const finishLayoutImport = async (layoutId?: string) => {
  * Runs an import action with shared progress and error handling.
  */
 const runLayoutImport = async (
-  importAction: () => ReturnType<typeof window.kemosikaApi.importLayoutFromPath>
+  importAction: () => ReturnType<
+    typeof window.kemosikaApi.importLayoutFromPath
+  >,
 ) => {
   if (isImporting.value) return;
 
@@ -343,7 +336,7 @@ const runLayoutImport = async (
       await finishLayoutImport(result.layoutId);
     }
   } catch (error) {
-    showImportErrorToast(error);
+    showImportErrorMessage(error);
   } finally {
     isImporting.value = false;
   }
@@ -364,13 +357,13 @@ const importDroppedFile = async (file: File) => {
 
   if (filePath) {
     await runLayoutImport(() =>
-      window.kemosikaApi.importLayoutFromPath({ path: filePath })
+      window.kemosikaApi.importLayoutFromPath({ path: filePath }),
     );
     return;
   }
 
   if (!isImportArchiveFileName(file.name)) {
-    showImportErrorToast(new Error("対応していないインポートファイルです。"));
+    showImportErrorMessage(new Error("対応していないインポートファイルです。"));
     return;
   }
 
@@ -378,8 +371,8 @@ const importDroppedFile = async (file: File) => {
   await runLayoutImport(() =>
     window.kemosikaApi.importLayoutArchive({
       buffer,
-      fileName: file.name
-    })
+      fileName: file.name,
+    }),
   );
 };
 
@@ -405,24 +398,25 @@ const onImportDrop = async (event: DragEvent) => {
   const files = Array.from(event.dataTransfer?.files ?? []);
 
   if (files.length !== 1) {
-    showImportErrorToast(new Error("インポート元は 1 つだけ指定してください。"));
+    showImportErrorMessage(
+      new Error("インポート元は 1 つだけ指定してください。"),
+    );
     return;
   }
 
   await importDroppedFile(files[0]);
 };
 
-const expandedKeys = ref<TreeExpandedKeys>({});
-const selectionKeys = ref<TreeSelectionKeys>({});
+const expandedKeys = ref<string[]>([]);
 
 watch(
   treeValue,
   (nodes) => {
-    const nextExpanded: TreeExpandedKeys = {};
-    const traverse = (treeNodes: TreeNode[]) => {
+    const nextExpanded: string[] = [];
+    const traverse = (treeNodes: LayoutTreeNode[]) => {
       treeNodes.forEach((node) => {
         if (node.children?.length) {
-          nextExpanded[node.key] = true;
+          nextExpanded.push(node.key);
           traverse(node.children);
         }
       });
@@ -430,16 +424,17 @@ watch(
     traverse(nodes);
     expandedKeys.value = nextExpanded;
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 watch(
   selectedLayout,
-  (layout) => {
-    selectionKeys.value = layout ? { [layout.id]: true } : {};
+  async (layout) => {
+    await nextTick();
+    layoutTreeRef.value?.setCurrentKey(layout?.id ?? null);
     void centerSelectedLayoutPreview();
   },
-  { immediate: true, flush: "post" }
+  { immediate: true, flush: "post" },
 );
 
 onMounted(() => {
@@ -455,9 +450,13 @@ const handleLeftAction = () => {
   }
 };
 
-const handleNodeSelect = (node: TreeNode) => {
+const handleNodeSelect = async (node: LayoutTreeNode) => {
   const layout = node.data as LayoutData | undefined;
-  if (!layout) return;
+  if (!layout) {
+    await nextTick();
+    layoutTreeRef.value?.setCurrentKey(selectedLayout.value?.id ?? null);
+    return;
+  }
   navigateToLayout(layout.id);
 };
 </script>
@@ -488,8 +487,8 @@ const handleNodeSelect = (node: TreeNode) => {
         </div>
       </main>
       <FloatActions>
-        <ButtonGroup>
-          <Button
+        <ElButtonGroup>
+          <ElButton
             class="float-action-button"
             data-testid="layout-edit-button"
             :disabled="!selectedLayout"
@@ -509,8 +508,8 @@ const handleNodeSelect = (node: TreeNode) => {
             <span class="action-label">{{
               isBuiltinLayoutSelected ? "コピー" : "編集"
             }}</span>
-          </Button>
-          <Button
+          </ElButton>
+          <ElButton
             class="float-action-button"
             data-testid="layout-export-button"
             :disabled="!isUserLayoutSelected || isExporting"
@@ -519,8 +518,8 @@ const handleNodeSelect = (node: TreeNode) => {
           >
             <Icon icon="mingcute:download-2-line" class="action-icon" />
             <span class="action-label">エクスポート</span>
-          </Button>
-          <Button
+          </ElButton>
+          <ElButton
             class="float-action-button type-primary"
             data-testid="visualizer-start-button"
             :disabled="!selectedLayout"
@@ -529,14 +528,14 @@ const handleNodeSelect = (node: TreeNode) => {
           >
             <Icon icon="mingcute:play-fill" class="action-icon" />
             <span class="action-label">ビジュアライザー</span>
-          </Button>
-        </ButtonGroup>
+          </ElButton>
+        </ElButtonGroup>
       </FloatActions>
     </template>
     <template #aside>
       <aside class="list-column">
         <div class="aside-header">
-          <Button
+          <ElButton
             class="nn-button primary"
             data-testid="layout-create-button"
             @click="addLayout"
@@ -545,8 +544,8 @@ const handleNodeSelect = (node: TreeNode) => {
           >
             <Icon icon="mingcute:file-new-line" class="nn-icon" />
             <span>新規作成</span>
-          </Button>
-          <Button
+          </ElButton>
+          <ElButton
             class="nn-button"
             data-testid="layout-import-button"
             @click="showImportDialog = true"
@@ -555,46 +554,38 @@ const handleNodeSelect = (node: TreeNode) => {
           >
             <Icon icon="mingcute:upload-line" class="nn-icon" />
             <span>インポート</span>
-          </Button>
+          </ElButton>
         </div>
-        <Tree
+        <ElTree
+          ref="layoutTreeRef"
           class="layout-tree"
-          :value="treeValue"
-          selectionMode="single"
-          :expandedKeys="expandedKeys"
-          v-model:selectionKeys="selectionKeys"
-          @nodeSelect="handleNodeSelect"
-          :pt="{
-            root: { class: 'layout-tree-root' },
-            node: { class: 'layout-tree-node' }
-          }"
+          :data="treeValue"
+          node-key="key"
+          :default-expanded-keys="expandedKeys"
+          :current-node-key="selectedLayout?.id"
+          :indent="16"
+          highlight-current
+          @node-click="handleNodeSelect"
         >
-          <template #nodeicon="{ node, class: iconClass }">
-            <Icon v-if="node.icon" :icon="node.icon" :class="iconClass" />
+          <template #default="{ data }">
+            <span class="tree-node-content">
+              <Icon :icon="data.icon" class="tree-node-icon" />
+              <span>{{ data.label }}</span>
+            </span>
           </template>
-          <template #nodetoggleicon="{ expanded }">
-            <Icon
-              :icon="expanded ? 'mingcute:down-line' : 'mingcute:right-line'"
-              class="p-tree-node-toggle-icon"
-            />
-          </template>
-        </Tree>
+        </ElTree>
       </aside>
     </template>
     <template #dialog>
-      <Dialog
-        v-model:visible="showCopyDialog"
-        modal
-        :closable="true"
-        :draggable="false"
-        :baseZIndex="5000"
-        appendTo="body"
+      <ElDialog
+        v-model="showCopyDialog"
+        :close-on-click-modal="false"
+        :z-index="5000"
+        append-to-body
         class="copy-dialog"
-        @hide="resetCopyDialog"
+        width="min(480px, calc(100vw - 48px))"
+        @closed="resetCopyDialog"
       >
-        <template #closeicon="{ class: iconClass }">
-          <Icon :class="iconClass" icon="mingcute:close-line" />
-        </template>
         <template #header>
           <div class="copy-dialog-header">
             <span class="copy-dialog-title">レイアウトをコピー</span>
@@ -604,7 +595,7 @@ const handleNodeSelect = (node: TreeNode) => {
           <label class="copy-dialog-label" for="copy-layout-name"
             >レイアウト名</label
           >
-          <InputText
+          <ElInput
             id="copy-layout-name"
             v-model="copyName"
             class="copy-dialog-input"
@@ -615,33 +606,25 @@ const handleNodeSelect = (node: TreeNode) => {
         </div>
         <template #footer>
           <div class="copy-dialog-actions">
-            <Button
-              label="キャンセル"
-              severity="secondary"
-              text
-              @click="closeCopyDialog"
-            />
-            <Button
-              label="決定"
+            <ElButton text @click="closeCopyDialog"> キャンセル </ElButton>
+            <ElButton
+              type="primary"
               :disabled="!copyTargetLayout"
               @click="confirmCopyLayout"
-            />
+            >
+              決定
+            </ElButton>
           </div>
         </template>
-      </Dialog>
-      <Dialog
-        v-model:visible="showImportDialog"
-        modal
-        :closable="true"
-        :draggable="false"
-        :baseZIndex="5000"
-        appendTo="body"
+      </ElDialog>
+      <ElDialog
+        v-model="showImportDialog"
+        :close-on-click-modal="false"
+        :z-index="5000"
+        append-to-body
         class="import-dialog"
-        style="width: min(560px, calc(100vw - 48px))"
+        width="min(560px, calc(100vw - 48px))"
       >
-        <template #closeicon="{ class: iconClass }">
-          <Icon :class="iconClass" icon="mingcute:close-line" />
-        </template>
         <template #header>
           <div class="import-dialog-header">
             <span class="import-dialog-title">レイアウトをインポート</span>
@@ -667,43 +650,39 @@ const handleNodeSelect = (node: TreeNode) => {
         </div>
         <template #footer>
           <div class="import-dialog-actions">
-            <Button
-              label="キャンセル"
-              severity="secondary"
+            <ElButton
               text
               :disabled="isImporting"
               @click="showImportDialog = false"
-            />
-            <Button
+            >
+              キャンセル
+            </ElButton>
+            <ElButton
+              type="primary"
               data-testid="layout-import-select-folder-button"
               :loading="isImporting"
               :disabled="isImporting"
               @click="selectImportDirectory"
             >
-              <Icon
-                icon="mingcute:folder-open-line"
-                class="p-button-icon p-button-icon-left"
-              />
+              <Icon icon="mingcute:folder-open-line" class="button-icon" />
               <span>フォルダを選択</span>
-            </Button>
+            </ElButton>
           </div>
         </template>
-      </Dialog>
-      <Dialog
-        v-model:visible="showExportErrorDialog"
-        modal
-        :closable="true"
-        :draggable="false"
-        :baseZIndex="5000"
-        appendTo="body"
+      </ElDialog>
+      <ElDialog
+        v-model="showExportErrorDialog"
+        :close-on-click-modal="false"
+        :z-index="5000"
+        append-to-body
         class="export-error-dialog"
+        width="min(520px, calc(100vw - 48px))"
       >
-        <template #closeicon="{ class: iconClass }">
-          <Icon :class="iconClass" icon="mingcute:close-line" />
-        </template>
         <template #header>
           <div class="export-error-dialog-header">
-            <span class="export-error-dialog-title">エクスポートに失敗しました</span>
+            <span class="export-error-dialog-title"
+              >エクスポートに失敗しました</span
+            >
           </div>
         </template>
         <div class="export-error-dialog-body">
@@ -711,10 +690,12 @@ const handleNodeSelect = (node: TreeNode) => {
         </div>
         <template #footer>
           <div class="export-error-dialog-actions">
-            <Button label="閉じる" @click="showExportErrorDialog = false" />
+            <ElButton type="primary" @click="showExportErrorDialog = false">
+              閉じる
+            </ElButton>
           </div>
         </template>
-      </Dialog>
+      </ElDialog>
     </template>
   </ConfigLayout>
 </template>
@@ -768,41 +749,46 @@ const handleNodeSelect = (node: TreeNode) => {
   padding: 8px 0 0;
 }
 
-:deep(.p-tree) {
+:deep(.el-tree) {
   border: none;
   background: transparent;
   color: #fff;
+  --el-tree-node-hover-bg-color: var(--color-white-t50);
 }
 
-:deep(.p-tree .p-tree-node-content) {
+:deep(.el-tree-node__content) {
+  gap: 6px;
+  height: 32px;
   padding: 6px 8px;
   border-radius: 6px;
 }
 
-:deep(.p-tree .p-treenode-content) {
-  gap: 6px;
-}
-
-:deep(.p-tree .p-tree-toggler) {
+:deep(.el-tree-node__expand-icon) {
   color: #fff;
-  margin-right: 4px;
 }
 
-:deep(.p-tree .p-treenode-selectable .p-tree-node-content) {
+:deep(.el-tree-node__content) {
   cursor: pointer;
 }
 
-:deep(.p-tree .p-highlight > .p-tree-node-content) {
+:deep(.el-tree-node.is-current > .el-tree-node__content) {
   background: var(--color-teal-400);
   color: #000;
 }
 
-:deep(.p-tree .p-treenode .p-tree-node-content:hover) {
+:deep(.el-tree-node__content:hover) {
   background: var(--color-white-t50);
 }
 
-:deep(.p-tree .p-treenode-children) {
-  padding-left: 16px;
+.tree-node-content {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.tree-node-icon {
+  flex: 0 0 auto;
 }
 
 .copy-dialog {

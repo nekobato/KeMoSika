@@ -1,13 +1,9 @@
 <script setup lang="ts">
-import { LayoutData } from "@shared/types";
-import { PropType } from "vue";
-import IconField from "primevue/iconfield";
-import InputText from "primevue/inputtext";
-import InputIcon from "primevue/inputicon";
-import InputNumber from "primevue/inputnumber";
+import type { LayoutData } from "@shared/types";
+import type { PropType } from "vue";
 
 const props = defineProps({
-  layout: Object as PropType<LayoutData>
+  layout: Object as PropType<LayoutData>,
 });
 
 const emit = defineEmits(["change"]);
@@ -19,7 +15,7 @@ const onChangeInput = (key: string, value: any) => {
     case "height":
       emit("change", {
         ...props.layout,
-        [key]: value
+        [key]: value,
       });
       break;
   }
@@ -28,53 +24,48 @@ const onChangeInput = (key: string, value: any) => {
 <template>
   <section class="layout-config" v-if="props.layout">
     <div class="form grid">
-      <IconField class="grid-span-2">
-        <InputIcon>
+      <ElInput
+        class="grid-span-2"
+        id="layout-name"
+        size="small"
+        placeholder="レイアウト名"
+        v-model="props.layout.name"
+        @update:modelValue="onChangeInput('name', $event)"
+      >
+        <template #prefix>
           <span>名</span>
-        </InputIcon>
-        <InputText
-          id="layout-name"
-          size="small"
-          placeholder="レイアウト名"
-          fluid
-          v-model="props.layout.name"
-          @update:modelValue="onChangeInput('name', $event)"
-        />
-      </IconField>
-      <IconField>
-        <InputIcon>
+        </template>
+      </ElInput>
+      <ElInputNumber
+        id="layout-w"
+        class="field-control"
+        size="small"
+        :controls="false"
+        :min="40"
+        :max="9999"
+        :step="1"
+        v-model="props.layout.width"
+        @update:modelValue="onChangeInput('width', $event)"
+      >
+        <template #prefix>
           <span>W</span>
-        </InputIcon>
-        <InputNumber
-          inputId="layout-w"
-          class="input-bounds"
-          size="small"
-          fluid
-          :useGrouping="false"
-          :min="40"
-          :max="9999"
-          :step="1"
-          v-model="props.layout.width"
-          @update:modelValue="onChangeInput('width', $event)"
-        />
-      </IconField>
-      <IconField>
-        <InputIcon>
+        </template>
+      </ElInputNumber>
+      <ElInputNumber
+        id="layout-h"
+        class="field-control"
+        size="small"
+        :controls="false"
+        :min="40"
+        :max="9999"
+        :step="1"
+        v-model="props.layout.height"
+        @update:modelValue="onChangeInput('height', $event)"
+      >
+        <template #prefix>
           <span>H</span>
-        </InputIcon>
-        <InputNumber
-          inputId="layout-h"
-          class="input-bounds"
-          size="small"
-          fluid
-          :useGrouping="false"
-          :min="40"
-          :max="9999"
-          :step="1"
-          v-model="props.layout.height"
-          @update:modelValue="onChangeInput('height', $event)"
-        />
-      </IconField>
+        </template>
+      </ElInputNumber>
     </div>
   </section>
 </template>
@@ -94,5 +85,8 @@ const onChangeInput = (key: string, value: any) => {
       grid-column: 1 / -1;
     }
   }
+}
+.field-control {
+  width: 100%;
 }
 </style>

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import {
+import type {
   KeyboardKeyData,
   LayoutData,
   LayoutItemData,
-  MouseData
+  MouseData,
 } from "@shared/types";
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import Moveable, {
@@ -15,7 +15,7 @@ import Moveable, {
   OnRotate,
   OnRotateEnd,
   OnRotateGroup,
-  OnRotateGroupEnd
+  OnRotateGroupEnd,
 } from "vue3-moveable";
 import Selecto from "vue3-selecto";
 import KeyboardButton from "../components/KeyboardButton.vue";
@@ -28,15 +28,13 @@ import Header from "@/components/Header.vue";
 import Mouse from "@/components/Mouse.vue";
 import { Icon } from "@iconify/vue";
 import { useRoute } from "vue-router";
-import Dialog from "primevue/dialog";
-import Button from "primevue/button";
-import ButtonGroup from "primevue/buttongroup";
-import FileUpload, { FileUploadUploaderEvent } from "primevue/fileupload";
+import type { UploadRequestHandler } from "element-plus";
 import FloatActions from "@/components/FloatActions/FloatActions.vue";
 import ImageList from "@/components/pages/config/ImageList.vue";
-import { InputImageType } from "@/types/app";
+import type { InputImageType } from "@/types/app";
 import { useEditLayout } from "@/composables/edit/useEditLayout";
 import { useEditItemByKey } from "@/composables/edit/useEditItemByKey";
+import { showErrorMessage } from "@/services/message";
 import router from "@/router";
 
 const route = useRoute();
@@ -66,7 +64,7 @@ const shouldSuppressGroundClick = ref(false);
 const isCanvasPanning = computed(() => Boolean(canvasPanState.value));
 
 const layout = computed<LayoutData | undefined>(() =>
-  store.$state.layouts.find((layout) => layout.id === route.params.layoutId)
+  store.$state.layouts.find((layout) => layout.id === route.params.layoutId),
 );
 const items = computed(() => (layout.value ? layout.value.keys : []));
 const itemsCount = computed(() => (items.value ? items.value.length : 0));
@@ -75,11 +73,11 @@ const itemIdSelectors = computed(() =>
   activeKeyIndexes.value
     .map((index) => items.value?.[index])
     .filter((item): item is LayoutItemData => Boolean(item))
-    .map((item) => `#${item.id}`)
+    .map((item) => `#${item.id}`),
 );
 
 const keys = computed<KeyboardKeyData[]>(() =>
-  items.value.filter((key) => key.type === "key")
+  items.value.filter((key) => key.type === "key"),
 );
 const mouses = computed(() => {
   return items.value.filter((key) => key.type === "mouse");
@@ -88,32 +86,32 @@ const mouses = computed(() => {
 const layoutStyle = computed(() => {
   return {
     width: `${layout.value?.width}px`,
-    height: `${layout.value?.height}px`
+    height: `${layout.value?.height}px`,
   };
 });
 
 const canvasStyle = computed(() => {
   return {
     width: `${(layout.value?.width ?? 0) + canvasPadding * 2}px`,
-    height: `${(layout.value?.height ?? 0) + canvasPadding * 2}px`
+    height: `${(layout.value?.height ?? 0) + canvasPadding * 2}px`,
   };
 });
 
 const layoutPlacementStyle = computed(() => {
   return {
     left: `${canvasPadding}px`,
-    top: `${canvasPadding}px`
+    top: `${canvasPadding}px`,
   };
 });
 
 const layoutSizeLabel = computed(() =>
-  layout.value ? `${layout.value.width} x ${layout.value.height}` : ""
+  layout.value ? `${layout.value.width} x ${layout.value.height}` : "",
 );
 
 const selectionStatusLabel = computed(() =>
   selectedItemsCount.value > 0
     ? `${selectedItemsCount.value}個選択中`
-    : `${itemsCount.value}要素`
+    : `${itemsCount.value}要素`,
 );
 
 /**
@@ -161,8 +159,8 @@ const isEditorControlTarget = (target: EventTarget | null): boolean => {
 
   return Boolean(
     target.closest(
-      ".configurable, [class*='moveable'], [class*='selecto'], button, input, textarea, select, a"
-    )
+      ".configurable, [class*='moveable'], [class*='selecto'], button, input, textarea, select, a",
+    ),
   );
 };
 
@@ -211,7 +209,7 @@ const onCanvasPointerDown = (event: PointerEvent) => {
     startY: event.clientY,
     scrollLeft: preview.scrollLeft,
     scrollTop: preview.scrollTop,
-    hasMoved: false
+    hasMoved: false,
   };
 
   preview.setPointerCapture(event.pointerId);
@@ -230,10 +228,7 @@ const onCanvasPointerMove = (event: PointerEvent) => {
 
   const deltaX = event.clientX - state.startX;
   const deltaY = event.clientY - state.startY;
-  if (
-    !state.hasMoved &&
-    Math.hypot(deltaX, deltaY) >= panThreshold
-  ) {
+  if (!state.hasMoved && Math.hypot(deltaX, deltaY) >= panThreshold) {
     state.hasMoved = true;
   }
 
@@ -270,7 +265,7 @@ const updateSelectionFrame = () => {
 };
 
 const selectedItemHead = computed(() =>
-  items.value?.length ? items.value[activeKeyIndexes.value[0]] : undefined
+  items.value?.length ? items.value[activeKeyIndexes.value[0]] : undefined,
 );
 
 const selectedKeyHead = computed(() => {
@@ -300,21 +295,21 @@ const asidePanelIcon = computed(() => {
 const asidePanelMeta = computed(() =>
   selectedItemsCount.value > 1
     ? `${selectedItemsCount.value}個選択中`
-    : (layout.value?.name ?? "")
+    : (layout.value?.name ?? ""),
 );
 
 const imageSelectTargetItem = computed(() => {
   if (selectedItemHead.value && activeKeyImageType.value) {
     return {
       item: selectedItemHead.value,
-      type: activeKeyImageType.value
+      type: activeKeyImageType.value,
     };
   }
   return undefined;
 });
 
 const imageDialogTitle = computed(() =>
-  imageSelectTargetItem.value ? "Select Image" : "画像ライブラリ"
+  imageSelectTargetItem.value ? "Select Image" : "画像ライブラリ",
 );
 
 const onClickGroup = (e: OnClickGroup) => {
@@ -391,7 +386,7 @@ const persistRotation = async (targetIds: string[]) => {
       if (target) {
         await store.updateItem(layoutId, { ...target });
       }
-    })
+    }),
   );
 };
 
@@ -427,7 +422,7 @@ const onSelectEnd = (e: any) => {
 
   const selected: HTMLDivElement[] = e.selected;
   const selectedItems = items.value?.filter((item) =>
-    selected.some((el) => el.id === item.id)
+    selected.some((el) => el.id === item.id),
   );
 
   if (selectedItems?.length) {
@@ -455,7 +450,7 @@ const onChangeLayout = (layout: LayoutData) => {
 const onDeleteLayout = async () => {
   if (!layout.value) return;
   const layoutIndex = store.$state.layouts.findIndex(
-    (item) => item.id === layout.value?.id
+    (item) => item.id === layout.value?.id,
   );
   if (layoutIndex < 0) return;
   const layoutName = layout.value.name?.trim() || "このレイアウト";
@@ -472,9 +467,9 @@ const onKeyDown = (e: KeyboardEvent) => {
       key: e.key,
       shiftKey: e.shiftKey,
       ctrlKey: e.ctrlKey,
-      metaKey: e.metaKey
+      metaKey: e.metaKey,
     },
-    activeKeyIndexes
+    activeKeyIndexes,
   );
 
   if (shouldUpdateRect) {
@@ -490,7 +485,7 @@ const openImageDialog = (type: InputImageType) => {
 const onSelectImage = async ({
   itemId,
   type,
-  imageId
+  imageId,
 }: {
   itemId: string;
   type: InputImageType;
@@ -511,15 +506,15 @@ const onSelectImage = async ({
           color: "#ffffff",
           images: {
             ring: "",
-            pointer: ""
-          }
+            pointer: "",
+          },
         };
       }
       if (!mouseItem.buttonOverlays) {
         mouseItem.buttonOverlays = {
           left: { default: "", active: "" },
           right: { default: "", active: "" },
-          middle: { default: "", active: "" }
+          middle: { default: "", active: "" },
         };
       }
       if (
@@ -558,19 +553,19 @@ const onUpdateImages = async () => {
   await store.getImages();
 };
 
-const uploadImages = async (event: FileUploadUploaderEvent) => {
-  const files = event.files
-    ? Array.isArray(event.files)
-      ? event.files
-      : [event.files]
-    : [];
-
-  for (const file of files) {
+const uploadImage: UploadRequestHandler = async ({ file }) => {
+  try {
     const buffer = await file.arrayBuffer();
     await window.kemosikaApi.saveImageBuffer({ buffer });
+    await onUpdateImages();
+  } catch (error) {
+    showErrorMessage({
+      title: "画像のアップロードに失敗しました",
+      detail:
+        error instanceof Error ? error.message : "画像を保存できませんでした。",
+    });
+    throw error;
   }
-
-  await onUpdateImages();
 };
 
 watch(itemsCount, async () => {
@@ -582,7 +577,7 @@ onMounted(async () => {
 
   if (route.params.layoutId) {
     const activeLayoutIndex = store.$state.layouts.findIndex(
-      (layout) => layout.id === route.params.layoutId
+      (layout) => layout.id === route.params.layoutId,
     );
 
     if (activeLayoutIndex === -1) {
@@ -683,8 +678,8 @@ onUnmounted(() => {
         </div>
       </main>
       <FloatActions>
-        <ButtonGroup class="edit-action-bar" aria-label="Editor Actions">
-          <Button
+        <ElButtonGroup class="edit-action-bar" aria-label="Editor Actions">
+          <ElButton
             class="float-action-button"
             data-testid="edit-add-key-button"
             @click="addKey"
@@ -692,8 +687,8 @@ onUnmounted(() => {
           >
             <Icon icon="mingcute:hotkey-line" class="action-icon" />
             <span class="action-label">キー追加</span>
-          </Button>
-          <Button
+          </ElButton>
+          <ElButton
             class="float-action-button"
             data-testid="edit-add-mouse-button"
             @click="addMouse"
@@ -701,8 +696,8 @@ onUnmounted(() => {
           >
             <Icon icon="mingcute:mouse-line" class="action-icon" />
             <span class="action-label">マウス追加</span>
-          </Button>
-          <Button
+          </ElButton>
+          <ElButton
             class="float-action-button"
             data-testid="edit-add-picture-button"
             @click="addPicture"
@@ -710,8 +705,8 @@ onUnmounted(() => {
           >
             <Icon icon="mingcute:pic-line" class="action-icon" />
             <span class="action-label">画像追加</span>
-          </Button>
-        </ButtonGroup>
+          </ElButton>
+        </ElButtonGroup>
       </FloatActions>
     </template>
     <template #aside>
@@ -749,51 +744,42 @@ onUnmounted(() => {
           class="aside-footer"
           v-if="layout && activeKeyIndexes.length === 0"
         >
-          <Button
+          <ElButton
             class="layout-delete-button"
-            severity="danger"
+            type="danger"
             size="small"
             @click="onDeleteLayout"
             aria-label="Delete Layout"
           >
             <Icon icon="mingcute:delete-2-line" class="layout-delete-icon" />
             <span>レイアウト削除</span>
-          </Button>
+          </ElButton>
         </div>
       </aside>
     </template>
     <template #dialog>
-      <Dialog
-        v-model:visible="showImageDialog"
-        modal
-        :closable="true"
-        :draggable="false"
-        :baseZIndex="5000"
-        appendTo="body"
-        style="width: min(960px, calc(100vw - 48px))"
+      <ElDialog
+        v-model="showImageDialog"
+        :close-on-click-modal="false"
+        :z-index="5000"
+        append-to-body
+        width="min(960px, calc(100vw - 48px))"
       >
-        <template #closeicon="{ class: iconClass }">
-          <Icon :class="iconClass" icon="mingcute:close-line" />
-        </template>
         <template #header>
           <div class="image-dialog-header">
             <span class="image-dialog-title">{{ imageDialogTitle }}</span>
-            <FileUpload
+            <ElUpload
               class="image-dialog-upload"
-              mode="basic"
-              chooseLabel="Upload"
               accept="image/*"
-              :auto="true"
-              customUpload
-              @uploader="uploadImages"
+              action="#"
+              :show-file-list="false"
+              :http-request="uploadImage"
             >
-              <template #chooseicon>
-                <Icon
-                  icon="mingcute:upload-line"
-                  class="p-button-icon p-button-icon-left"
-                />
-              </template>
-            </FileUpload>
+              <ElButton size="small">
+                <Icon icon="mingcute:upload-line" class="upload-icon" />
+                <span>Upload</span>
+              </ElButton>
+            </ElUpload>
           </div>
         </template>
         <ImageList
@@ -803,7 +789,7 @@ onUnmounted(() => {
           :type="imageSelectTargetItem?.type"
           :images="store.$state.images"
         />
-      </Dialog>
+      </ElDialog>
     </template>
   </ConfigLayout>
 </template>
@@ -960,7 +946,8 @@ onUnmounted(() => {
   font-weight: 600;
 }
 
-.image-dialog-upload :deep(.p-button) {
-  padding: 0.4rem 0.75rem;
+.image-dialog-upload :deep(.el-button) {
+  display: inline-flex;
+  gap: 6px;
 }
 </style>

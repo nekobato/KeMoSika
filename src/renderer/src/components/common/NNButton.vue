@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import Button from "primevue/button";
-
 const slots = defineSlots<{
   icon: any;
   default: any;
@@ -8,14 +6,14 @@ const slots = defineSlots<{
 </script>
 
 <template>
-  <Button class="nn-button" rounded severity="secondary">
+  <ElButton class="nn-button" round>
     <div class="icon" v-if="slots.icon">
       <slot name="icon" />
     </div>
     <div class="label" v-if="slots.default">
       <slot />
     </div>
-  </Button>
+  </ElButton>
 </template>
 <style scoped lang="scss">
 .nn-button {

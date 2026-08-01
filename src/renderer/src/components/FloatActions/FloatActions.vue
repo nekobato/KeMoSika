@@ -21,7 +21,7 @@
   backdrop-filter: blur(12px);
 }
 
-:deep(.p-buttongroup) {
+:deep(.el-button-group) {
   display: flex;
   min-width: 0;
 }

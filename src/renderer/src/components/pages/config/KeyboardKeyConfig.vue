@@ -1,25 +1,16 @@
 <script setup lang="ts">
-import { onMounted, PropType, ref } from "vue";
+import { onMounted, ref } from "vue";
+import type { PropType } from "vue";
 import { Icon } from "@iconify/vue";
 import { keyboardEventToElectronAccelerator } from "@/utils/key";
-import { KeyboardKeyData } from "@shared/types";
-import { InputImageType } from "@/types/app";
-import Chip from "primevue/chip";
-import Button from "primevue/button";
-import InputNumber from "primevue/inputnumber";
-import InputText from "primevue/inputtext";
-import ToggleSwitch from "primevue/toggleswitch";
-import ColorPicker from "primevue/colorpicker";
-import Divider from "primevue/divider";
-import IconField from "primevue/iconfield";
-import InputIcon from "primevue/inputicon";
-import Select from "primevue/select";
+import type { KeyboardKeyData } from "@shared/types";
+import type { InputImageType } from "@/types/app";
 
 const props = defineProps({
   keyData: {
     type: Object as PropType<KeyboardKeyData>,
-    required: true
-  }
+    required: true,
+  },
 });
 
 const emit = defineEmits(["change", "openImageDialog"]);
@@ -66,8 +57,8 @@ const onKeyDownShortcutInput = async (e: KeyboardEvent, index: number) => {
     emit("change", {
       ...props.keyData,
       codeMap: props.keyData.codeMap.map((code, i) =>
-        i === index ? shortcut : code
-      )
+        i === index ? shortcut : code,
+      ),
     });
   }
 };
@@ -82,7 +73,7 @@ const onChangeInput = (key: string, value: any) => {
     case "shadow":
       emit("change", {
         ...props.keyData,
-        [key]: value
+        [key]: value,
       });
       break;
     case "text.isVisible":
@@ -96,8 +87,8 @@ const onChangeInput = (key: string, value: any) => {
         ...props.keyData,
         text: {
           ...props.keyData.text,
-          [key.split(".")[1]]: value
-        }
+          [key.split(".")[1]]: value,
+        },
       });
       break;
   }
@@ -113,139 +104,121 @@ const selectImage = (type: InputImageType) => {
     <div class="form">
       <div class="grid">
         <div class="keymap-group grid-span-2">
-          <Chip
+          <ElTag
             v-for="(mapKey, index) in keyData.codeMap"
             :key="`${mapKey}-${index}`"
             class="keymap"
             size="small"
-            removable
-            @remove="
+            closable
+            @close="
               () => keyData.codeMap.splice(keyData.codeMap.indexOf(mapKey), 1)
             "
             @keydown="onKeyDownShortcutInput($event, index)"
             tabindex="0"
-            :label="mapKey || 'Empty'"
           >
-            <template #removeicon="{ removeCallback, keydownCallback }">
-              <span
-                class="p-chip-remove-icon"
-                role="button"
-                tabindex="0"
-                @click="removeCallback"
-                @keydown="keydownCallback"
-              >
-                <Icon icon="mingcute:close-line" />
-              </span>
-            </template>
-          </Chip>
-          <Button
+            {{ mapKey || "Empty" }}
+          </ElTag>
+          <ElButton
             class="keymap add-button"
             size="small"
-            outlined
+            plain
             @click="() => keyData.codeMap.push('')"
           >
             <Icon class="icon" icon="mingcute:add-line" />Add
-          </Button>
+          </ElButton>
         </div>
 
-        <IconField>
-          <InputIcon><span>X</span></InputIcon>
-          <InputNumber
-            inputId="key-x"
-            size="small"
-            fluid
-            v-model="keyData.x"
-            :useGrouping="false"
-            :min="0"
-            :max="999999"
-            :step="1"
-            @update:modelValue="onChangeInput('x', $event)"
-          />
-        </IconField>
+        <ElInputNumber
+          id="key-x"
+          class="field-control"
+          size="small"
+          :controls="false"
+          v-model="keyData.x"
+          :min="0"
+          :max="999999"
+          :step="1"
+          @update:modelValue="onChangeInput('x', $event)"
+        >
+          <template #prefix><span>X</span></template>
+        </ElInputNumber>
 
-        <IconField>
-          <InputIcon><span>Y</span></InputIcon>
-          <InputNumber
-            inputId="key-y"
-            size="small"
-            fluid
-            v-model="keyData.y"
-            :useGrouping="false"
-            :min="0"
-            :max="999999"
-            :step="1"
-            @update:modelValue="onChangeInput('y', $event)"
-          />
-        </IconField>
+        <ElInputNumber
+          id="key-y"
+          class="field-control"
+          size="small"
+          :controls="false"
+          v-model="keyData.y"
+          :min="0"
+          :max="999999"
+          :step="1"
+          @update:modelValue="onChangeInput('y', $event)"
+        >
+          <template #prefix><span>Y</span></template>
+        </ElInputNumber>
 
-        <IconField>
-          <InputIcon><span>W</span></InputIcon>
-          <InputNumber
-            inputId="key-w"
-            size="small"
-            fluid
-            v-model="keyData.width"
-            :useGrouping="false"
-            :min="0"
-            :max="999999"
-            :step="1"
-            @update:modelValue="onChangeInput('width', $event)"
-          />
-        </IconField>
+        <ElInputNumber
+          id="key-w"
+          class="field-control"
+          size="small"
+          :controls="false"
+          v-model="keyData.width"
+          :min="0"
+          :max="999999"
+          :step="1"
+          @update:modelValue="onChangeInput('width', $event)"
+        >
+          <template #prefix><span>W</span></template>
+        </ElInputNumber>
 
-        <IconField>
-          <InputIcon><span>H</span></InputIcon>
-          <InputNumber
-            inputId="key-h"
-            size="small"
-            fluid
-            v-model="keyData.height"
-            :useGrouping="false"
-            :min="0"
-            :max="999999"
-            :step="1"
-            @update:modelValue="onChangeInput('height', $event)"
-          />
-        </IconField>
+        <ElInputNumber
+          id="key-h"
+          class="field-control"
+          size="small"
+          :controls="false"
+          v-model="keyData.height"
+          :min="0"
+          :max="999999"
+          :step="1"
+          @update:modelValue="onChangeInput('height', $event)"
+        >
+          <template #prefix><span>H</span></template>
+        </ElInputNumber>
 
-        <IconField>
-          <InputIcon
-            ><Icon icon="mingcute:clockwise-line" class="icon"
-          /></InputIcon>
-          <InputNumber
-            inputId="key-rotation"
-            size="small"
-            fluid
-            v-model="keyData.rotation"
-            :useGrouping="false"
-            :min="-999999"
-            :max="999999"
-            :step="1"
-            @update:modelValue="onChangeInput('rotation', $event)"
-          />
-        </IconField>
+        <ElInputNumber
+          id="key-rotation"
+          class="field-control"
+          size="small"
+          :controls="false"
+          v-model="keyData.rotation"
+          :min="-999999"
+          :max="999999"
+          :step="1"
+          @update:modelValue="onChangeInput('rotation', $event)"
+        >
+          <template #prefix>
+            <Icon icon="mingcute:clockwise-line" class="icon" />
+          </template>
+        </ElInputNumber>
 
         <div />
       </div>
 
       <div class="checkbox-field">
-        <ToggleSwitch
-          inputId="key-shadow"
+        <ElSwitch
+          id="key-shadow"
           size="small"
-          binary
           v-model="keyData.shadow"
           @update:modelValue="onChangeInput('shadow', $event)"
         />
         <label for="key-shadow">影を付ける</label>
       </div>
 
-      <Divider />
+      <ElDivider />
 
       <div class="checkbox-field" v-if="keyData.text">
-        <ToggleSwitch
-          inputId="key-text-visible"
+        <ElSwitch
+          id="key-text-visible"
           size="small"
-          binary
           v-model="keyData.text.isVisible"
           @update:modelValue="onChangeInput('text.isVisible', $event)"
         />
@@ -253,22 +226,20 @@ const selectImage = (type: InputImageType) => {
       </div>
 
       <div class="grid" v-if="keyData.text?.isVisible">
-        <IconField>
-          <InputIcon>
+        <ElInput
+          id="key-text"
+          size="small"
+          v-model="keyData.text.character"
+          @update:modelValue="onChangeInput('text.character', $event)"
+        >
+          <template #prefix>
             <Icon icon="mingcute:text-2-line" />
-          </InputIcon>
-          <InputText
-            id="key-text"
-            size="small"
-            fluid
-            v-model="keyData.text.character"
-            @update:modelValue="onChangeInput('text.character', $event)"
-          />
-        </IconField>
+          </template>
+        </ElInput>
 
         <div class="color-picker-field">
-          <ColorPicker
-            inputId="key-text-color"
+          <ElColorPicker
+            id="key-text-color"
             class="color-input"
             v-model="keyData.text.color"
             @update:modelValue="onChangeInput('text.color', $event)"
@@ -276,97 +247,79 @@ const selectImage = (type: InputImageType) => {
           <span>Color</span>
         </div>
 
-        <IconField>
-          <InputIcon><span>X</span></InputIcon>
-          <InputNumber
-            inputId="key-text-x"
-            size="small"
-            fluid
-            v-model="keyData.text.x"
-            :useGrouping="false"
-            :min="-9999"
-            :max="9999"
-            :step="1"
-            @update:modelValue="onChangeInput('text.x', $event)"
-          />
-        </IconField>
-        <IconField>
-          <InputIcon><span>Y</span></InputIcon>
-          <InputNumber
-            inputId="key-text-y"
-            size="small"
-            fluid
-            v-model="keyData.text.y"
-            :useGrouping="false"
-            :min="-9999"
-            :max="9999"
-            :step="1"
-            @update:modelValue="onChangeInput('text.y', $event)"
-          />
-        </IconField>
+        <ElInputNumber
+          id="key-text-x"
+          class="field-control"
+          size="small"
+          :controls="false"
+          v-model="keyData.text.x"
+          :min="-9999"
+          :max="9999"
+          :step="1"
+          @update:modelValue="onChangeInput('text.x', $event)"
+        >
+          <template #prefix><span>X</span></template>
+        </ElInputNumber>
+        <ElInputNumber
+          id="key-text-y"
+          class="field-control"
+          size="small"
+          :controls="false"
+          v-model="keyData.text.y"
+          :min="-9999"
+          :max="9999"
+          :step="1"
+          @update:modelValue="onChangeInput('text.y', $event)"
+        >
+          <template #prefix><span>Y</span></template>
+        </ElInputNumber>
 
-        <IconField>
-          <InputIcon>
+        <ElInputNumber
+          id="key-text-size"
+          class="field-control"
+          size="small"
+          :controls="false"
+          v-model="keyData.text.size"
+          :min="10"
+          :max="99"
+          :step="1"
+          @update:modelValue="onChangeInput('text.size', $event)"
+        >
+          <template #prefix>
             <Icon icon="mingcute:font-size-line" />
-          </InputIcon>
-          <InputNumber
-            inputId="key-text-size"
-            size="small"
-            fluid
-            v-model="keyData.text.size"
-            :useGrouping="false"
-            :min="10"
-            :max="99"
-            :step="1"
-            @update:modelValue="onChangeInput('text.size', $event)"
-          />
-        </IconField>
+          </template>
+        </ElInputNumber>
 
-        <IconField class="grid-span-2">
-          <InputIcon><span>F</span></InputIcon>
-          <Select
-            inputId="key-text-font"
+        <div class="field-with-prefix grid-span-2">
+          <span class="field-prefix">F</span>
+          <ElSelect
+            id="key-text-font"
+            class="field-control"
             size="small"
-            fluid
-            filter
-            editable
-            showClear
+            filterable
+            allow-create
+            clearable
+            default-first-option
             :loading="isFontLoading"
-            :options="systemFonts"
             v-model="keyData.text.font"
             @update:modelValue="onChangeInput('text.font', $event)"
             placeholder="Font family"
           >
-            <template #clearicon="{ clearCallback }">
-              <span
-                class="p-select-clear-icon"
-                role="button"
-                tabindex="0"
-                @click="clearCallback"
-                @keydown.enter="clearCallback"
-                @keydown.space.prevent="clearCallback"
-              >
-                <Icon icon="mingcute:close-line" />
-              </span>
-            </template>
-            <template #dropdownicon="{ class: iconClass }">
-              <Icon :class="iconClass" icon="mingcute:down-line" />
-            </template>
-            <template #loadingicon="{ class: iconClass }">
-              <Icon :class="iconClass" icon="mingcute:loading-line" />
-            </template>
-            <template #filtericon>
-              <Icon icon="mingcute:filter-line" />
-            </template>
-          </Select>
-        </IconField>
+            <ElOption
+              v-for="font in systemFonts"
+              :key="font"
+              :label="font"
+              :value="font"
+            />
+          </ElSelect>
+        </div>
         <div class="grid-span-2 font-hint" v-if="fontLoadError">
           フォント一覧を取得できませんでした
         </div>
       </div>
     </div>
 
-    <Divider />
+    <ElDivider />
 
     <div class="section-title">キーボード画像</div>
     <div class="image-grid">
@@ -463,6 +416,26 @@ const selectImage = (type: InputImageType) => {
   .grid-span-2 {
     grid-column: 1 / -1;
   }
+}
+.field-control {
+  width: 100%;
+}
+.field-with-prefix {
+  display: flex;
+  align-items: stretch;
+}
+.field-prefix {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 10px;
+  color: var(--el-text-color-placeholder);
+  background: var(--el-fill-color-light);
+  border: 1px solid var(--el-border-color);
+  border-right: 0;
+  border-radius: var(--el-border-radius-base) 0 0 var(--el-border-radius-base);
+}
+.field-with-prefix :deep(.el-select__wrapper) {
+  border-radius: 0 var(--el-border-radius-base) var(--el-border-radius-base) 0;
 }
 .checkbox-field {
   padding-bottom: 12px;

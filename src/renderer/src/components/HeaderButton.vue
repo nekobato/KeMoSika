@@ -1,25 +1,24 @@
 <script setup lang="ts">
 import { Icon } from "@iconify/vue";
-import Button from "primevue/button";
 
 const props = defineProps({
   icon: {
     type: String,
-    required: true
+    required: true,
   },
   text: {
     type: String,
-    required: true
-  }
+    required: true,
+  },
 });
 </script>
 
 <template>
   <div class="window-header">
-    <Button class="nn-button" text severity="secondary" :aria-label="props.text">
+    <ElButton class="nn-button" text :aria-label="props.text">
       <Icon :icon="props.icon" class="nn-icon size-small" />
       <span>{{ props.text }}</span>
-    </Button>
+    </ElButton>
   </div>
 </template>
 
