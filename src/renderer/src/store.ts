@@ -4,7 +4,8 @@ import {
   LayoutItemData,
   LayoutItemImage,
   MouseData,
-  KeyboardKeyData
+  KeyboardKeyData,
+  KeyActivationMode
 } from "@shared/types";
 import { computed, ref, toRaw } from "vue";
 import { useManualRefHistory } from "@vueuse/core";
@@ -13,6 +14,7 @@ import { toRawDeep } from "./utils/toRawDeep";
 import { builtInLayouts, builtInLayoutTree } from "@/constants/defaultLayouts";
 
 const DEFAULT_RING_COLOR = "#ffffff";
+const DEFAULT_KEY_ACTIVATION_MODE: KeyActivationMode = "any";
 const DEFAULT_BACKGROUND: LayoutData["background"] = {
   color: "#252525",
   image: ""
@@ -54,6 +56,14 @@ const ensureButtonOverlays = (
   middle: {
     default: mouse.buttonOverlays?.middle?.default ?? "",
     active: mouse.buttonOverlays?.middle?.active ?? ""
+  },
+  x1: {
+    default: mouse.buttonOverlays?.x1?.default ?? "",
+    active: mouse.buttonOverlays?.x1?.active ?? ""
+  },
+  x2: {
+    default: mouse.buttonOverlays?.x2?.default ?? "",
+    active: mouse.buttonOverlays?.x2?.active ?? ""
   }
 });
 
@@ -79,6 +89,7 @@ const normalizeLayoutItem = (item: LayoutItemData): LayoutItemData => {
   const key = item as KeyboardKeyData;
   return {
     ...key,
+    activationMode: key.activationMode ?? DEFAULT_KEY_ACTIVATION_MODE,
     shadow: key.shadow ?? true
   };
 };

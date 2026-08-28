@@ -244,7 +244,9 @@
       "buttonOverlays": {
         "left": { "default": "", "active": "" },
         "right": { "default": "", "active": "" },
-        "middle": { "default": "", "active": "" }
+        "middle": { "default": "", "active": "" },
+        "x1": { "default": "", "active": "" },
+        "x2": { "default": "", "active": "" }
       },
       "ring": {
         "size": 160,

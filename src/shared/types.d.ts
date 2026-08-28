@@ -1,7 +1,33 @@
+/** Controls how a keyboard item matches its configured key codes. */
+export type KeyActivationMode = "any" | "all";
+
+export type MouseButtonName = "left" | "right" | "middle" | "x1" | "x2";
+export type MouseButtonCode = 1 | 2 | 3 | 4 | 5;
+
+export type KeyboardKeyTextData = {
+  isVisible: boolean;
+  /** Current normal-state text. Older layouts may only have `character`. */
+  normalCharacter?: string;
+  /** Legacy normal-state text retained for persisted-layout compatibility. */
+  character?: string;
+  shift?: {
+    isEnabled: boolean;
+    character: string;
+    changeOnCapsLock: boolean;
+  };
+  x?: number;
+  y?: number;
+  size: number;
+  color: string;
+  font?: string;
+};
+
 export type KeyboardKeyData = {
   id: string;
   type: "key";
   codeMap: string[];
+  /** Defaults to `any` when loading layouts created by older versions. */
+  activationMode?: KeyActivationMode;
   width: number;
   height: number;
   x: number;
@@ -13,15 +39,7 @@ export type KeyboardKeyData = {
     keyActive: string;
     keyLocked: string;
   };
-  text?: {
-    isVisible: boolean;
-    character: string;
-    x?: number;
-    y?: number;
-    size: number;
-    color: string;
-    font?: string;
-  };
+  text?: KeyboardKeyTextData;
 };
 
 export type MouseData = {
@@ -33,11 +51,10 @@ export type MouseData = {
   y: number;
   rotation: number;
   shadow?: boolean;
-  buttonOverlays: {
-    left: { default: string; active: string };
-    right: { default: string; active: string };
-    middle: { default: string; active: string };
-  };
+  buttonOverlays: Record<
+    MouseButtonName,
+    { default: string; active: string }
+  >;
   ring: {
     size: number;
     color: string;
@@ -72,7 +89,11 @@ export type imageType =
   | "rightDefault"
   | "rightActive"
   | "middleDefault"
-  | "middleActive";
+  | "middleActive"
+  | "x1Default"
+  | "x1Active"
+  | "x2Default"
+  | "x2Active";
 
 export type LayoutItemData = KeyboardKeyData | MouseData;
 export type LayoutData = {
@@ -106,7 +127,7 @@ export type MouseState = {
     x: number;
     y: number;
   };
-  buttons: number[];
+  buttons: MouseButtonCode[];
   type: number;
   amount: number;
 };

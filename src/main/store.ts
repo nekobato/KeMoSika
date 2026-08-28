@@ -127,6 +127,20 @@ const schema: Schema<ConfigSchema> = {
                       default: { type: "string" },
                       active: { type: "string" }
                     }
+                  },
+                  x1: {
+                    type: "object",
+                    properties: {
+                      default: { type: "string" },
+                      active: { type: "string" }
+                    }
+                  },
+                  x2: {
+                    type: "object",
+                    properties: {
+                      default: { type: "string" },
+                      active: { type: "string" }
+                    }
                   }
                 }
               },

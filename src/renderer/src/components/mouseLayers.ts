@@ -1,10 +1,15 @@
 /**
  * Resolves the fixed body and transparent button layers for the mouse visual.
  */
-import type { MouseData } from "@shared/types";
+import type {
+  MouseButtonCode,
+  MouseButtonName as SharedMouseButtonName,
+  MouseData
+} from "@shared/types";
+import { mouseButtonDefinitions } from "../utils/mouseButtons.ts";
 
 export type MouseButtonOverlays = MouseData["buttonOverlays"];
-export type MouseButtonName = keyof MouseButtonOverlays;
+export type MouseButtonName = SharedMouseButtonName;
 export type MouseButtonImageIds = Record<MouseButtonName, string>;
 
 /** Generated bundled mouse body used when a layout has no custom body. */
@@ -14,7 +19,9 @@ export const DEFAULT_MOUSE_BASE_IMAGE_ID = "default_mouse_generated_v1";
 export const DEFAULT_MOUSE_BUTTON_IMAGE_IDS: MouseButtonImageIds = {
   left: "default_mouse_generated_left_active_v1",
   right: "default_mouse_generated_right_active_v1",
-  middle: "default_mouse_generated_middle_active_v1"
+  middle: "default_mouse_generated_middle_active_v1",
+  x1: "default_mouse_generated_x1_active_v1",
+  x2: "default_mouse_generated_x2_active_v1"
 };
 
 export type MouseButtonLayer = {
@@ -32,17 +39,13 @@ type ResolveMouseVisualLayersOptions = {
   fallbackBaseImageId: string;
   fallbackButtonImageIds: MouseButtonImageIds;
   buttonOverlays: MouseButtonOverlays;
-  pressedButtons: number[];
+  pressedButtons: readonly MouseButtonCode[];
 };
 
-const BUTTON_DEFINITIONS: ReadonlyArray<{
-  button: MouseButtonName;
-  code: number;
-}> = [
-  { button: "left", code: 1 },
-  { button: "right", code: 2 },
-  { button: "middle", code: 3 }
-];
+const BUTTON_DEFINITIONS = mouseButtonDefinitions.map(({ name, code }) => ({
+  button: name,
+  code
+}));
 
 /**
  * Selects one transparent image per mouse button while keeping the body fixed.
@@ -60,7 +63,7 @@ export const resolveMouseVisualLayers = ({
       ? fallbackButtonImageIds[button]
       : "";
     const imageId = pressedButtons.includes(code)
-      ? buttonOverlays[button].active || fallbackImageId
+      ? buttonOverlays[button]?.active || fallbackImageId
       : "";
 
     return imageId ? [{ button, imageId }] : [];

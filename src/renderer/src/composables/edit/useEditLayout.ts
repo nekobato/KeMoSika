@@ -12,6 +12,7 @@ export const useEditLayout = () => {
       id: `key-${nanoid()}`,
       type: "key",
       codeMap: ["A"],
+      activationMode: "any",
       x: (store.activeLayout?.width || 0) / 2,
       y: (store.activeLayout?.height || 0) / 2,
       width: 48,
@@ -20,7 +21,12 @@ export const useEditLayout = () => {
       shadow: true,
       text: {
         isVisible: true,
-        character: "A",
+        normalCharacter: "A",
+        shift: {
+          isEnabled: false,
+          character: "A",
+          changeOnCapsLock: true
+        },
         x: 0,
         y: 0,
         size: 24,
@@ -52,7 +58,9 @@ export const useEditLayout = () => {
       buttonOverlays: {
         left: { default: "", active: "" },
         right: { default: "", active: "" },
-        middle: { default: "", active: "" }
+        middle: { default: "", active: "" },
+        x1: { default: "", active: "" },
+        x2: { default: "", active: "" }
       },
       ring: {
         size: Math.max(defaultWidth, defaultHeight),

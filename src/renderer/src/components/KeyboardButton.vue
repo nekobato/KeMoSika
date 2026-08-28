@@ -1,13 +1,21 @@
 <script setup lang="ts">
-import { computed, PropType } from "vue";
-import { KeyboardKeyData } from "@shared/types";
+import { computed } from "vue";
+import type { KeyboardKeyData } from "@shared/types";
+import { resolveKeyboardKeyCharacter } from "@/utils/keyText";
 
-const props = defineProps({
-  keyData: { type: Object as PropType<KeyboardKeyData>, required: true },
-  isDown: {
-    type: Boolean
+const props = withDefaults(
+  defineProps<{
+    keyData: KeyboardKeyData;
+    isDown?: boolean;
+    shiftPressed?: boolean;
+    capsLockActive?: boolean;
+  }>(),
+  {
+    isDown: false,
+    shiftPressed: false,
+    capsLockActive: false
   }
-});
+);
 
 const buttonStyle = computed(() => {
   return {
@@ -37,6 +45,15 @@ const textStyle = computed(() => {
   }
 
   return style;
+});
+
+const displayCharacter = computed(() => {
+  if (!props.keyData.text) return "";
+
+  return resolveKeyboardKeyCharacter(props.keyData.text, {
+    shiftPressed: props.shiftPressed,
+    capsLockActive: props.capsLockActive
+  });
 });
 
 const shadowEnabled = computed(() => props.keyData.shadow !== false);
@@ -94,7 +111,7 @@ const fallbackBoxShadow = computed(() =>
       class="text"
       v-show="props.keyData.text?.isVisible"
       :style="textStyle"
-      >{{ props.keyData.text?.character }}</span
+      >{{ displayCharacter }}</span
     >
   </button>
 </template>

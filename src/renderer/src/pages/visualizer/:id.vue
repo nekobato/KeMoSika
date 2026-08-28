@@ -5,18 +5,31 @@ import type {
   UiohookKeyboardEvent
 } from "uiohook-napi";
 import { InputEventType } from "@/utils/uioHook";
-import { keyCodeMap } from "@/utils/key";
+import { keyCodeMap } from "@/utils/keyCodes";
+import {
+  getActiveKeyboardCodes,
+  isKeyboardKeyActive
+} from "@/utils/keyActivation";
 import { computed, ref } from "vue";
 import { useStore } from "../../store";
 import KeyboardButton from "../../components/KeyboardButton.vue";
 import { useRoute } from "vue-router";
 import { KeyboardKeyData, LayoutData, MouseData } from "@shared/types";
+import type { KeyboardLockState } from "@shared/app-api";
+import type { MouseButtonCode } from "@shared/types";
+import { isMouseButtonCode } from "@/utils/mouseButtons";
 import Mouse from "../../components/Mouse.vue";
 
 const route = useRoute();
 const store = useStore();
 
-const downKeys = ref<string[]>([]);
+const downKeyCodes = ref<number[]>([]);
+const keyboardLockState = ref<KeyboardLockState>({
+  capsLock: false,
+  numLock: false,
+  scrollLock: false,
+  revision: -1
+});
 const mouseStates = ref({
   from: {
     x: 0,
@@ -26,7 +39,7 @@ const mouseStates = ref({
     x: 0,
     y: 0
   },
-  buttons: [] as number[],
+  buttons: [] as MouseButtonCode[],
   type: 0,
   amount: 0
 });
@@ -44,42 +57,76 @@ const mouses = computed<MouseData[] | undefined>(() => {
   return layout.value?.keys.filter((key) => key.type === "mouse");
 });
 
-const isDown = (codes: string[]) => {
-  return codes.some((code) => downKeys.value.includes(code));
+const downKeys = computed<string[]>(() =>
+  downKeyCodes.value
+    .map((keyCode) => keyCodeMap[keyCode])
+    .filter((code): code is string => code !== undefined)
+);
+
+const activeKeys = computed<string[]>(() =>
+  getActiveKeyboardCodes(downKeys.value, keyboardLockState.value)
+);
+const shiftPressed = computed(() => downKeys.value.includes("shift"));
+const capsLockActive = computed(() => keyboardLockState.value.capsLock);
+
+const applyKeyboardLockState = (state: KeyboardLockState): void => {
+  if (state.revision >= keyboardLockState.value.revision) {
+    keyboardLockState.value = state;
+  }
 };
+
+window.kemosikaApi.onKeyboardLockState(applyKeyboardLockState);
+void window.kemosikaApi
+  .getKeyboardLockState()
+  .then(applyKeyboardLockState)
+  .catch((error) => {
+    console.error("keyboard lock-state fetch failed", error);
+  });
 
 window.kemosikaApi.onInput((event) => {
   const e = event as
     | UiohookKeyboardEvent
     | UiohookMouseEvent
     | UiohookWheelEvent;
-    switch (e.type) {
-      case InputEventType.EVENT_KEY_PRESSED:
-        downKeys.value.push(keyCodeMap[e.keycode]);
-        break;
-      case InputEventType.EVENT_KEY_RELEASED:
-        downKeys.value = downKeys.value.filter(
-          (key) => key !== keyCodeMap[e.keycode]
-        );
-        break;
-      case InputEventType.EVENT_MOUSE_PRESSED:
-        mouseStates.value.buttons.push(e.button as number);
-        break;
-      case InputEventType.EVENT_MOUSE_RELEASED:
+  switch (e.type) {
+    case InputEventType.EVENT_KEY_PRESSED:
+      if (
+        keyCodeMap[e.keycode] !== undefined &&
+        !downKeyCodes.value.includes(e.keycode)
+      ) {
+        downKeyCodes.value.push(e.keycode);
+      }
+      break;
+    case InputEventType.EVENT_KEY_RELEASED:
+      downKeyCodes.value = downKeyCodes.value.filter(
+        (keyCode) => keyCode !== e.keycode
+      );
+      break;
+    case InputEventType.EVENT_MOUSE_PRESSED:
+      if (
+        isMouseButtonCode(e.button) &&
+        !mouseStates.value.buttons.includes(e.button)
+      ) {
+        mouseStates.value.buttons.push(e.button);
+      }
+      break;
+    case InputEventType.EVENT_MOUSE_RELEASED:
+      if (isMouseButtonCode(e.button)) {
         mouseStates.value.buttons = mouseStates.value.buttons.filter(
           (button) => button !== e.button
         );
-        break;
-      case InputEventType.EVENT_MOUSE_MOVED:
-        mouseStates.value.from.x = mouseStates.value.to.x;
-        mouseStates.value.from.y = mouseStates.value.to.y;
-        mouseStates.value.to.x = e.x;
-        mouseStates.value.to.y = e.y;
-        break;
-      case InputEventType.EVENT_MOUSE_WHEEL:
-        mouseStates.value.amount = e.amount;
-        break;
-    }
+      }
+      break;
+    case InputEventType.EVENT_MOUSE_MOVED:
+      mouseStates.value.from.x = mouseStates.value.to.x;
+      mouseStates.value.from.y = mouseStates.value.to.y;
+      mouseStates.value.to.x = e.x;
+      mouseStates.value.to.y = e.y;
+      break;
+    case InputEventType.EVENT_MOUSE_WHEEL:
+      mouseStates.value.amount = e.amount;
+      break;
+  }
 });
 </script>
 
@@ -88,7 +135,15 @@ window.kemosikaApi.onInput((event) => {
     <KeyboardButton
       v-for="keyData in keys"
       :key-data="keyData"
-      :is-down="isDown(keyData.codeMap)"
+      :shift-pressed="shiftPressed"
+      :caps-lock-active="capsLockActive"
+      :is-down="
+        isKeyboardKeyActive(
+          keyData.codeMap,
+          activeKeys,
+          keyData.activationMode ?? 'any'
+        )
+      "
     />
     <Mouse v-for="mouse in mouses" :data="mouse" :states="mouseStates" />
   </div>

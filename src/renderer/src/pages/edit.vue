@@ -510,13 +510,16 @@ const onSelectImage = async ({
           },
         };
       }
-      if (!mouseItem.buttonOverlays) {
-        mouseItem.buttonOverlays = {
-          left: { default: "", active: "" },
-          right: { default: "", active: "" },
-          middle: { default: "", active: "" },
-        };
-      }
+      mouseItem.buttonOverlays = {
+        left: mouseItem.buttonOverlays?.left ?? { default: "", active: "" },
+        right: mouseItem.buttonOverlays?.right ?? { default: "", active: "" },
+        middle: mouseItem.buttonOverlays?.middle ?? {
+          default: "",
+          active: "",
+        },
+        x1: mouseItem.buttonOverlays?.x1 ?? { default: "", active: "" },
+        x2: mouseItem.buttonOverlays?.x2 ?? { default: "", active: "" },
+      };
       if (
         type === "mouseDefault" ||
         type === "mouseLeftClick" ||
@@ -542,6 +545,14 @@ const onSelectImage = async ({
         mouseItem.buttonOverlays.middle.default = imageId;
       } else if (type === "middleActive") {
         mouseItem.buttonOverlays.middle.active = imageId;
+      } else if (type === "x1Default") {
+        mouseItem.buttonOverlays.x1.default = imageId;
+      } else if (type === "x1Active") {
+        mouseItem.buttonOverlays.x1.active = imageId;
+      } else if (type === "x2Default") {
+        mouseItem.buttonOverlays.x2.default = imageId;
+      } else if (type === "x2Active") {
+        mouseItem.buttonOverlays.x2.active = imageId;
       }
     }
     await store.updateItem(layout.value?.id || "", item);

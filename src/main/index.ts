@@ -10,7 +10,7 @@ import {
   systemPreferences,
   dialog
 } from "electron";
-import { uIOhook } from "uiohook-napi";
+import { EventType, UiohookKey, uIOhook } from "uiohook-napi";
 import * as store from "./store";
 import { initSentry } from "./utils/sentry";
 import { deleteImage, saveImageBuffer } from "./utils/image";
@@ -43,7 +43,15 @@ import {
   readLayoutImportPackageFromPath,
   type LayoutImportPackage
 } from "./layout-import";
-import type { LayoutImportResult } from "@shared/app-api";
+import type {
+  KeyboardLockState,
+  LayoutImportResult
+} from "@shared/app-api";
+import {
+  createKeyboardLockStateTracker,
+  readKeyboardLockState
+} from "./keyboard-lock-state";
+import { createMouseButtonNormalizer } from "./mouse-button-normalizer";
 
 initSentry();
 
@@ -54,8 +62,61 @@ let editorWindow: BrowserWindow | null;
 let visualizerWindow: BrowserWindow | null;
 let accessibilityTrusted = process.platform !== "darwin";
 
+const keyboardLockStateTracker = createKeyboardLockStateTracker({
+  [UiohookKey.CapsLock]: "capsLock",
+  [UiohookKey.NumLock]: "numLock",
+  [UiohookKey.ScrollLock]: "scrollLock"
+});
+const mouseButtonNormalizer = createMouseButtonNormalizer({
+  repairRepeatedOtherButtonPresses: process.platform === "darwin"
+});
+let hasLoggedMouseButtonRepair = false;
+
+const sendKeyboardLockState = (state: KeyboardLockState): void => {
+  visualizerWindow?.webContents.send("keyboard-lock-state", state);
+};
+
+const synchronizeKeyboardLockState = async (): Promise<KeyboardLockState> => {
+  const current = keyboardLockStateTracker.snapshot();
+  let values = {
+    capsLock: current.capsLock,
+    numLock: current.numLock,
+    scrollLock: current.scrollLock
+  };
+
+  try {
+    values = await readKeyboardLockState();
+  } catch (error) {
+    console.warn("keyboard lock-state probe failed", error);
+  }
+
+  const state = keyboardLockStateTracker.reset(values);
+  sendKeyboardLockState(state);
+  return state;
+};
+
 uIOhook.on("input", (event) => {
-  visualizerWindow?.webContents.send("input", event);
+  const normalization =
+    event.type === EventType.EVENT_MOUSE_PRESSED ||
+    event.type === EventType.EVENT_MOUSE_RELEASED
+      ? mouseButtonNormalizer.normalize(event)
+      : { event, repairedRelease: false };
+
+  if (normalization.repairedRelease && !hasLoggedMouseButtonRepair) {
+    hasLoggedMouseButtonRepair = true;
+    console.warn(
+      "Repaired a repeated macOS mouse-button press as a release event."
+    );
+  }
+
+  visualizerWindow?.webContents.send("input", normalization.event);
+
+  if (event.type === EventType.EVENT_KEY_PRESSED) {
+    const state = keyboardLockStateTracker.press(event.keycode);
+    if (state) sendKeyboardLockState(state);
+  } else if (event.type === EventType.EVENT_KEY_RELEASED) {
+    keyboardLockStateTracker.release(event.keycode);
+  }
 });
 
 const ensureAccessibilityPermission = (prompt = false) => {
@@ -207,6 +268,8 @@ app
       }
 
       try {
+        mouseButtonNormalizer.reset();
+        await synchronizeKeyboardLockState();
         uIOhook.start();
         return { started: true };
       } catch (error) {
@@ -218,6 +281,7 @@ app
     handleRendererInvoke("uiohook:stop", async () => {
       console.log("uiohook:stop");
       uIOhook.stop();
+      mouseButtonNormalizer.reset();
       return true;
     });
 
@@ -353,6 +417,10 @@ app
       return listSystemFonts();
     });
 
+    handleRendererInvoke("keyboard:get-lock-state", async () => {
+      return keyboardLockStateTracker.snapshot();
+    });
+
     handleRendererInvoke(
       "visualizer:start",
       async (_, payload) => {
@@ -372,6 +440,8 @@ app
         visualizerWindow?.webContents.send("visualizer:start", options);
 
         try {
+          mouseButtonNormalizer.reset();
+          await synchronizeKeyboardLockState();
           uIOhook.start();
           return { started: true };
         } catch (error) {
@@ -403,5 +473,6 @@ app
     visualizerWindow?.on("hide", () => {
       console.log("visualizer:hide");
       uIOhook.stop();
+      mouseButtonNormalizer.reset();
     });
   });

@@ -14,13 +14,17 @@ import {
 const buttonOverlays: MouseButtonOverlays = {
   left: { default: "left-default", active: "left-active" },
   right: { default: "right-default", active: "right-active" },
-  middle: { default: "middle-default", active: "middle-active" }
+  middle: { default: "middle-default", active: "middle-active" },
+  x1: { default: "x1-default", active: "x1-active" },
+  x2: { default: "x2-default", active: "x2-active" }
 };
 
 const fallbackButtonImageIds = {
   left: "fallback-left-active",
   right: "fallback-right-active",
-  middle: "fallback-middle-active"
+  middle: "fallback-middle-active",
+  x1: "fallback-x1-active",
+  x2: "fallback-x2-active"
 };
 
 /** Reads the canvas metadata stored in a bundled PNG's IHDR chunk. */
@@ -43,6 +47,8 @@ test("bundles one generated RGBA canvas for the body and every button layer", ()
   ];
 
   assert.deepEqual(imageIds.map(readBundledPngMetadata), [
+    { width: 240, height: 320, colorType: 6 },
+    { width: 240, height: 320, colorType: 6 },
     { width: 240, height: 320, colorType: 6 },
     { width: 240, height: 320, colorType: 6 },
     { width: 240, height: 320, colorType: 6 },
@@ -144,6 +150,8 @@ test("renders each supported button once and ignores unknown button codes", () =
   assert.deepEqual(layers.buttonLayers, [
     { button: "left", imageId: "left-active" },
     { button: "right", imageId: "right-active" },
-    { button: "middle", imageId: "middle-active" }
+    { button: "middle", imageId: "middle-active" },
+    { button: "x1", imageId: "x1-active" },
+    { button: "x2", imageId: "x2-active" }
   ]);
 });

@@ -52,6 +52,14 @@ export type VisualizerStartOptions = {
   };
 };
 
+export type KeyboardLockState = {
+  capsLock: boolean;
+  numLock: boolean;
+  scrollLock: boolean;
+  /** Monotonically increases whenever the main-process snapshot changes. */
+  revision: number;
+};
+
 export type InputEventListener = (event: unknown) => void;
 
 export type VisualizerStartListener = (
@@ -59,6 +67,10 @@ export type VisualizerStartListener = (
 ) => void;
 
 export type VoidEventListener = () => void;
+
+export type KeyboardLockStateListener = (
+  state: KeyboardLockState
+) => void;
 
 export type AppApi = {
   startInputHook: () => Promise<boolean>;
@@ -81,9 +93,11 @@ export type AppApi = {
   deleteImage: (id: string) => Promise<ConfigData>;
   listImages: () => Promise<ImageListItem[]>;
   listFonts: () => Promise<string[]>;
+  getKeyboardLockState: () => Promise<KeyboardLockState>;
   startVisualizer: (options: VisualizerStartOptions) => Promise<boolean>;
   closeVisualizer: () => Promise<boolean>;
   onInput: (listener: InputEventListener) => void;
+  onKeyboardLockState: (listener: KeyboardLockStateListener) => void;
   onVisualizerStart: (listener: VisualizerStartListener) => void;
   onVisualizerClose: (listener: VoidEventListener) => void;
   resetPreviewData?: () => Promise<ConfigData>;

@@ -7,6 +7,7 @@ import type {
   LayoutItemData,
   MouseData
 } from "@shared/types";
+import { mouseButtonNames } from "./mouse-buttons.ts";
 import {
   collectLayoutImageIds,
   layoutExportAppName,
@@ -437,20 +438,21 @@ const replaceMouseImageIds = (
       pointer: replaceImageId(item.ring.images.pointer, imageIdMap)
     }
   },
-  buttonOverlays: {
-    left: {
-      default: replaceImageId(item.buttonOverlays.left.default, imageIdMap),
-      active: replaceImageId(item.buttonOverlays.left.active, imageIdMap)
-    },
-    right: {
-      default: replaceImageId(item.buttonOverlays.right.default, imageIdMap),
-      active: replaceImageId(item.buttonOverlays.right.active, imageIdMap)
-    },
-    middle: {
-      default: replaceImageId(item.buttonOverlays.middle.default, imageIdMap),
-      active: replaceImageId(item.buttonOverlays.middle.active, imageIdMap)
-    }
-  }
+  buttonOverlays: Object.fromEntries(
+    mouseButtonNames.map((button) => [
+      button,
+      {
+        default: replaceImageId(
+          item.buttonOverlays[button].default,
+          imageIdMap
+        ),
+        active: replaceImageId(
+          item.buttonOverlays[button].active,
+          imageIdMap
+        )
+      }
+    ])
+  ) as MouseData["buttonOverlays"]
 });
 
 /**

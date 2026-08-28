@@ -1,4 +1,5 @@
 import type { KeyboardKeyData, LayoutData } from "@shared/types";
+import { getDefaultShiftCharacter } from "@/utils/keyText";
 
 const defaultKeyWidth = 52;
 const defaultKeyHeight = 52;
@@ -46,6 +47,7 @@ export const createKeyboardKey = (
   id: `${prefix}-${spec.id}`,
   type: "key",
   codeMap: spec.codeMap,
+  activationMode: "any",
   width: spec.width ?? defaultKeyWidth,
   height: spec.height ?? defaultKeyHeight,
   x: spec.x,
@@ -58,7 +60,12 @@ export const createKeyboardKey = (
   },
   text: {
     isVisible: true,
-    character: spec.label,
+    normalCharacter: spec.label,
+    shift: {
+      isEnabled: false,
+      character: getDefaultShiftCharacter(spec.label),
+      changeOnCapsLock: true
+    },
     x: 0,
     y: 0,
     size:

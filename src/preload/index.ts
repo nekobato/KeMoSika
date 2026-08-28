@@ -10,7 +10,8 @@ import type {
   ImageListItem,
   LayoutExportResult,
   LayoutImportResult,
-  ImageSaveResult
+  ImageSaveResult,
+  KeyboardLockState
 } from "@shared/app-api";
 import type { LayoutData } from "@shared/types";
 
@@ -59,10 +60,14 @@ contextBridge.exposeInMainWorld("kemosikaApi", {
     await invoke<ConfigData>("image:delete", id),
   listImages: async () => await invoke<ImageListItem[]>("image:list"),
   listFonts: async () => await invoke<string[]>("font:list"),
+  getKeyboardLockState: async () =>
+    await invoke<KeyboardLockState>("keyboard:get-lock-state"),
   startVisualizer: async (options) =>
     await invoke<boolean>("visualizer:start", options),
   closeVisualizer: async () => await invoke<boolean>("visualizer:close"),
   onInput: (callback) => onPayload("input", callback),
+  onKeyboardLockState: (callback) =>
+    onPayload("keyboard-lock-state", callback),
   onVisualizerStart: (callback) => onPayload("visualizer:start", callback),
   onVisualizerClose: (callback) => onPayload("visualizer:close", callback)
 } satisfies AppApi);

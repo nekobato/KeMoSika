@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { nextTick, onMounted, ref, useTemplateRef } from "vue";
 import type { PropType } from "vue";
 import { Icon } from "@iconify/vue";
-import { keyboardEventToElectronAccelerator } from "@/utils/key";
-import type { KeyboardKeyData } from "@shared/types";
+import { keyboardEventToInputCode } from "@/utils/key";
+import type { KeyboardKeyData, KeyActivationMode } from "@shared/types";
 import type { InputImageType } from "@/types/app";
+import KeyActivationCondition from "./KeyActivationCondition.vue";
 
 const props = defineProps({
   keyData: {
@@ -13,11 +14,15 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["change", "openImageDialog"]);
+const emit = defineEmits<{
+  change: [keyData: KeyboardKeyData];
+  openImageDialog: [type: InputImageType];
+}>();
 
 const systemFonts = ref<string[]>([]);
 const fontLoadError = ref<string | null>(null);
 const isFontLoading = ref(false);
+const configRoot = useTemplateRef<HTMLElement>("config-root");
 
 /**
  * Fetch system font list from the main process and cache it locally.
@@ -44,23 +49,43 @@ onMounted(() => {
   void loadSystemFonts();
 });
 
-const onKeyDownShortcutInput = async (e: KeyboardEvent, index: number) => {
+const updateCodeMap = (codeMap: string[]): void => {
+  emit("change", {
+    ...props.keyData,
+    codeMap,
+  });
+};
+
+const onKeyDownShortcutInput = (e: KeyboardEvent, index: number): void => {
   e.preventDefault();
   const targetCodeMap = props.keyData.codeMap[index];
-  const shortcut = keyboardEventToElectronAccelerator(e);
+  const shortcut = keyboardEventToInputCode(e);
 
-  if (shortcut === "" || props.keyData.codeMap.includes(shortcut)) {
+  if (
+    shortcut === "" ||
+    (shortcut !== targetCodeMap && props.keyData.codeMap.includes(shortcut))
+  ) {
     return;
   }
 
-  if (targetCodeMap) {
-    emit("change", {
-      ...props.keyData,
-      codeMap: props.keyData.codeMap.map((code, i) =>
-        i === index ? shortcut : code,
-      ),
-    });
-  }
+  updateCodeMap(
+    props.keyData.codeMap.map((code, i) =>
+      i === index ? shortcut : code,
+    ),
+  );
+};
+
+const addCodeMap = async (): Promise<void> => {
+  const newIndex = props.keyData.codeMap.length;
+  updateCodeMap([...props.keyData.codeMap, ""]);
+  await nextTick();
+  configRoot.value
+    ?.querySelector<HTMLElement>(`[data-keymap-index="${newIndex}"]`)
+    ?.focus();
+};
+
+const removeCodeMap = (index: number): void => {
+  updateCodeMap(props.keyData.codeMap.filter((_, i) => i !== index));
 };
 
 const onChangeInput = (key: string, value: any) => {
@@ -82,7 +107,9 @@ const onChangeInput = (key: string, value: any) => {
     case "text.y":
     case "text.size":
     case "text.color":
-    case "text.font":
+    case "text.font": {
+      if (!props.keyData.text) return;
+
       emit("change", {
         ...props.keyData,
         text: {
@@ -91,7 +118,15 @@ const onChangeInput = (key: string, value: any) => {
         },
       });
       break;
+    }
   }
+};
+
+const onChangeActivationMode = (activationMode: KeyActivationMode): void => {
+  emit("change", {
+    ...props.keyData,
+    activationMode,
+  });
 };
 
 const selectImage = (type: InputImageType) => {
@@ -100,19 +135,18 @@ const selectImage = (type: InputImageType) => {
 </script>
 
 <template>
-  <section class="keyboard-key-config" v-if="keyData">
+  <section ref="config-root" class="keyboard-key-config" v-if="keyData">
     <div class="form">
       <div class="grid">
         <div class="keymap-group grid-span-2">
           <ElTag
             v-for="(mapKey, index) in keyData.codeMap"
             :key="`${mapKey}-${index}`"
+            :data-keymap-index="index"
             class="keymap"
             size="small"
             closable
-            @close="
-              () => keyData.codeMap.splice(keyData.codeMap.indexOf(mapKey), 1)
-            "
+            @close="removeCodeMap(index)"
             @keydown="onKeyDownShortcutInput($event, index)"
             tabindex="0"
           >
@@ -122,11 +156,17 @@ const selectImage = (type: InputImageType) => {
             class="keymap add-button"
             size="small"
             plain
-            @click="() => keyData.codeMap.push('')"
+            @click="addCodeMap"
           >
             <Icon class="icon" icon="mingcute:add-line" />Add
           </ElButton>
         </div>
+
+        <KeyActivationCondition
+          class="grid-span-2"
+          :model-value="keyData.activationMode ?? 'any'"
+          @update:model-value="onChangeActivationMode"
+        />
 
         <ElInputNumber
           id="key-x"
@@ -385,6 +425,11 @@ const selectImage = (type: InputImageType) => {
 }
 .keymap {
   cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid #67c7d9;
+    outline-offset: 2px;
+  }
 }
 .add-button {
   display: inline-flex;

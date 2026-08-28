@@ -19,7 +19,11 @@ export type MouseOverlayImageType =
   | "rightDefault"
   | "rightActive"
   | "middleDefault"
-  | "middleActive";
+  | "middleActive"
+  | "x1Default"
+  | "x1Active"
+  | "x2Default"
+  | "x2Active";
 export type MouseImageType =
   | MouseBodyImageType
   | MouseRingImageType

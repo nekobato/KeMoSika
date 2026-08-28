@@ -8,6 +8,7 @@ import type {
   LayoutItemImage,
   MouseData
 } from "@shared/types";
+import { mouseButtonNames } from "./mouse-buttons.ts";
 import { resolveImageFilePath } from "./utils/image";
 
 export const layoutExportAppName = "KeMoSika";
@@ -136,7 +137,23 @@ const normalizeLayoutForExport = (layout: LayoutData): LayoutData => ({
   background: {
     color: layout.background?.color ?? defaultBackground.color,
     image: layout.background?.image ?? defaultBackground.image
-  }
+  },
+  keys: layout.keys.map((item) => {
+    if (item.type !== "mouse") return item;
+
+    return {
+      ...item,
+      buttonOverlays: Object.fromEntries(
+        mouseButtonNames.map((button) => [
+          button,
+          {
+            default: item.buttonOverlays?.[button]?.default ?? "",
+            active: item.buttonOverlays?.[button]?.active ?? ""
+          }
+        ])
+      ) as MouseData["buttonOverlays"]
+    };
+  })
 });
 
 /**
@@ -181,12 +198,11 @@ const collectMouseImageIds = (
   addImageId(item.images.mouseScrollDown);
   addImageId(item.ring.images.ring);
   addImageId(item.ring.images.pointer);
-  addImageId(item.buttonOverlays.left.default);
-  addImageId(item.buttonOverlays.left.active);
-  addImageId(item.buttonOverlays.right.default);
-  addImageId(item.buttonOverlays.right.active);
-  addImageId(item.buttonOverlays.middle.default);
-  addImageId(item.buttonOverlays.middle.active);
+  mouseButtonNames.forEach((button) => {
+    const overlay = item.buttonOverlays?.[button];
+    addImageId(overlay?.default ?? "");
+    addImageId(overlay?.active ?? "");
+  });
 };
 
 /**

@@ -38,6 +38,8 @@ const OVERLAY_IMAGE_TYPES: {
   { key: "leftActive", button: "left", label: "左ボタン押下" },
   { key: "rightActive", button: "right", label: "右ボタン押下" },
   { key: "middleActive", button: "middle", label: "中ボタン押下" },
+  { key: "x1Active", button: "x1", label: "X1ボタン押下" },
+  { key: "x2Active", button: "x2", label: "X2ボタン押下" },
 ];
 
 const mouseImagePreview = computed(() =>
@@ -46,7 +48,7 @@ const mouseImagePreview = computed(() =>
     fallbackBaseImageId: DEFAULT_MOUSE_BASE_IMAGE_ID,
     fallbackButtonImageIds: DEFAULT_MOUSE_BUTTON_IMAGE_IDS,
     buttonOverlays: props.mouseData.buttonOverlays,
-    pressedButtons: [1, 2, 3],
+    pressedButtons: [1, 2, 3, 4, 5],
   }),
 );
 
@@ -252,6 +254,8 @@ const selectImage = (type: MouseImageType) => {
           class="mouse-image"
           v-if="type.imageId"
           :src="`media://images/${type.imageId}.png`"
+          :alt="type.label"
+          :title="type.label"
           @click="selectImage(type.key as MouseImageType)"
         />
         <div

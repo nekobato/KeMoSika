@@ -6,7 +6,12 @@ import type {
   LayoutImportPathInput,
   VisualizerStartOptions
 } from "@shared/app-api";
-import type { LayoutData, LayoutItemData } from "@shared/types";
+import type {
+  KeyActivationMode,
+  LayoutData,
+  LayoutItemData
+} from "@shared/types";
+import { mouseButtonNames } from "./mouse-buttons.ts";
 
 const maxIdLength = 128;
 const maxTextLength = 10_000;
@@ -18,6 +23,7 @@ const defaultBackground: LayoutData["background"] = {
   color: "#252525",
   image: ""
 };
+const defaultKeyActivationMode: KeyActivationMode = "any";
 
 /**
  * Returns whether the value is a non-null object with string keys.
@@ -86,6 +92,19 @@ function assertStringArray(
 ): asserts value is string[] {
   assertPayload(Array.isArray(value), `${fieldName} must be an array`);
   value.forEach((item, index) => assertString(item, `${fieldName}[${index}]`));
+}
+
+/**
+ * Asserts that a keyboard activation mode is supported.
+ */
+function assertKeyActivationMode(
+  value: unknown,
+  fieldName: string
+): asserts value is KeyActivationMode {
+  assertPayload(
+    value === "any" || value === "all",
+    `${fieldName} must be any or all`
+  );
 }
 
 /**
@@ -168,7 +187,7 @@ function assertButtonOverlays(
 >["buttonOverlays"] {
   assertPayload(isRecord(value), `${fieldName} must be an object`);
 
-  ["left", "right", "middle"].forEach((button) => {
+  mouseButtonNames.forEach((button) => {
     const overlay = value[button];
     assertPayload(isRecord(overlay), `${fieldName}.${button} must be an object`);
     assertString(overlay.default, `${fieldName}.${button}.default`, maxIdLength);
@@ -199,7 +218,25 @@ function assertOptionalText(value: unknown, fieldName: string): void {
 
   assertPayload(isRecord(value), `${fieldName} must be an object`);
   assertOptionalBoolean(value.isVisible, `${fieldName}.isVisible`);
-  assertString(value.character, `${fieldName}.character`);
+  assertPayload(
+    value.character !== undefined || value.normalCharacter !== undefined,
+    `${fieldName}.character or ${fieldName}.normalCharacter is required`
+  );
+  if (value.character !== undefined) {
+    assertString(value.character, `${fieldName}.character`);
+  }
+  if (value.normalCharacter !== undefined) {
+    assertString(value.normalCharacter, `${fieldName}.normalCharacter`);
+  }
+  if (value.shift !== undefined) {
+    assertPayload(isRecord(value.shift), `${fieldName}.shift must be an object`);
+    assertOptionalBoolean(value.shift.isEnabled, `${fieldName}.shift.isEnabled`);
+    assertString(value.shift.character, `${fieldName}.shift.character`);
+    assertOptionalBoolean(
+      value.shift.changeOnCapsLock,
+      `${fieldName}.shift.changeOnCapsLock`
+    );
+  }
   if (value.x !== undefined) assertNumber(value.x, `${fieldName}.x`);
   if (value.y !== undefined) assertNumber(value.y, `${fieldName}.y`);
   assertNumber(value.size, `${fieldName}.size`, 0, maxCanvasSize);
@@ -229,6 +266,10 @@ function assertLayoutItem(
 
   if (value.type === "key") {
     assertStringArray(value.codeMap, `${fieldName}.codeMap`);
+    assertKeyActivationMode(
+      value.activationMode,
+      `${fieldName}.activationMode`
+    );
     assertKeyImages(value.images, `${fieldName}.images`);
     assertOptionalText(value.text, `${fieldName}.text`);
     return;
@@ -259,6 +300,44 @@ function assertLayoutData(
 }
 
 /**
+ * Adds item defaults that may be absent from older persisted layouts.
+ */
+function normalizeLayoutItemPayload(payload: unknown): unknown {
+  if (!isRecord(payload)) return payload;
+
+  if (payload.type === "key") {
+    return {
+      ...payload,
+      activationMode: payload.activationMode ?? defaultKeyActivationMode
+    };
+  }
+
+  if (payload.type !== "mouse") return payload;
+  if (
+    payload.buttonOverlays !== undefined &&
+    !isRecord(payload.buttonOverlays)
+  ) {
+    return payload;
+  }
+
+  const buttonOverlays = isRecord(payload.buttonOverlays)
+    ? payload.buttonOverlays
+    : {};
+
+  return {
+    ...payload,
+    buttonOverlays: Object.fromEntries(
+      mouseButtonNames.map((button) => [
+        button,
+        button in buttonOverlays
+          ? buttonOverlays[button]
+          : { default: "", active: "" }
+      ])
+    )
+  };
+}
+
+/**
  * Adds default fields that may be absent from older persisted layouts.
  */
 function normalizeLayoutPayload(payload: unknown): unknown {
@@ -270,10 +349,14 @@ function normalizeLayoutPayload(payload: unknown): unknown {
         image: payload.background.image ?? defaultBackground.image
       }
     : defaultBackground;
+  const keys = Array.isArray(payload.keys)
+    ? payload.keys.map((item) => normalizeLayoutItemPayload(item))
+    : payload.keys;
 
   return {
     ...payload,
-    background
+    background,
+    keys
   };
 }
 
