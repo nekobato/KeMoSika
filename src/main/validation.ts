@@ -24,6 +24,8 @@ const defaultBackground: LayoutData["background"] = {
   image: ""
 };
 const defaultKeyActivationMode: KeyActivationMode = "any";
+const defaultMouseSpeedSensitivity = 50;
+const mouseSpeedSensitivityRange = { min: 1, max: 100 } as const;
 
 /**
  * Returns whether the value is a non-null object with string keys.
@@ -205,6 +207,12 @@ function assertMouseRing(
   assertPayload(isRecord(value), `${fieldName} must be an object`);
   assertNumber(value.size, `${fieldName}.size`, 0, maxCanvasSize);
   assertString(value.color, `${fieldName}.color`);
+  assertNumber(
+    value.speedSensitivity,
+    `${fieldName}.speedSensitivity`,
+    mouseSpeedSensitivityRange.min,
+    mouseSpeedSensitivityRange.max
+  );
   assertPayload(isRecord(value.images), `${fieldName}.images must be an object`);
   assertString(value.images.ring, `${fieldName}.images.ring`, maxIdLength);
   assertString(value.images.pointer, `${fieldName}.images.pointer`, maxIdLength);
@@ -323,9 +331,17 @@ function normalizeLayoutItemPayload(payload: unknown): unknown {
   const buttonOverlays = isRecord(payload.buttonOverlays)
     ? payload.buttonOverlays
     : {};
+  const ring = isRecord(payload.ring)
+    ? {
+        ...payload.ring,
+        speedSensitivity:
+          payload.ring.speedSensitivity ?? defaultMouseSpeedSensitivity
+      }
+    : payload.ring;
 
   return {
     ...payload,
+    ring,
     buttonOverlays: Object.fromEntries(
       mouseButtonNames.map((button) => [
         button,

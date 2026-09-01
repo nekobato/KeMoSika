@@ -159,8 +159,22 @@ const isEditorControlTarget = (target: EventTarget | null): boolean => {
 
   return Boolean(
     target.closest(
-      ".configurable, [class*='moveable'], [class*='selecto'], button, input, textarea, select, a",
+      ".configurable, [class*='moveable'], [class*='selecto'], button, input, textarea, select, a, [contenteditable='true']",
     ),
+  );
+};
+
+/**
+ * Returns whether a key event came from an interactive control rather than a
+ * selectable canvas item. Keyboard items render as buttons, so configurable
+ * elements remain eligible for editor shortcuts.
+ */
+const isShortcutControlTarget = (target: EventTarget | null): boolean => {
+  if (!(target instanceof HTMLElement)) return false;
+  if (target.closest(".configurable")) return false;
+
+  return Boolean(
+    target.closest("button, input, textarea, select, a, [contenteditable='true']"),
   );
 };
 
@@ -461,6 +475,8 @@ const onDeleteLayout = async () => {
 };
 
 const onKeyDown = (e: KeyboardEvent) => {
+  if (isShortcutControlTarget(e.target)) return;
+
   e.preventDefault();
   const { shouldUpdateRect } = updateItemByKey(
     {

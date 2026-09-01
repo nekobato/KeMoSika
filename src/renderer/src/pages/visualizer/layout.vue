@@ -1,10 +1,4 @@
 <script setup lang="ts">
-import type {
-  UiohookMouseEvent,
-  UiohookWheelEvent,
-  UiohookKeyboardEvent
-} from "uiohook-napi";
-import { InputEventType } from "@/utils/uioHook";
 import { keyCodeMap } from "@/utils/keyCodes";
 import {
   getActiveKeyboardCodes,
@@ -14,10 +8,11 @@ import { computed, ref } from "vue";
 import { useStore } from "../../store";
 import KeyboardButton from "../../components/KeyboardButton.vue";
 import { useRoute } from "vue-router";
-import { KeyboardKeyData, LayoutData, MouseData } from "@shared/types";
+import type { KeyboardKeyData, LayoutData, MouseData } from "@shared/types";
 import type { KeyboardLockState } from "@shared/app-api";
-import type { MouseButtonCode } from "@shared/types";
-import { isMouseButtonCode } from "@/utils/mouseButtons";
+import type { MouseButtonCode, MouseState } from "@shared/types";
+import { useMouseMotion } from "@/composables/visualizer/useMouseMotion";
+import { useScrollActivity } from "@/composables/visualizer/useScrollActivity";
 import Mouse from "../../components/Mouse.vue";
 
 const route = useRoute();
@@ -30,19 +25,17 @@ const keyboardLockState = ref<KeyboardLockState>({
   scrollLock: false,
   revision: -1
 });
-const mouseStates = ref({
-  from: {
-    x: 0,
-    y: 0
-  },
-  to: {
-    x: 0,
-    y: 0
-  },
-  buttons: [] as MouseButtonCode[],
-  type: 0,
-  amount: 0
-});
+const mouseButtons = ref<MouseButtonCode[]>([]);
+const { motion: mouseMotion, registerPosition: registerMousePosition } =
+  useMouseMotion();
+const {
+  directions: scrollDirections,
+  registerDirection: registerScrollDirection
+} = useScrollActivity();
+const mouseState = computed<MouseState>(() => ({
+  buttons: mouseButtons.value,
+  scrollDirections: [...scrollDirections.value]
+}));
 
 const layout = computed<LayoutData | undefined>(() => {
   const allLayouts = [...store.$state.layouts, ...store.builtinLayouts];
@@ -84,47 +77,37 @@ void window.kemosikaApi
   });
 
 window.kemosikaApi.onInput((event) => {
-  const e = event as
-    | UiohookKeyboardEvent
-    | UiohookMouseEvent
-    | UiohookWheelEvent;
-  switch (e.type) {
-    case InputEventType.EVENT_KEY_PRESSED:
-      if (
-        keyCodeMap[e.keycode] !== undefined &&
-        !downKeyCodes.value.includes(e.keycode)
-      ) {
-        downKeyCodes.value.push(e.keycode);
-      }
-      break;
-    case InputEventType.EVENT_KEY_RELEASED:
-      downKeyCodes.value = downKeyCodes.value.filter(
-        (keyCode) => keyCode !== e.keycode
-      );
-      break;
-    case InputEventType.EVENT_MOUSE_PRESSED:
-      if (
-        isMouseButtonCode(e.button) &&
-        !mouseStates.value.buttons.includes(e.button)
-      ) {
-        mouseStates.value.buttons.push(e.button);
-      }
-      break;
-    case InputEventType.EVENT_MOUSE_RELEASED:
-      if (isMouseButtonCode(e.button)) {
-        mouseStates.value.buttons = mouseStates.value.buttons.filter(
-          (button) => button !== e.button
+  switch (event.kind) {
+    case "key":
+      if (event.action === "pressed") {
+        if (
+          keyCodeMap[event.keycode] !== undefined &&
+          !downKeyCodes.value.includes(event.keycode)
+        ) {
+          downKeyCodes.value.push(event.keycode);
+        }
+      } else {
+        downKeyCodes.value = downKeyCodes.value.filter(
+          (keyCode) => keyCode !== event.keycode
         );
       }
       break;
-    case InputEventType.EVENT_MOUSE_MOVED:
-      mouseStates.value.from.x = mouseStates.value.to.x;
-      mouseStates.value.from.y = mouseStates.value.to.y;
-      mouseStates.value.to.x = e.x;
-      mouseStates.value.to.y = e.y;
+    case "mouse-button":
+      if (event.action === "pressed") {
+        if (!mouseButtons.value.includes(event.button)) {
+          mouseButtons.value.push(event.button);
+        }
+      } else {
+        mouseButtons.value = mouseButtons.value.filter(
+          (button) => button !== event.button
+        );
+      }
       break;
-    case InputEventType.EVENT_MOUSE_WHEEL:
-      mouseStates.value.amount = e.amount;
+    case "mouse-move":
+      registerMousePosition(event.x, event.y);
+      break;
+    case "scroll":
+      registerScrollDirection(event.direction);
       break;
   }
 });
@@ -145,7 +128,13 @@ window.kemosikaApi.onInput((event) => {
         )
       "
     />
-    <Mouse v-for="mouse in mouses" :data="mouse" :states="mouseStates" />
+    <Mouse
+      v-for="mouse in mouses"
+      :key="mouse.id"
+      :data="mouse"
+      :states="mouseState"
+      :motion="mouseMotion"
+    />
   </div>
 </template>
 

@@ -3,6 +3,7 @@ export type KeyActivationMode = "any" | "all";
 
 export type MouseButtonName = "left" | "right" | "middle" | "x1" | "x2";
 export type MouseButtonCode = 1 | 2 | 3 | 4 | 5;
+export type ScrollDirection = "up" | "down" | "left" | "right";
 
 export type KeyboardKeyTextData = {
   isVisible: boolean;
@@ -58,6 +59,8 @@ export type MouseData = {
   ring: {
     size: number;
     color: string;
+    /** Defaults to 50 for layouts created before speed visualization. */
+    speedSensitivity?: number;
     images: {
       ring: string;
       pointer: string;
@@ -119,15 +122,6 @@ export type CanvasSettings = {
 };
 
 export type MouseState = {
-  from: {
-    x: number;
-    y: number;
-  };
-  to: {
-    x: number;
-    y: number;
-  };
   buttons: MouseButtonCode[];
-  type: number;
-  amount: number;
+  scrollDirections: ScrollDirection[];
 };

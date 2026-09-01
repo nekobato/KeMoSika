@@ -1,11 +1,28 @@
 <script setup lang="ts">
-import { computed, PropType } from "vue";
-import { MouseData, MouseState } from "@shared/types";
+import { computed } from "vue";
+import type {
+  MouseData,
+  MouseState,
+  ScrollDirection
+} from "@shared/types";
+import { DEFAULT_MOUSE_SPEED_SENSITIVITY } from "@/constants/mouseMotion";
+import {
+  MOUSE_MOTION_SETTLED_SPEED,
+  MOUSE_TRAIL_LAYERS,
+  RESTING_MOUSE_MOTION,
+  speedToProgress,
+  type MouseMotionPose,
+  type MouseMotionVisualState
+} from "@/utils/mouseMotion";
 import {
   DEFAULT_MOUSE_BASE_IMAGE_ID,
   DEFAULT_MOUSE_BUTTON_IMAGE_IDS,
   resolveMouseVisualLayers
 } from "./mouseLayers";
+import {
+  SCROLL_INDICATOR_DIRECTIONS,
+  getScrollIndicatorGeometry
+} from "@/utils/scrollIndicator";
 
 const DEFAULT_RING_COLOR = "#ffffff";
 const POINTER_SIZE = 16;
@@ -14,29 +31,26 @@ const POINTER_SIZE = 16;
 const getStoredImageSource = (imageName: string): string =>
   `media://images/${imageName}.png`;
 
-const props = defineProps({
-  data: { type: Object as PropType<MouseData>, required: true },
-  states: { type: Object as PropType<MouseState> }
-});
+const props = defineProps<{
+  data: MouseData;
+  states?: MouseState;
+  motion?: MouseMotionVisualState;
+}>();
 
 const ringData = computed(() => ({
   size:
     props.data.ring?.size ??
     Math.max(props.data.width ?? 0, props.data.height ?? 0),
   color: props.data.ring?.color ?? DEFAULT_RING_COLOR,
+  speedSensitivity:
+    props.data.ring?.speedSensitivity ?? DEFAULT_MOUSE_SPEED_SENSITIVITY,
   images: {
     ring: props.data.ring?.images?.ring ?? "",
     pointer: props.data.ring?.images?.pointer ?? ""
   }
 }));
 
-const pointerRotation = computed(() => {
-  if (!props.states) return 0;
-  return Math.atan2(
-    props.states.to.y - props.states.from.y,
-    props.states.to.x - props.states.from.x
-  );
-});
+const motionState = computed(() => props.motion ?? RESTING_MOUSE_MOTION);
 
 const buttonStyle = computed(() => {
   return {
@@ -60,11 +74,10 @@ const mouseLayers = computed(() =>
 
 const ringStyle = computed(() => {
   const { size, color, images } = ringData.value;
-  const transform = `translate(-50%, -50%) rotate(${pointerRotation.value}rad)`;
   const style: Record<string, string> = {
     width: `${size}px`,
     height: `${size}px`,
-    transform
+    transform: "translate(-50%, -50%)"
   };
 
   if (images.ring) {
@@ -79,13 +92,11 @@ const ringStyle = computed(() => {
   return style;
 });
 
-const pointerStyle = computed(() => {
+const pointerStyle = computed<Record<string, string>>(() => {
   const { color, images } = ringData.value;
   const base = {
     width: `${POINTER_SIZE}px`,
-    height: `${POINTER_SIZE}px`,
-    top: `calc(50% - ${POINTER_SIZE / 2}px)`,
-    left: `calc(100% - ${POINTER_SIZE / 2}px)`
+    height: `${POINTER_SIZE}px`
   };
 
   if (images.pointer) {
@@ -102,9 +113,66 @@ const pointerStyle = computed(() => {
 
   return {
     ...base,
-    background: color
+    background: color,
+    borderRadius: "50%"
   };
 });
+
+const getPointerTrackStyle = (
+  pose: MouseMotionPose,
+  opacity: number
+): Record<string, string> => {
+  const { size, speedSensitivity } = ringData.value;
+  const maximumDistance = Math.max(0, size / 2 - POINTER_SIZE / 2);
+  const distance = maximumDistance * speedToProgress(pose.speed, speedSensitivity);
+  const itemRotation = (props.data.rotation * Math.PI) / 180;
+
+  return {
+    "--pointer-distance": `${distance}px`,
+    transform: `rotate(${pose.angle - itemRotation}rad)`,
+    opacity: `${pose.speed >= MOUSE_MOTION_SETTLED_SPEED ? opacity : 0}`
+  };
+};
+
+const pointerTrackStyle = computed(() => {
+  const style = getPointerTrackStyle(motionState.value.current, 1);
+  return { ...style, opacity: "1" };
+});
+
+const trailTrackStyles = computed(() =>
+  motionState.value.trail.map((pose, index) => ({
+    delay: MOUSE_TRAIL_LAYERS[index]?.delay ?? index,
+    style: getPointerTrackStyle(
+      pose,
+      MOUSE_TRAIL_LAYERS[index]?.opacity ?? 0
+    )
+  }))
+);
+
+const getScrollIndicatorTrackStyle = (
+  direction: ScrollDirection
+): Record<string, string> => {
+  const geometry = getScrollIndicatorGeometry({
+    direction,
+    ringSize: ringData.value.size,
+    itemRotation: props.data.rotation
+  });
+
+  return {
+    "--scroll-indicator-offset": `${geometry.offset}px`,
+    "--scroll-indicator-length": `${geometry.length}px`,
+    "--scroll-indicator-thickness": `${geometry.thickness}px`,
+    transform: `rotate(${geometry.angle}rad)`
+  };
+};
+
+const scrollIndicatorTracks = computed(() =>
+  SCROLL_INDICATOR_DIRECTIONS.map((direction) => ({
+    direction,
+    active: props.states?.scrollDirections.includes(direction) ?? false,
+    style: getScrollIndicatorTrackStyle(direction)
+  }))
+);
 
 const mouseImage = computed(() =>
   getStoredImageSource(mouseLayers.value.baseImageId)
@@ -137,7 +205,27 @@ const dropShadowStyle = computed(() =>
       />
     </div>
     <div class="pointer-ring" :style="ringStyle">
-      <div class="pointer" :style="pointerStyle"></div>
+      <div
+        v-for="indicator in scrollIndicatorTracks"
+        :key="indicator.direction"
+        class="scroll-track"
+        :class="{ 'is-active': indicator.active }"
+        :style="indicator.style"
+        aria-hidden="true"
+      >
+        <div class="scroll-marker"></div>
+      </div>
+      <div
+        v-for="trail in trailTrackStyles"
+        :key="trail.delay"
+        class="pointer-track is-trail"
+        :style="trail.style"
+      >
+        <div class="pointer" :style="pointerStyle"></div>
+      </div>
+      <div class="pointer-track" :style="pointerTrackStyle">
+        <div class="pointer" :style="pointerStyle"></div>
+      </div>
     </div>
   </div>
 </template>
@@ -176,6 +264,8 @@ const dropShadowStyle = computed(() =>
 }
 
 .pointer-ring {
+  --scroll-indicator-color: #62d4ff;
+
   position: absolute;
   top: 50%;
   left: 50%;
@@ -188,9 +278,51 @@ const dropShadowStyle = computed(() =>
   pointer-events: none;
 }
 
-.pointer {
-  border-radius: 50%;
-  transform-origin: 50% 50%;
+.scroll-track {
   position: absolute;
+  inset: 0;
+  transform-origin: 50% 50%;
+  pointer-events: none;
+}
+
+.scroll-marker {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--scroll-indicator-length);
+  height: var(--scroll-indicator-thickness);
+  border-radius: 999px;
+  background: var(--scroll-indicator-color);
+  opacity: 0;
+  transform: translate(-50%, -50%)
+    translateX(var(--scroll-indicator-offset)) rotate(90deg);
+  transition: opacity 80ms ease-out;
+}
+
+.scroll-track.is-active .scroll-marker {
+  opacity: 0.75;
+}
+
+.pointer-track {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 50%;
+}
+
+.pointer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) translateX(var(--pointer-distance));
+}
+
+.pointer-track.is-trail {
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-marker {
+    transition: none !important;
+  }
 }
 </style>

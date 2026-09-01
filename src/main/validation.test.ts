@@ -120,6 +120,35 @@ test("adds empty X1 and X2 overlays to legacy mouse layouts", () => {
   }
 });
 
+test("defaults legacy mouse speed sensitivity to 50", () => {
+  const layout = parseLayoutData({
+    ...legacyLayout,
+    keys: [legacyMouse],
+  });
+  const mouse = layout.keys[0];
+
+  assert.equal(mouse.type, "mouse");
+  if (mouse.type === "mouse") {
+    assert.equal(mouse.ring.speedSensitivity, 50);
+  }
+});
+
+test("rejects mouse speed sensitivity outside the supported range", () => {
+  assert.throws(
+    () =>
+      parseLayoutData({
+        ...legacyLayout,
+        keys: [
+          {
+            ...legacyMouse,
+            ring: { ...legacyMouse.ring, speedSensitivity: 101 },
+          },
+        ],
+      }),
+    /ring\.speedSensitivity is out of range/,
+  );
+});
+
 test("rejects malformed X1 overlay data", () => {
   assert.throws(
     () =>

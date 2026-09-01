@@ -1,6 +1,8 @@
 import Store, { Schema } from "electron-store";
 import { LayoutItemData, LayoutItemImage } from "@shared/types";
 
+const mouseSpeedSensitivityRange = { min: 1, max: 100 } as const;
+
 type ConfigSchema = {
   layouts: {
     id: string;
@@ -152,6 +154,11 @@ const schema: Schema<ConfigSchema> = {
                   },
                   color: {
                     type: "string"
+                  },
+                  speedSensitivity: {
+                    type: "number",
+                    minimum: mouseSpeedSensitivityRange.min,
+                    maximum: mouseSpeedSensitivityRange.max
                   },
                   images: {
                     type: "object",

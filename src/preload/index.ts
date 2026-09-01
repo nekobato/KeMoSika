@@ -14,6 +14,7 @@ import type {
   KeyboardLockState
 } from "@shared/app-api";
 import type { LayoutData } from "@shared/types";
+import type { VisualizerInputEvent } from "@shared/input";
 
 if (import.meta.env.PROD && import.meta.env.VITE_SENTRY_DSN) {
   void import("@sentry/electron/preload");
@@ -65,7 +66,7 @@ contextBridge.exposeInMainWorld("kemosikaApi", {
   startVisualizer: async (options) =>
     await invoke<boolean>("visualizer:start", options),
   closeVisualizer: async () => await invoke<boolean>("visualizer:close"),
-  onInput: (callback) => onPayload("input", callback),
+  onInput: (callback) => onPayload<VisualizerInputEvent>("input", callback),
   onKeyboardLockState: (callback) =>
     onPayload("keyboard-lock-state", callback),
   onVisualizerStart: (callback) => onPayload("visualizer:start", callback),

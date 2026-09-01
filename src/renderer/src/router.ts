@@ -24,7 +24,7 @@ const routes = [
   {
     path: "/visualizer/:layoutId",
     name: "VisualizerId",
-    component: () => import("./pages/visualizer/:id.vue")
+    component: () => import("./pages/visualizer/layout.vue")
   }
 ];
 

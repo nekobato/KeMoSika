@@ -1,4 +1,5 @@
 import type { LayoutData, LayoutItemImage } from "./types";
+import type { VisualizerInputEvent } from "./input";
 
 export type ConfigData = {
   layouts: LayoutData[];
@@ -60,7 +61,7 @@ export type KeyboardLockState = {
   revision: number;
 };
 
-export type InputEventListener = (event: unknown) => void;
+export type InputEventListener = (event: VisualizerInputEvent) => void;
 
 export type VisualizerStartListener = (
   options: VisualizerStartOptions

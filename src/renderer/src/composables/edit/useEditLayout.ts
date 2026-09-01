@@ -1,5 +1,6 @@
 import { useStore } from "@/store";
 import { nanoid } from "nanoid/non-secure";
+import { DEFAULT_MOUSE_SPEED_SENSITIVITY } from "@/constants/mouseMotion";
 
 export const useEditLayout = () => {
   const store = useStore();
@@ -65,6 +66,7 @@ export const useEditLayout = () => {
       ring: {
         size: Math.max(defaultWidth, defaultHeight),
         color: "#ffffff",
+        speedSensitivity: DEFAULT_MOUSE_SPEED_SENSITIVITY,
         images: {
           ring: "",
           pointer: ""

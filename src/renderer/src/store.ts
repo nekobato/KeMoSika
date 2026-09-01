@@ -12,6 +12,7 @@ import { useManualRefHistory } from "@vueuse/core";
 import { nanoid } from "nanoid/non-secure";
 import { toRawDeep } from "./utils/toRawDeep";
 import { builtInLayouts, builtInLayoutTree } from "@/constants/defaultLayouts";
+import { DEFAULT_MOUSE_SPEED_SENSITIVITY } from "@/constants/mouseMotion";
 
 const DEFAULT_RING_COLOR = "#ffffff";
 const DEFAULT_KEY_ACTIVATION_MODE: KeyActivationMode = "any";
@@ -35,6 +36,8 @@ const ensureMouseRing = (mouse: Partial<MouseData>): MouseData["ring"] => {
   return {
     size: mouse.ring?.size ?? fallbackSize,
     color: mouse.ring?.color ?? DEFAULT_RING_COLOR,
+    speedSensitivity:
+      mouse.ring?.speedSensitivity ?? DEFAULT_MOUSE_SPEED_SENSITIVITY,
     images: {
       ring: mouse.ring?.images?.ring ?? "",
       pointer: mouse.ring?.images?.pointer ?? ""
@@ -173,6 +176,15 @@ export const useStore = defineStore("store", () => {
     saveLayout(targetLayout.id);
   };
 
+  /** Adds multiple items as one history entry and one persisted update. */
+  const addItems = async (layoutId: string, keys: LayoutItemData[]) => {
+    const targetLayout = layouts.value.find((layout) => layout.id === layoutId);
+    if (!targetLayout || keys.length === 0) return;
+    targetLayout.keys.push(...keys.map(normalizeLayoutItem));
+    commit();
+    await saveLayout(targetLayout.id);
+  };
+
   const updateItem = async (layoutId: string, key: LayoutItemData) => {
     const targetLayout = layouts.value.find((layout) => layout.id === layoutId);
     if (!targetLayout) return;
@@ -222,6 +234,7 @@ export const useStore = defineStore("store", () => {
     builtinLayoutTree,
     saveLayout,
     addItem,
+    addItems,
     updateItem,
     removeItems,
     changeActiveLayout,

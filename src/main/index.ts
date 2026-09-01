@@ -52,6 +52,7 @@ import {
   readKeyboardLockState
 } from "./keyboard-lock-state";
 import { createMouseButtonNormalizer } from "./mouse-button-normalizer";
+import { normalizeVisualizerInput } from "./input-normalizer";
 
 initSentry();
 
@@ -109,7 +110,10 @@ uIOhook.on("input", (event) => {
     );
   }
 
-  visualizerWindow?.webContents.send("input", normalization.event);
+  const visualizerInput = normalizeVisualizerInput(normalization.event);
+  if (visualizerInput) {
+    visualizerWindow?.webContents.send("input", visualizerInput);
+  }
 
   if (event.type === EventType.EVENT_KEY_PRESSED) {
     const state = keyboardLockStateTracker.press(event.keycode);

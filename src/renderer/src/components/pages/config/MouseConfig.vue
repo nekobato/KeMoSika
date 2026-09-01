@@ -77,6 +77,7 @@ const onChangeInput = (key: string, value: any) => {
       break;
     case "ring.size":
     case "ring.color":
+    case "ring.speedSensitivity":
       emit("change", {
         ...props.mouseData,
         ring: {
@@ -188,6 +189,21 @@ const selectImage = (type: MouseImageType) => {
         @update:modelValue="onChangeInput('ring.size', $event)"
       >
         <template #prefix><span>D</span></template>
+      </ElInputNumber>
+
+      <ElInputNumber
+        id="mouse-speed-sensitivity"
+        class="field-control grid-span-2"
+        size="small"
+        :controls="false"
+        v-model="mouseData.ring.speedSensitivity"
+        :min="1"
+        :max="100"
+        :step="1"
+        aria-label="速度感度"
+        @update:modelValue="onChangeInput('ring.speedSensitivity', $event)"
+      >
+        <template #prefix><span>速度感度</span></template>
       </ElInputNumber>
 
       <div class="color-picker-field grid-span-2">

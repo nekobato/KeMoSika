@@ -1,8 +1,14 @@
 import { useStore } from "@/store";
+import { nanoid } from "nanoid/non-secure";
 import type { Ref } from "vue";
+import type { LayoutItemData } from "@shared/types";
+import { createItemClipboard } from "./itemClipboard";
 
 export const useEditItemByKey = () => {
   const store = useStore();
+  const clipboard = createItemClipboard({
+    createId: (type) => `${type}-${nanoid()}`
+  });
 
   const updateItemByKey = (
     {
@@ -20,6 +26,38 @@ export const useEditItemByKey = () => {
   ) => {
     let shouldUpdateRect = false;
     const selectedIndexes = activeKeys.value;
+    const commandKey = key.toLowerCase();
+    const hasCommandModifier = ctrlKey || metaKey;
+
+    // copy
+    if (commandKey === "c" && hasCommandModifier && !shiftKey) {
+      const activeLayout = store.activeLayout;
+      if (!activeLayout || selectedIndexes.length === 0) return {};
+
+      const selectedItems = [...new Set(selectedIndexes)]
+        .sort((left, right) => left - right)
+        .map((index) => activeLayout.keys[index])
+        .filter((item): item is LayoutItemData => Boolean(item));
+
+      if (selectedItems.length > 0) clipboard.copy(selectedItems);
+      return {};
+    }
+
+    // paste
+    if (commandKey === "v" && hasCommandModifier && !shiftKey) {
+      const activeLayout = store.activeLayout;
+      if (!activeLayout) return {};
+
+      const pastedItems = clipboard.paste();
+      if (pastedItems.length === 0) return {};
+
+      const firstPastedIndex = activeLayout.keys.length;
+      void store.addItems(activeLayout.id, pastedItems);
+      activeKeys.value = pastedItems.map(
+        (_, index) => firstPastedIndex + index
+      );
+      return { shouldUpdateRect: true };
+    }
 
     // delete key
     if (key === "Delete" || key === "Backspace") {
