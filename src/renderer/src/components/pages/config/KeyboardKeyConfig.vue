@@ -95,7 +95,6 @@ const onChangeInput = (key: string, value: any) => {
     case "width":
     case "height":
     case "rotation":
-    case "shadow":
       emit("change", {
         ...props.keyData,
         [key]: value,
@@ -241,16 +240,6 @@ const selectImage = (type: InputImageType) => {
         </ElInputNumber>
 
         <div />
-      </div>
-
-      <div class="checkbox-field">
-        <ElSwitch
-          id="key-shadow"
-          size="small"
-          v-model="keyData.shadow"
-          @update:modelValue="onChangeInput('shadow', $event)"
-        />
-        <label for="key-shadow">影を付ける</label>
       </div>
 
       <ElDivider />

@@ -56,7 +56,6 @@ const displayCharacter = computed(() => {
   });
 });
 
-const shadowEnabled = computed(() => props.keyData.shadow !== false);
 const hasKeyImage = computed(
   () => !!props.keyData.images.keyDefault
 );
@@ -65,19 +64,6 @@ const keyDefaultImageSrc = computed(
 );
 const keyActiveImageSrc = computed(
   () => `media://images/${props.keyData.images.keyActive}.png`
-);
-const keyShadowFilter = computed(() =>
-  shadowEnabled.value
-    ? "drop-shadow(0px 3px 8px rgba(0,0,0,0.45)) drop-shadow(0px 1px 2px rgba(0,0,0,0.35))"
-    : "none"
-);
-const keyShadowFilterDown = computed(() =>
-  shadowEnabled.value
-    ? "drop-shadow(0px 1px 3px rgba(0,0,0,0.35)) drop-shadow(0px 0px 1px rgba(0,0,0,0.25))"
-    : "none"
-);
-const fallbackBoxShadow = computed(() =>
-  shadowEnabled.value ? "0px 3px 6px rgba(0, 0, 0, 0.7)" : "none"
 );
 </script>
 
@@ -88,14 +74,7 @@ const fallbackBoxShadow = computed(() =>
       down: props.isDown,
       'no-image': !hasKeyImage
     }"
-    :style="[
-      buttonStyle,
-      {
-        '--shadow-filter': keyShadowFilter,
-        '--shadow-filter-down': keyShadowFilterDown,
-        '--fallback-shadow': fallbackBoxShadow
-      }
-    ]"
+    :style="buttonStyle"
   >
     <img
       v-if="hasKeyImage"
@@ -123,11 +102,7 @@ const fallbackBoxShadow = computed(() =>
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  box-shadow: none;
   color: #71d4fe;
-  text-shadow:
-    0px 0px 40px #71d4fe,
-    0px 0px 80px #71d4fe;
   width: 64px;
   height: 64px;
   text-align: center;
@@ -137,7 +112,6 @@ const fallbackBoxShadow = computed(() =>
     background: #2f3336;
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
-    box-shadow: var(--fallback-shadow);
   }
 
   .key-image.default {
@@ -151,9 +125,6 @@ const fallbackBoxShadow = computed(() =>
   &.down {
     color: #2f3336;
     background: #71d4fe;
-    text-shadow:
-      0px 0px 40px #2f3336,
-      0px 0px 80px #2f3336;
 
     .key-image.default {
       visibility: hidden;
@@ -171,11 +142,6 @@ const fallbackBoxShadow = computed(() =>
   object-fit: fill;
   position: absolute;
   z-index: 0;
-  filter: var(--shadow-filter);
-  transition: filter 80ms ease;
-}
-.key.down .key-image {
-  filter: var(--shadow-filter-down);
 }
 
 .text {
