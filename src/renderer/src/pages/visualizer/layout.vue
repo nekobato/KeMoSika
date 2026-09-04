@@ -13,6 +13,7 @@ import type { KeyboardLockState } from "@shared/app-api";
 import type { MouseButtonCode, MouseState } from "@shared/types";
 import { useMouseMotion } from "@/composables/visualizer/useMouseMotion";
 import { useScrollActivity } from "@/composables/visualizer/useScrollActivity";
+import { createLayoutBackgroundStyle } from "@/utils/layoutBackground";
 import Mouse from "../../components/Mouse.vue";
 
 const route = useRoute();
@@ -49,6 +50,10 @@ const keys = computed<KeyboardKeyData[] | undefined>(() =>
 const mouses = computed<MouseData[] | undefined>(() => {
   return layout.value?.keys.filter((key) => key.type === "mouse");
 });
+
+const layoutBackgroundStyle = computed(() =>
+  createLayoutBackgroundStyle(layout.value?.background)
+);
 
 const downKeys = computed<string[]>(() =>
   downKeyCodes.value
@@ -114,7 +119,7 @@ window.kemosikaApi.onInput((event) => {
 </script>
 
 <template>
-  <div class="visualizer">
+  <div class="visualizer" :style="layoutBackgroundStyle">
     <KeyboardButton
       v-for="keyData in keys"
       :key-data="keyData"
@@ -146,7 +151,11 @@ window.kemosikaApi.onInput((event) => {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #00ff00;
+  background-color: var(--layout-background-color, #252525);
+  background-image: var(--layout-background-image, none);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
 }
 .button {
   &.type-back {

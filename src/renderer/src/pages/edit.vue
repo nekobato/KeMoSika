@@ -31,18 +31,23 @@ import { useRoute } from "vue-router";
 import type { UploadRequestHandler } from "element-plus";
 import FloatActions from "@/components/FloatActions/FloatActions.vue";
 import ImageList from "@/components/pages/config/ImageList.vue";
-import type { InputImageType } from "@/types/app";
+import type {
+  ImageSelectionPayload,
+  ImageSelectionTarget,
+  InputImageType,
+} from "@/types/app";
 import { useEditLayout } from "@/composables/edit/useEditLayout";
 import { useEditItemByKey } from "@/composables/edit/useEditItemByKey";
 import { showErrorMessage } from "@/services/message";
 import router from "@/router";
+import { createLayoutBackgroundStyle } from "@/utils/layoutBackground";
 
 const route = useRoute();
 const store = useStore();
 const { addKey, addMouse } = useEditLayout();
 const { updateItemByKey } = useEditItemByKey();
 const activeKeyIndexes = ref<number[]>([]);
-const activeKeyImageType = ref<InputImageType>();
+const imageSelectionTarget = ref<ImageSelectionTarget>();
 const previewRef = ref<HTMLDivElement>();
 const moveableRef = ref<Moveable>();
 const selectoRef = ref<Selecto>();
@@ -87,6 +92,7 @@ const layoutStyle = computed(() => {
   return {
     width: `${layout.value?.width}px`,
     height: `${layout.value?.height}px`,
+    ...createLayoutBackgroundStyle(layout.value?.background),
   };
 });
 
@@ -118,7 +124,7 @@ const selectionStatusLabel = computed(() =>
  * Opens the image library as a standalone upload/browse surface.
  */
 const addPicture = () => {
-  activeKeyImageType.value = undefined;
+  imageSelectionTarget.value = undefined;
   showImageDialog.value = true;
 };
 
@@ -312,19 +318,12 @@ const asidePanelMeta = computed(() =>
     : (layout.value?.name ?? ""),
 );
 
-const imageSelectTargetItem = computed(() => {
-  if (selectedItemHead.value && activeKeyImageType.value) {
-    return {
-      item: selectedItemHead.value,
-      type: activeKeyImageType.value,
-    };
+const imageDialogTitle = computed(() => {
+  if (imageSelectionTarget.value?.kind === "layout-background") {
+    return "背景画像を選択";
   }
-  return undefined;
+  return imageSelectionTarget.value ? "画像を選択" : "画像ライブラリ";
 });
-
-const imageDialogTitle = computed(() =>
-  imageSelectTargetItem.value ? "Select Image" : "画像ライブラリ",
-);
 
 const onClickGroup = (e: OnClickGroup) => {
   selectoRef.value?.clickTarget(e.inputEvent, e.inputTarget);
@@ -494,19 +493,49 @@ const onKeyDown = (e: KeyboardEvent) => {
 };
 
 const openImageDialog = (type: InputImageType) => {
+  if (!selectedItemHead.value) return;
+
+  imageSelectionTarget.value = {
+    kind: "item",
+    itemId: selectedItemHead.value.id,
+    type,
+  };
   showImageDialog.value = true;
-  activeKeyImageType.value = type;
+};
+
+const openLayoutBackgroundImageDialog = (): void => {
+  if (!layout.value) return;
+
+  imageSelectionTarget.value = {
+    kind: "layout-background",
+    layoutId: layout.value.id,
+  };
+  showImageDialog.value = true;
 };
 
 const onSelectImage = async ({
-  itemId,
-  type,
+  target,
   imageId,
-}: {
-  itemId: string;
-  type: InputImageType;
-  imageId: string;
-}) => {
+}: ImageSelectionPayload): Promise<void> => {
+  if (target.kind === "layout-background") {
+    const targetLayout = store.$state.layouts.find(
+      (layout) => layout.id === target.layoutId,
+    );
+    if (targetLayout) {
+      await store.updateLayout({
+        ...targetLayout,
+        background: {
+          ...targetLayout.background,
+          image: imageId,
+        },
+      });
+    }
+    showImageDialog.value = false;
+    imageSelectionTarget.value = undefined;
+    return;
+  }
+
+  const { itemId, type } = target;
   const item = items.value?.find((item) => item.id === itemId);
   if (item) {
     if (item.type === "key") {
@@ -574,10 +603,15 @@ const onSelectImage = async ({
     await store.updateItem(layout.value?.id || "", item);
   }
   showImageDialog.value = false;
+  imageSelectionTarget.value = undefined;
 };
 
 const onUpdateImages = async () => {
   await store.getImages();
+};
+
+const onImageDialogClosed = (): void => {
+  imageSelectionTarget.value = undefined;
 };
 
 const uploadImage: UploadRequestHandler = async ({ file }) => {
@@ -648,7 +682,7 @@ onUnmounted(() => {
             <div
               id="layout-area"
               data-testid="layout-edit-area"
-              class="container kmsk-dotted-background"
+              class="container"
               :style="[layoutStyle, layoutPlacementStyle]"
               @click="onClickGround"
             >
@@ -764,6 +798,7 @@ onUnmounted(() => {
             v-if="activeKeyIndexes.length === 0"
             :layout="layout"
             @change="onChangeLayout"
+            @open-image-dialog="openLayoutBackgroundImageDialog"
             @keydown.stop
           />
         </div>
@@ -791,6 +826,7 @@ onUnmounted(() => {
         :z-index="5000"
         append-to-body
         width="min(960px, calc(100vw - 48px))"
+        @closed="onImageDialogClosed"
       >
         <template #header>
           <div class="image-dialog-header">
@@ -812,8 +848,7 @@ onUnmounted(() => {
         <ImageList
           @select="onSelectImage"
           @update="onUpdateImages"
-          :item="imageSelectTargetItem?.item"
-          :type="imageSelectTargetItem?.type"
+          :target="imageSelectionTarget"
           :images="store.$state.images"
         />
       </ElDialog>
@@ -954,6 +989,11 @@ onUnmounted(() => {
 }
 .container {
   position: absolute;
+  background-color: var(--layout-background-color, #252525);
+  background-image: var(--layout-background-image, none);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
   box-shadow:
     0 20px 48px rgba(0, 0, 0, 0.24),
     0 0 0 1px rgba(255, 255, 255, 0.18);

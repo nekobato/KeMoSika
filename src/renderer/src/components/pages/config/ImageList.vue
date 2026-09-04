@@ -1,28 +1,23 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { LayoutItemData, LayoutItemImage } from "@shared/types";
-import { InputImageType } from "@/types/app";
+import type { LayoutItemImage } from "@shared/types";
+import type {
+  ImageSelectionPayload,
+  ImageSelectionTarget,
+} from "@/types/app";
 
 const props = defineProps<{
   images: LayoutItemImage[];
-  item?: LayoutItemData;
-  type?: InputImageType;
+  target?: ImageSelectionTarget;
 }>();
 
 const emit = defineEmits<{
-  (
-    e: "select",
-    payload: {
-      itemId: string;
-      type: InputImageType;
-      imageId: string;
-    }
-  ): void;
-  (e: "update"): void;
+  select: [payload: ImageSelectionPayload];
+  update: [];
 }>();
 
 const isDragOver = ref(false);
-const isSelectable = computed(() => Boolean(props.item && props.type));
+const isSelectable = computed(() => Boolean(props.target));
 
 const saveImage = async (file: File) => {
   try {
@@ -50,13 +45,12 @@ const onDragLeave = (_: DragEvent) => {
   isDragOver.value = false;
 };
 
-const selectImage = (index: number) => {
-  if (!props.item || !props.type) return;
+const selectImage = (imageId: string) => {
+  if (!props.target) return;
 
   emit("select", {
-    itemId: props.item.id,
-    type: props.type,
-    imageId: props.images[index].id
+    target: props.target,
+    imageId,
   });
 };
 </script>
@@ -69,19 +63,22 @@ const selectImage = (index: number) => {
     @drop.prevent="onDrop"
     @dragleave.prevent="onDragLeave"
   >
-    <div
+    <button
       class="image-list-item"
       :class="{ 'is-selectable': isSelectable }"
-      v-for="(image, index) in props.images"
+      v-for="image in props.images"
       :key="image.id"
+      type="button"
+      :disabled="!isSelectable"
+      :aria-label="isSelectable ? `${image.fileName}を選択` : undefined"
+      @click="selectImage(image.id)"
     >
       <img
         class="image"
         :alt="image.fileName"
         :src="`media://images/${image.fileName}`"
-        @click="selectImage(index)"
       />
-    </div>
+    </button>
   </div>
 </template>
 
@@ -103,15 +100,26 @@ const selectImage = (index: number) => {
   .image-list-item {
     aspect-ratio: 1;
     padding: 8px;
+    color: inherit;
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 6px;
 
+    &:disabled {
+      opacity: 1;
+    }
+
     &.is-selectable {
       cursor: pointer;
 
-      &:hover {
+      &:hover,
+      &:focus-visible {
         border-color: #67c7d9;
+      }
+
+      &:focus-visible {
+        outline: 2px solid #67c7d9;
+        outline-offset: 2px;
       }
     }
 

@@ -30,3 +30,19 @@ export type MouseImageType =
   | MouseOverlayImageType;
 
 export type InputImageType = KeyImageType | MouseImageType;
+
+export type ImageSelectionTarget =
+  | {
+      kind: "item";
+      itemId: string;
+      type: InputImageType;
+    }
+  | {
+      kind: "layout-background";
+      layoutId: string;
+    };
+
+export type ImageSelectionPayload = {
+  target: ImageSelectionTarget;
+  imageId: string;
+};
