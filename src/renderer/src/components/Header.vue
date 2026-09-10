@@ -4,9 +4,10 @@ import { computed } from "vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
+const props = defineProps<{ showHome?: boolean }>();
 
 const canBack = computed(() => {
-  return router.currentRoute.value.path !== "/";
+  return props.showHome !== false && router.currentRoute.value.path !== "/";
 });
 
 const backHome = () => {

@@ -6,6 +6,8 @@ import {
 } from "electron";
 import type {
   AppApi,
+  AppInfo,
+  AppSettings,
   ConfigData,
   ImageListItem,
   LayoutExportResult,
@@ -15,10 +17,8 @@ import type {
 } from "@shared/app-api";
 import type { LayoutData } from "@shared/types";
 import type { VisualizerInputEvent } from "@shared/input";
-
-if (import.meta.env.PROD && import.meta.env.VITE_SENTRY_DSN) {
-  void import("@sentry/electron/preload");
-}
+// Bundle the SDK bridge into the sandboxed preload; this does not send reports.
+import "@sentry/electron/preload";
 
 /**
  * Invokes an allowlisted Electron IPC channel.
@@ -37,6 +37,16 @@ const onPayload = <T>(event: string, callback: (payload: T) => void): void => {
 };
 
 contextBridge.exposeInMainWorld("kemosikaApi", {
+  getAppInfo: async () => await invoke<AppInfo>("app:get-info"),
+  openRepository: async () => await invoke<void>("app:open-repository"),
+  getAppSettings: async () => await invoke<AppSettings>("settings:get"),
+  setErrorReportingEnabled: async (enabled) =>
+    await invoke<AppSettings>("settings:set-error-reporting", enabled),
+  onAppSettingsChanged: (callback) => {
+    const listener = (_: IpcRendererEvent, settings: AppSettings) => callback(settings);
+    ipcRenderer.on("settings:changed", listener);
+    return () => ipcRenderer.removeListener("settings:changed", listener);
+  },
   startInputHook: async () => await invoke<boolean>("uiohook:start"),
   stopInputHook: async () => await invoke<boolean>("uiohook:stop"),
   getConfig: async () => await invoke<ConfigData>("config:get"),

@@ -4,7 +4,7 @@ import { useStore } from "../store";
 import { Icon } from "@iconify/vue";
 import ConfigLayout from "@/components/layouts/ConfigLayout.vue";
 import KeyboardButton from "@/components/KeyboardButton.vue";
-import type { KeyboardKeyData, LayoutData } from "@shared/types";
+import type { LayoutData, LayoutItemData } from "@shared/types";
 import { useRoute, useRouter } from "vue-router";
 import Header from "@/components/Header.vue";
 import Mouse from "@/components/Mouse.vue";
@@ -185,13 +185,9 @@ const centerSelectedLayoutPreview = async () => {
   container.scrollTop = Math.max(0, scrollY);
 };
 
-const keys = computed<KeyboardKeyData[] | undefined>(() =>
-  selectedLayout.value?.keys.filter((key) => key.type === "key"),
+const items = computed<LayoutItemData[]>(
+  () => selectedLayout.value?.keys ?? [],
 );
-
-const mouses = computed(() => {
-  return selectedLayout.value?.keys.filter((key) => key.type === "mouse");
-});
 
 const addLayout = async () => {
   const layout = await store.addLayout();
@@ -476,13 +472,15 @@ const handleNodeSelect = async (node: LayoutTreeNode) => {
             v-if="selectedLayout"
             :style="[layoutStyle, previewPlacementStyle]"
           >
-            <KeyboardButton
-              v-for="key in keys"
-              class="keyboard-key"
-              :key-data="key as KeyboardKeyData"
-              :is-down="false"
-            />
-            <Mouse v-for="mouse in mouses" :data="mouse" />
+            <template v-for="item in items" :key="item.id">
+              <KeyboardButton
+                v-if="item.type === 'key'"
+                class="keyboard-key"
+                :key-data="item"
+                :is-down="false"
+              />
+              <Mouse v-else :data="item" />
+            </template>
           </div>
         </div>
       </main>
@@ -534,6 +532,17 @@ const handleNodeSelect = async (node: LayoutTreeNode) => {
     </template>
     <template #aside>
       <aside class="list-column">
+        <div class="list-heading">
+          <h1>レイアウト</h1>
+          <RouterLink
+            class="settings-link"
+            :to="{ name: 'Settings', query: { layoutId: selectedLayout?.id } }"
+            data-testid="settings-link"
+          >
+            <Icon icon="mingcute:settings-3-line" aria-hidden="true" />
+            <span>設定</span>
+          </RouterLink>
+        </div>
         <div class="aside-header">
           <ElButton
             class="nn-button primary"
@@ -743,6 +752,36 @@ const handleNodeSelect = async (node: LayoutTreeNode) => {
     width: 100%;
     justify-content: center;
   }
+}
+
+.list-heading {
+  display: flex;
+  color: var(--color-text-body);
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px 0;
+
+  h1 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+  }
+}
+
+.settings-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 8px;
+  color: var(--color-text-body);
+  font-size: 14px;
+  text-decoration: none;
+  border-radius: 6px;
+
+  svg { width: 20px; height: 20px; }
+  &:hover { background: var(--color-white-t50); }
+  &:focus-visible { outline: 2px solid var(--color-teal-200); outline-offset: 2px; }
 }
 
 .layout-tree {

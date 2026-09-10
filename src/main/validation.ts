@@ -377,8 +377,16 @@ function normalizeLayoutPayload(payload: unknown): unknown {
 }
 
 /**
- * Parses an IPC payload as app config data.
+ * Accepts only an explicit boolean for the error-reporting preference.
  */
+export function parseErrorReportingEnabled(payload: unknown): boolean {
+  if (typeof payload !== "boolean") {
+    throw new Error("不具合の報告設定が正しくありません。もう一度切り替えてください。");
+  }
+  return payload;
+}
+
+/** Parses an IPC payload as app config data. */
 export function parseConfigData(payload: unknown): ConfigData {
   assertPayload(isRecord(payload), "config must be an object");
   assertPayload(Array.isArray(payload.layouts), "config.layouts must be an array");

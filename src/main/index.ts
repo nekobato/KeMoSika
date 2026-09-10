@@ -8,11 +8,13 @@ import {
   ipcMain,
   Menu,
   systemPreferences,
-  dialog
+  dialog,
+  shell
 } from "electron";
 import { EventType, UiohookKey, uIOhook } from "uiohook-napi";
 import * as store from "./store";
 import { initSentry } from "./utils/sentry";
+import { getAppSettings, setErrorReportingEnabled } from "./settings";
 import { deleteImage, saveImageBuffer } from "./utils/image";
 import { listSystemFonts } from "./utils/font";
 import { nanoid } from "nanoid/non-secure";
@@ -24,6 +26,7 @@ import {
   registerMediaSchemePrivileges
 } from "./media-protocol";
 import {
+  parseErrorReportingEnabled,
   parseConfigData,
   parseId,
   parseImageSaveBufferInput,
@@ -291,6 +294,31 @@ app
 
     handleRendererInvoke("config:get", async () => {
       return store.getStore();
+    });
+
+    handleRendererInvoke("app:get-info", () => ({
+      version: app.getVersion(),
+      repositoryUrl: "https://github.com/nekobato/KeMoSika"
+    }));
+
+    handleRendererInvoke("app:open-repository", () =>
+      shell.openExternal("https://github.com/nekobato/KeMoSika")
+    );
+
+    handleRendererInvoke("settings:get", () => getAppSettings());
+
+    handleRendererInvoke("settings:set-error-reporting", (_, payload) => {
+      const enabled = parseErrorReportingEnabled(payload);
+      const settings = setErrorReportingEnabled(enabled);
+      try {
+        initSentry();
+      } catch (error) {
+        console.error("不具合の報告機能を開始できませんでした。", error);
+      }
+      for (const win of BrowserWindow.getAllWindows()) {
+        if (!win.isDestroyed()) win.webContents.send("settings:changed", settings);
+      }
+      return settings;
     });
 
     handleRendererInvoke("config:set", async (_, data) => {

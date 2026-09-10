@@ -20,6 +20,7 @@ import Moveable, {
 import Selecto from "vue3-selecto";
 import KeyboardButton from "../components/KeyboardButton.vue";
 import ConfigLayout from "../components/layouts/ConfigLayout.vue";
+import LayerPanel from "../components/pages/edit/LayerPanel.vue";
 import KeyboardKeyConfig from "../components/pages/config/KeyboardKeyConfig.vue";
 import MouseConfig from "../components/pages/config/MouseConfig.vue";
 import LayoutConfig from "../components/pages/config/LayoutConfig.vue";
@@ -41,12 +42,15 @@ import { useEditItemByKey } from "@/composables/edit/useEditItemByKey";
 import { showErrorMessage } from "@/services/message";
 import router from "@/router";
 import { createLayoutBackgroundStyle } from "@/utils/layoutBackground";
+import type { LayerSelectionRequest } from "@/utils/layerOrder";
 
 const route = useRoute();
 const store = useStore();
 const { addKey, addMouse } = useEditLayout();
 const { updateItemByKey } = useEditItemByKey();
 const activeKeyIndexes = ref<number[]>([]);
+const asideTab = ref<"layers" | "settings">("layers");
+const hiddenItemIds = ref<string[]>([]);
 const imageSelectionTarget = ref<ImageSelectionTarget>();
 const previewRef = ref<HTMLDivElement>();
 const moveableRef = ref<Moveable>();
@@ -74,19 +78,20 @@ const layout = computed<LayoutData | undefined>(() =>
 const items = computed(() => (layout.value ? layout.value.keys : []));
 const itemsCount = computed(() => (items.value ? items.value.length : 0));
 const selectedItemsCount = computed(() => activeKeyIndexes.value.length);
+const selectedItemIds = computed(() =>
+  activeKeyIndexes.value
+    .map((index) => items.value[index]?.id)
+    .filter((id): id is string => Boolean(id)),
+);
 const itemIdSelectors = computed(() =>
   activeKeyIndexes.value
     .map((index) => items.value?.[index])
-    .filter((item): item is LayoutItemData => Boolean(item))
+    .filter(
+      (item): item is LayoutItemData =>
+        Boolean(item) && !hiddenItemIds.value.includes(item?.id ?? ""),
+    )
     .map((item) => `#${item.id}`),
 );
-
-const keys = computed<KeyboardKeyData[]>(() =>
-  items.value.filter((key) => key.type === "key"),
-);
-const mouses = computed(() => {
-  return items.value.filter((key) => key.type === "mouse");
-});
 
 const layoutStyle = computed(() => {
   return {
@@ -274,7 +279,10 @@ const updateSelectionFrame = () => {
   nextTick(() => {
     const targets = activeKeyIndexes.value
       .map((index) => items.value?.[index])
-      .filter((item): item is LayoutItemData => Boolean(item))
+      .filter(
+        (item): item is LayoutItemData =>
+          Boolean(item) && !hiddenItemIds.value.includes(item?.id ?? ""),
+      )
       .map((item) => document.getElementById(item.id))
       .filter((el): el is HTMLElement => Boolean(el));
 
@@ -282,6 +290,67 @@ const updateSelectionFrame = () => {
     moveableRef.value?.updateRect();
     selectoRef.value?.setSelectedTargets(targets);
   });
+};
+
+const isItemHidden = (itemId: string): boolean =>
+  hiddenItemIds.value.includes(itemId);
+
+const onSelectLayerItem = ({
+  itemId,
+  additive,
+  range,
+}: LayerSelectionRequest): void => {
+  const itemIndex = items.value.findIndex((item) => item.id === itemId);
+  if (itemIndex < 0) return;
+
+  if (range && activeKeyIndexes.value.length > 0) {
+    const layerItems = [...items.value].reverse();
+    const anchorId = items.value[activeKeyIndexes.value[0]]?.id;
+    const anchorIndex = layerItems.findIndex((item) => item.id === anchorId);
+    const targetIndex = layerItems.findIndex((item) => item.id === itemId);
+
+    if (anchorIndex >= 0 && targetIndex >= 0) {
+      const start = Math.min(anchorIndex, targetIndex);
+      const end = Math.max(anchorIndex, targetIndex);
+      const rangeIds = new Set(
+        layerItems.slice(start, end + 1).map((item) => item.id),
+      );
+      activeKeyIndexes.value = items.value
+        .map((item, index) => (rangeIds.has(item.id) ? index : -1))
+        .filter((index) => index >= 0);
+      updateSelectionFrame();
+      return;
+    }
+  }
+
+  if (additive) {
+    activeKeyIndexes.value = activeKeyIndexes.value.includes(itemIndex)
+      ? activeKeyIndexes.value.filter((index) => index !== itemIndex)
+      : [...activeKeyIndexes.value, itemIndex].sort((a, b) => a - b);
+  } else {
+    activeKeyIndexes.value = [itemIndex];
+  }
+
+  updateSelectionFrame();
+};
+
+const onToggleLayerVisibility = (itemId: string): void => {
+  hiddenItemIds.value = hiddenItemIds.value.includes(itemId)
+    ? hiddenItemIds.value.filter((id) => id !== itemId)
+    : [...hiddenItemIds.value, itemId];
+  updateSelectionFrame();
+};
+
+const onReorderLayers = async (orderedItemIds: string[]): Promise<void> => {
+  if (!layout.value) return;
+
+  const selection = [...selectedItemIds.value];
+  await store.reorderItems(layout.value.id, orderedItemIds);
+  activeKeyIndexes.value = selection
+    .map((itemId) => items.value.findIndex((item) => item.id === itemId))
+    .filter((index) => index >= 0)
+    .sort((a, b) => a - b);
+  updateSelectionFrame();
 };
 
 const selectedItemHead = computed(() =>
@@ -630,8 +699,17 @@ const uploadImage: UploadRequestHandler = async ({ file }) => {
 };
 
 watch(itemsCount, async () => {
+  const itemIds = new Set(items.value.map((item) => item.id));
+  hiddenItemIds.value = hiddenItemIds.value.filter((id) => itemIds.has(id));
   updateSelectionFrame();
 });
+
+watch(
+  () => layout.value?.id,
+  () => {
+    hiddenItemIds.value = [];
+  },
+);
 
 onMounted(async () => {
   document.addEventListener("keydown", onKeyDown);
@@ -686,20 +764,22 @@ onUnmounted(() => {
               :style="[layoutStyle, layoutPlacementStyle]"
               @click="onClickGround"
             >
-              <KeyboardButton
-                class="configurable"
-                v-for="key in keys"
-                :key="key.id"
-                :id="key.id"
-                :key-data="key"
-              />
-              <Mouse
-                class="configurable"
-                v-for="mouse in mouses"
-                :key="mouse.id"
-                :id="mouse.id"
-                :data="mouse"
-              />
+              <template v-for="item in items" :key="item.id">
+                <KeyboardButton
+                  v-if="item.type === 'key'"
+                  v-show="!isItemHidden(item.id)"
+                  class="configurable"
+                  :id="item.id"
+                  :key-data="item"
+                />
+                <Mouse
+                  v-else
+                  v-show="!isItemHidden(item.id)"
+                  class="configurable"
+                  :id="item.id"
+                  :data="item"
+                />
+              </template>
               <Moveable
                 ref="moveableRef"
                 :target="itemIdSelectors"
@@ -772,51 +852,84 @@ onUnmounted(() => {
     </template>
     <template #aside>
       <aside class="edit-aside">
-        <div class="aside-header" v-if="layout">
-          <div class="aside-title">
-            <Icon :icon="asidePanelIcon" class="aside-title-icon" />
-            <span>{{ asidePanelTitle }}</span>
-          </div>
-          <span class="aside-meta">{{ asidePanelMeta }}</span>
-        </div>
-        <div class="aside-content">
-          <KeyboardKeyConfig
-            v-if="selectedKeyHead"
-            :keyData="selectedKeyHead"
-            @change="onChangeInput"
-            @keydown.stop
-            @open-image-dialog="openImageDialog"
-          />
-          <MouseConfig
-            v-if="selectedMouseHead"
-            :mouseData="selectedMouseHead"
-            @change="onChangeInput"
-            @keydown.stop
-            @open-image-dialog="openImageDialog"
-          />
-          <LayoutConfig
-            v-if="activeKeyIndexes.length === 0"
-            :layout="layout"
-            @change="onChangeLayout"
-            @open-image-dialog="openLayoutBackgroundImageDialog"
-            @keydown.stop
-          />
-        </div>
-        <div
-          class="aside-footer"
-          v-if="layout && activeKeyIndexes.length === 0"
-        >
-          <ElButton
-            class="layout-delete-button"
-            type="danger"
-            size="small"
-            @click="onDeleteLayout"
-            aria-label="Delete Layout"
+        <div class="aside-tabs" role="group" aria-label="編集パネル">
+          <button
+            class="aside-tab"
+            :class="{ 'is-active': asideTab === 'layers' }"
+            type="button"
+            :aria-pressed="asideTab === 'layers'"
+            @click="asideTab = 'layers'"
           >
-            <Icon icon="mingcute:delete-2-line" class="layout-delete-icon" />
-            <span>レイアウト削除</span>
-          </ElButton>
+            <Icon icon="mingcute:layers-3-line" aria-hidden="true" />
+            <span>レイヤー</span>
+          </button>
+          <button
+            class="aside-tab"
+            :class="{ 'is-active': asideTab === 'settings' }"
+            type="button"
+            :aria-pressed="asideTab === 'settings'"
+            @click="asideTab = 'settings'"
+          >
+            <Icon icon="mingcute:settings-3-line" aria-hidden="true" />
+            <span>設定</span>
+          </button>
         </div>
+        <LayerPanel
+          v-if="asideTab === 'layers'"
+          :items="items"
+          :selected-item-ids="selectedItemIds"
+          :hidden-item-ids="hiddenItemIds"
+          @select="onSelectLayerItem"
+          @toggle-visibility="onToggleLayerVisibility"
+          @reorder="onReorderLayers"
+        />
+        <template v-else>
+          <div class="aside-header" v-if="layout">
+            <div class="aside-title">
+              <Icon :icon="asidePanelIcon" class="aside-title-icon" />
+              <span>{{ asidePanelTitle }}</span>
+            </div>
+            <span class="aside-meta">{{ asidePanelMeta }}</span>
+          </div>
+          <div class="aside-content">
+            <KeyboardKeyConfig
+              v-if="selectedKeyHead"
+              :keyData="selectedKeyHead"
+              @change="onChangeInput"
+              @keydown.stop
+              @open-image-dialog="openImageDialog"
+            />
+            <MouseConfig
+              v-if="selectedMouseHead"
+              :mouseData="selectedMouseHead"
+              @change="onChangeInput"
+              @keydown.stop
+              @open-image-dialog="openImageDialog"
+            />
+            <LayoutConfig
+              v-if="activeKeyIndexes.length === 0"
+              :layout="layout"
+              @change="onChangeLayout"
+              @open-image-dialog="openLayoutBackgroundImageDialog"
+              @keydown.stop
+            />
+          </div>
+          <div
+            class="aside-footer"
+            v-if="layout && activeKeyIndexes.length === 0"
+          >
+            <ElButton
+              class="layout-delete-button"
+              type="danger"
+              size="small"
+              @click="onDeleteLayout"
+              aria-label="Delete Layout"
+            >
+              <Icon icon="mingcute:delete-2-line" class="layout-delete-icon" />
+              <span>レイアウト削除</span>
+            </ElButton>
+          </div>
+        </template>
       </aside>
     </template>
     <template #dialog>
@@ -929,6 +1042,56 @@ onUnmounted(() => {
   width: 100%;
   color: #eef1f3;
   background: #242629;
+}
+.aside-tabs {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  min-height: 48px;
+  padding: 4px;
+  background: #202225;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.aside-tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-width: 0;
+  color: #9fa8af;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  background: transparent;
+  border: 0;
+  border-radius: 5px;
+
+  &:hover {
+    color: #e7ecef;
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  &:focus-visible {
+    outline: 2px solid #67c7d9;
+    outline-offset: -2px;
+  }
+
+  &.is-active {
+    color: #f5fbfc;
+    background: rgba(103, 199, 217, 0.12);
+
+    &::after {
+      position: absolute;
+      right: 10px;
+      bottom: 0;
+      left: 10px;
+      height: 2px;
+      content: "";
+      background: #67c7d9;
+      border-radius: 999px;
+    }
+  }
 }
 .aside-header {
   flex: 0 0 auto;

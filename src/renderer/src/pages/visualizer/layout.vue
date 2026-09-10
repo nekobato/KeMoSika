@@ -8,7 +8,7 @@ import { computed, ref } from "vue";
 import { useStore } from "../../store";
 import KeyboardButton from "../../components/KeyboardButton.vue";
 import { useRoute } from "vue-router";
-import type { KeyboardKeyData, LayoutData, MouseData } from "@shared/types";
+import type { LayoutData, LayoutItemData } from "@shared/types";
 import type { KeyboardLockState } from "@shared/app-api";
 import type { MouseButtonCode, MouseState } from "@shared/types";
 import { useMouseMotion } from "@/composables/visualizer/useMouseMotion";
@@ -43,13 +43,7 @@ const layout = computed<LayoutData | undefined>(() => {
   return allLayouts.find((l) => l.id === route.params.layoutId);
 });
 
-const keys = computed<KeyboardKeyData[] | undefined>(() =>
-  layout.value?.keys.filter((key) => key.type === "key")
-);
-
-const mouses = computed<MouseData[] | undefined>(() => {
-  return layout.value?.keys.filter((key) => key.type === "mouse");
-});
+const items = computed<LayoutItemData[]>(() => layout.value?.keys ?? []);
 
 const layoutBackgroundStyle = computed(() =>
   createLayoutBackgroundStyle(layout.value?.background)
@@ -120,26 +114,27 @@ window.kemosikaApi.onInput((event) => {
 
 <template>
   <div class="visualizer" :style="layoutBackgroundStyle">
-    <KeyboardButton
-      v-for="keyData in keys"
-      :key-data="keyData"
-      :shift-pressed="shiftPressed"
-      :caps-lock-active="capsLockActive"
-      :is-down="
-        isKeyboardKeyActive(
-          keyData.codeMap,
-          activeKeys,
-          keyData.activationMode ?? 'any'
-        )
-      "
-    />
-    <Mouse
-      v-for="mouse in mouses"
-      :key="mouse.id"
-      :data="mouse"
-      :states="mouseState"
-      :motion="mouseMotion"
-    />
+    <template v-for="item in items" :key="item.id">
+      <KeyboardButton
+        v-if="item.type === 'key'"
+        :key-data="item"
+        :shift-pressed="shiftPressed"
+        :caps-lock-active="capsLockActive"
+        :is-down="
+          isKeyboardKeyActive(
+            item.codeMap,
+            activeKeys,
+            item.activationMode ?? 'any'
+          )
+        "
+      />
+      <Mouse
+        v-else
+        :data="item"
+        :states="mouseState"
+        :motion="mouseMotion"
+      />
+    </template>
   </div>
 </template>
 

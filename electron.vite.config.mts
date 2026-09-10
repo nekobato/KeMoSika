@@ -19,7 +19,7 @@ export default defineConfig({
     }
   },
   preload: {
-    plugins: [externalizeDepsPlugin()]
+    plugins: [externalizeDepsPlugin({ exclude: ["@sentry/electron"] })]
   },
   renderer: {
     plugins: [vue(), svgLoader()],

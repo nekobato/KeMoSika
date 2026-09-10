@@ -1,6 +1,15 @@
 import type { LayoutData, LayoutItemImage } from "./types";
 import type { VisualizerInputEvent } from "./input";
 
+export type AppSettings = {
+  errorReportingEnabled: boolean;
+};
+
+export type AppInfo = {
+  version: string;
+  repositoryUrl: string;
+};
+
 export type ConfigData = {
   layouts: LayoutData[];
   images: LayoutItemImage[];
@@ -74,6 +83,11 @@ export type KeyboardLockStateListener = (
 ) => void;
 
 export type AppApi = {
+  getAppInfo: () => Promise<AppInfo>;
+  openRepository: () => Promise<void>;
+  getAppSettings: () => Promise<AppSettings>;
+  setErrorReportingEnabled: (enabled: boolean) => Promise<AppSettings>;
+  onAppSettingsChanged: (listener: (settings: AppSettings) => void) => () => void;
   startInputHook: () => Promise<boolean>;
   stopInputHook: () => Promise<boolean>;
   getConfig: () => Promise<ConfigData>;

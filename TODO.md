@@ -19,7 +19,7 @@
 
 - [ ] `uiohook:start`と`visualizer:start`のruntime戻り値`{ started, reason }`をpublic API型と一致させる。
 - [ ] preloadの`openUrl`をmain handlerへ接続するか、dead APIとして削除する。
-- [ ] Sentryへkey input、layout、path、component propsを送らない方針を決め、捕捉対象の例外だけを`reportError`へ接続する。
+- [x] Sentryの送信方針を確定（2026-09-10）。初期OFF・任意ONを維持し、アプリversion・OS・例外・stack traceを送信する。ユーザー固有のローカルpathは伏せ、key input・layout・component props・breadcrumbs・添付ファイルは送らない。既存SDKの自動例外捕捉と`reportError`を対象にmainの送信前フィルターで適用する。
 - [ ] layout import rollback、IPC sender validation、uiohookとglobal shortcutのlifecycle testを追加する。
 
 ## UIと初期データ

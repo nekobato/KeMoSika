@@ -204,6 +204,40 @@ export const useStore = defineStore("store", () => {
     saveLayout(targetLayout.id);
   };
 
+  /** Replaces the persisted back-to-front item order as one history entry. */
+  const reorderItems = async (
+    layoutId: string,
+    orderedItemIds: string[]
+  ): Promise<void> => {
+    const targetLayout = layouts.value.find((layout) => layout.id === layoutId);
+    if (!targetLayout || orderedItemIds.length !== targetLayout.keys.length) {
+      return;
+    }
+
+    const itemsById = new Map(
+      targetLayout.keys.map((item) => [item.id, item] as const)
+    );
+    const uniqueItemIds = new Set(orderedItemIds);
+    if (
+      uniqueItemIds.size !== targetLayout.keys.length ||
+      orderedItemIds.some((itemId) => !itemsById.has(itemId))
+    ) {
+      return;
+    }
+
+    if (
+      orderedItemIds.every(
+        (itemId, index) => itemId === targetLayout.keys[index]?.id
+      )
+    ) {
+      return;
+    }
+
+    targetLayout.keys = orderedItemIds.map((itemId) => itemsById.get(itemId)!);
+    commit();
+    await saveLayout(targetLayout.id);
+  };
+
   const { history, undo, redo, commit } = useManualRefHistory(layouts, {
     clone: true,
     capacity: 50
@@ -237,6 +271,7 @@ export const useStore = defineStore("store", () => {
     addItems,
     updateItem,
     removeItems,
+    reorderItems,
     changeActiveLayout,
     getImages
   };
