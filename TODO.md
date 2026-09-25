@@ -10,8 +10,6 @@
 ## 最優先
 
 - [ ] ローカル`main`を`origin/main`へ安全にfast-forwardし、10 commit分の変更を現在地にする。
-- [ ] `main` pushごとに`pnpm release`を実行するworkflowをtagまたは手動承認へ変更する。
-- [ ] workflowのpnpm 8をprojectのpnpm 10.24へ揃え、frozen install、typecheck、test、buildをpublish前のgateにする。
 - [ ] Sentry merge時のGitHub ActionsとReleaseを確認し、意図しないartifact公開がなかったか記録する。
 - [ ] dependency update後のmacOSとWindows packageをsmoke testする。
 
