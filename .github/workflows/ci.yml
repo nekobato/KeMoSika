@@ -18,7 +18,7 @@ jobs:
             os: ubuntu-latest
             command: pnpm run lint
           - check: test
-            os: ubuntu-latest
+            os: macos-latest
             command: node --test 'src/**/*.test.ts'
           - check: build
             os: macos-latest
