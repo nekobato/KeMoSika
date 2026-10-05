@@ -30,7 +30,19 @@ export const initSentry = (): void => {
     release: app.getVersion(),
     environment: "production",
     ipcMode: IPCMode.Classic,
-    sendDefaultPii: false,
+    // Error reporting does not opt in to Sentry 11's expanded collection.
+    dataCollection: {
+      userInfo: false,
+      cookies: false,
+      httpHeaders: false,
+      httpBodies: [],
+      urlQueryParams: false,
+      genAI: { inputs: false, outputs: false },
+      databaseQueryData: false,
+      graphQL: { document: false, variables: false },
+      queues: false,
+      stackFrameVariables: false,
+    },
     sendClientReports: false,
     maxBreadcrumbs: 0,
     // The explicit preload bridge supports first opt-in after app.ready.
@@ -48,7 +60,8 @@ export const initSentry = (): void => {
       hint.attachments = [];
       return shouldReportToSentry() ? sanitizeSentryEvent(event) : null;
     },
-    beforeSendTransaction: () => null,
+    tracesSampleRate: 0,
+    beforeSendLog: () => null,
     // Do not persist offline reports that could be sent after consent changes.
     transport: (options) => {
       const transport = makeElectronTransport(options);

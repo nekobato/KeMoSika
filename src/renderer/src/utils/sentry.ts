@@ -5,9 +5,6 @@ import pkg from "../../../../package.json";
 import type { AppSettings } from "@shared/app-api";
 
 type VueSentryOptions = NonNullable<Parameters<typeof initVueSentry>[0]>;
-type ElectronRendererOptions = NonNullable<
-  Parameters<typeof initElectronSentry>[0]
->;
 
 const shouldReportToSentry = (): boolean => {
   return import.meta.env.PROD && enabled;
@@ -46,18 +43,26 @@ const initializeClient = (app: VueApp<Element>): void => {
   const options: VueSentryOptions = {
     app,
     attachProps: false,
-    sendDefaultPii: false,
+    // Match the main process's error-only data collection policy.
+    dataCollection: {
+      userInfo: false,
+      cookies: false,
+      httpHeaders: false,
+      httpBodies: [],
+      urlQueryParams: false,
+      genAI: { inputs: false, outputs: false },
+      databaseQueryData: false,
+      graphQL: { document: false, variables: false },
+      queues: false,
+      stackFrameVariables: false,
+    },
     maxBreadcrumbs: 0,
     beforeSend: (event) => (shouldReportToSentry() ? event : null),
-    beforeSendTransaction: () => null,
+    tracesSampleRate: 0,
+    beforeSendLog: () => null,
     release: pkg.version,
     environment: "production",
   };
 
-  // The Electron and Vue SDKs resolve separate @sentry/core type identities.
-  // Their runtime option contract is compatible, so isolate the cast here.
-  initElectronSentry(
-    options as ElectronRendererOptions,
-    initVueSentry as unknown as (options: ElectronRendererOptions) => void,
-  );
+  initElectronSentry(options, initVueSentry);
 };
