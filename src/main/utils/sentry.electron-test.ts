@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import { app } from "electron";
-import { captureEvent, captureException, flush, getClient } from "@sentry/electron/main";
+import { captureEvent, captureException, flush, getClient, logger, startSpan } from "@sentry/electron/main";
 import { getAppSettings, setErrorReportingEnabled } from "../settings";
 import { initSentry, reportError } from "./sentry";
 
@@ -40,6 +40,10 @@ async function main() {
     const client = getClient();
     assert(client);
     reportError(new Error("qa-opt-in"));
+    await flush(3000);
+    assert.equal(received.length, 1);
+    logger.info("qa-private-log", { layout: "qa-private" });
+    startSpan({ name: "qa-private-trace", op: "qa" }, () => {});
     await flush(3000);
     assert.equal(received.length, 1);
     const errorValues = () =>
@@ -103,7 +107,7 @@ async function main() {
     assert.equal(sanitized.exception.values[0].stacktrace.frames[0].function, "loadLayout");
     setErrorReportingEnabled(false);
     console.log(
-      "PASS: initial OFF, late opt-in, loopback delivery, opt-out, re-enable without replay, private paths/context/attachments removed, stack coordinates retained.",
+      "PASS: initial OFF, late opt-in, loopback delivery, no logs/traces, opt-out, re-enable without replay, private paths/context/attachments removed, stack coordinates retained.",
     );
     clearTimeout(timeout);
     server.close();
