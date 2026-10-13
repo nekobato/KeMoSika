@@ -9,7 +9,7 @@ import {
   Menu,
   systemPreferences,
   dialog,
-  shell,
+  shell
 } from "electron";
 import { EventType, UiohookKey, uIOhook } from "uiohook-napi";
 import * as store from "./store";
@@ -23,7 +23,7 @@ import { createVisualizerWindow } from "./windows/visualizer-window";
 import { assertAllowedIpcSender } from "./security";
 import {
   registerMediaProtocol,
-  registerMediaSchemePrivileges,
+  registerMediaSchemePrivileges
 } from "./media-protocol";
 import {
   parseErrorReportingEnabled,
@@ -34,22 +34,25 @@ import {
   parseLayoutImportArchiveInput,
   parseLayoutImportPathInput,
   parseLayoutData,
-  parseVisualizerStartOptions,
+  parseVisualizerStartOptions
 } from "./validation";
 import {
   createLayoutExportFileName,
-  writeLayoutExportArchive,
+  writeLayoutExportArchive
 } from "./layout-export";
 import {
   prepareLayoutImport,
   readLayoutImportPackageFromArchive,
   readLayoutImportPackageFromPath,
-  type LayoutImportPackage,
+  type LayoutImportPackage
 } from "./layout-import";
-import type { KeyboardLockState, LayoutImportResult } from "@shared/app-api";
+import type {
+  KeyboardLockState,
+  LayoutImportResult
+} from "@shared/app-api";
 import {
   createKeyboardLockStateTracker,
-  readKeyboardLockState,
+  readKeyboardLockState
 } from "./keyboard-lock-state";
 import { createMouseButtonNormalizer } from "./mouse-button-normalizer";
 import { normalizeVisualizerInput } from "./input-normalizer";
@@ -66,10 +69,10 @@ let accessibilityTrusted = process.platform !== "darwin";
 const keyboardLockStateTracker = createKeyboardLockStateTracker({
   [UiohookKey.CapsLock]: "capsLock",
   [UiohookKey.NumLock]: "numLock",
-  [UiohookKey.ScrollLock]: "scrollLock",
+  [UiohookKey.ScrollLock]: "scrollLock"
 });
 const mouseButtonNormalizer = createMouseButtonNormalizer({
-  repairRepeatedOtherButtonPresses: process.platform === "darwin",
+  repairRepeatedOtherButtonPresses: process.platform === "darwin"
 });
 let hasLoggedMouseButtonRepair = false;
 
@@ -82,7 +85,7 @@ const synchronizeKeyboardLockState = async (): Promise<KeyboardLockState> => {
   let values = {
     capsLock: current.capsLock,
     numLock: current.numLock,
-    scrollLock: current.scrollLock,
+    scrollLock: current.scrollLock
   };
 
   try {
@@ -106,7 +109,7 @@ uIOhook.on("input", (event) => {
   if (normalization.repairedRelease && !hasLoggedMouseButtonRepair) {
     hasLoggedMouseButtonRepair = true;
     console.warn(
-      "Repaired a repeated macOS mouse-button press as a release event.",
+      "Repaired a repeated macOS mouse-button press as a release event."
     );
   }
 
@@ -134,7 +137,10 @@ const ensureAccessibilityPermission = (prompt = false) => {
  */
 const handleRendererInvoke = <T>(
   channel: string,
-  handler: (event: IpcMainInvokeEvent, payload: unknown) => Promise<T> | T,
+  handler: (
+    event: IpcMainInvokeEvent,
+    payload: unknown
+  ) => Promise<T> | T
 ): void => {
   ipcMain.handle(channel, async (event, payload) => {
     assertAllowedIpcSender(event);
@@ -146,13 +152,13 @@ const handleRendererInvoke = <T>(
  * Persists a validated layout import package without overwriting existing data.
  */
 const saveImportedLayoutPackage = (
-  sourcePackage: LayoutImportPackage,
+  sourcePackage: LayoutImportPackage
 ): LayoutImportResult => {
   const config = store.getStore();
   const preparedImport = prepareLayoutImport({
     sourcePackage,
     existingLayouts: config.layouts || [],
-    createId: nanoid,
+    createId: nanoid
   });
   const savedImageFileNames: string[] = [];
 
@@ -163,13 +169,13 @@ const saveImportedLayoutPackage = (
 
       return {
         id: image.id,
-        fileName,
+        fileName
       };
     });
 
     store.setStore({
       layouts: [...(config.layouts || []), preparedImport.layout],
-      images: [...(config.images || []), ...importedImages],
+      images: [...(config.images || []), ...importedImages]
     });
   } catch (error) {
     savedImageFileNames.forEach((fileName) => {
@@ -186,7 +192,7 @@ const saveImportedLayoutPackage = (
     canceled: false,
     layoutId: preparedImport.layout.id,
     layoutName: preparedImport.layout.name,
-    imageCount: preparedImport.images.length,
+    imageCount: preparedImport.images.length
   };
 };
 
@@ -197,10 +203,9 @@ const showAccessibilityDialog = () => {
     buttons: ["OK"],
     defaultId: 0,
     title: "アクセシビリティ許可が必要です",
-    message:
-      "KeMoSika が入力イベントを取得するにはアクセシビリティ権限が必要です。",
+    message: "KeMoSika が入力イベントを取得するにはアクセシビリティ権限が必要です。",
     detail:
-      "システム設定 > プライバシーとセキュリティ > アクセシビリティ で KeMoSika を許可した後、もう一度お試しください。",
+      "システム設定 > プライバシーとセキュリティ > アクセシビリティ で KeMoSika を許可した後、もう一度お試しください。"
   };
   if (win) void dialog.showMessageBox(win, options);
   else void dialog.showMessageBox(options);
@@ -212,20 +217,20 @@ function setMenu() {
       label: "KeMoSika",
       submenu: [
         {
-          role: "about",
+          role: "about"
         },
         {
-          type: "separator",
+          type: "separator"
         },
         {
-          role: "quit",
-        },
-      ],
+          role: "quit"
+        }
+      ]
     },
     {
       label: "Edit",
-      role: "editMenu",
-    },
+      role: "editMenu"
+    }
   ];
 
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
@@ -295,11 +300,11 @@ app
 
     handleRendererInvoke("app:get-info", () => ({
       version: app.getVersion(),
-      repositoryUrl: "https://github.com/nekobato/KeMoSika",
+      repositoryUrl: "https://github.com/nekobato/KeMoSika"
     }));
 
     handleRendererInvoke("app:open-repository", () =>
-      shell.openExternal("https://github.com/nekobato/KeMoSika"),
+      shell.openExternal("https://github.com/nekobato/KeMoSika")
     );
 
     handleRendererInvoke("settings:get", () => getAppSettings());
@@ -313,8 +318,7 @@ app
         console.error("不具合の報告機能を開始できませんでした。", error);
       }
       for (const win of BrowserWindow.getAllWindows()) {
-        if (!win.isDestroyed())
-          win.webContents.send("settings:changed", settings);
+        if (!win.isDestroyed()) win.webContents.send("settings:changed", settings);
       }
       return settings;
     });
@@ -358,8 +362,8 @@ app
         defaultPath: createLayoutExportFileName(layout.name),
         filters: [
           { name: "KeMoSika Layout", extensions: ["kemosika-layout"] },
-          { name: "ZIP Archive", extensions: ["zip"] },
-        ],
+          { name: "ZIP Archive", extensions: ["zip"] }
+        ]
       };
       const saveResult = editorWindow
         ? await dialog.showSaveDialog(editorWindow, saveDialogOptions)
@@ -372,13 +376,13 @@ app
       const archiveResult = await writeLayoutExportArchive({
         layout,
         images: store.getStore().images || [],
-        outputPath: saveResult.filePath,
+        outputPath: saveResult.filePath
       });
 
       return {
         canceled: false,
         filePath: archiveResult.filePath,
-        imageCount: archiveResult.imageCount,
+        imageCount: archiveResult.imageCount
       };
     });
 
@@ -386,7 +390,7 @@ app
       const openDialogOptions: Electron.OpenDialogOptions = {
         title: "レイアウトをインポート",
         buttonLabel: "インポート",
-        properties: ["openDirectory"],
+        properties: ["openDirectory"]
       };
       const openResult = editorWindow
         ? await dialog.showOpenDialog(editorWindow, openDialogOptions)
@@ -397,7 +401,7 @@ app
       }
 
       const sourcePackage = await readLayoutImportPackageFromPath(
-        openResult.filePaths[0],
+        openResult.filePaths[0]
       );
       return saveImportedLayoutPackage(sourcePackage);
     });
@@ -412,7 +416,7 @@ app
       const input = parseLayoutImportArchiveInput(payload);
       const sourcePackage = readLayoutImportPackageFromArchive(
         input.buffer,
-        input.fileName,
+        input.fileName
       );
       return saveImportedLayoutPackage(sourcePackage);
     });
@@ -451,40 +455,46 @@ app
       return keyboardLockStateTracker.snapshot();
     });
 
-    handleRendererInvoke("visualizer:start", async (_, payload) => {
-      const options = parseVisualizerStartOptions(payload);
-      const trusted = ensureAccessibilityPermission(true);
-      if (!trusted) {
-        showAccessibilityDialog();
-        return { started: false, reason: "permission" };
-      }
+    handleRendererInvoke(
+      "visualizer:start",
+      async (_, payload) => {
+        const options = parseVisualizerStartOptions(payload);
+        const trusted = ensureAccessibilityPermission(true);
+        if (!trusted) {
+          showAccessibilityDialog();
+          return { started: false, reason: "permission" };
+        }
 
-      visualizerWindow?.setContentSize(options.size.width, options.size.height);
-      visualizerWindow?.show();
-      console.log("visualizer:start", options);
-      visualizerWindow?.webContents.send("visualizer:start", options);
+        visualizerWindow?.setContentSize(
+          options.size.width,
+          options.size.height
+        );
+        visualizerWindow?.show();
+        console.log("visualizer:start", options);
+        visualizerWindow?.webContents.send("visualizer:start", options);
 
-      try {
-        mouseButtonNormalizer.reset();
-        await synchronizeKeyboardLockState();
-        uIOhook.start();
-        return { started: true };
-      } catch (error) {
-        console.error("visualizer uIOhook.start failed", error);
-        const options: Electron.MessageBoxOptions = {
-          type: "error",
-          buttons: ["OK"],
-          defaultId: 0,
-          title: "入力フックの開始に失敗しました",
-          message: "アクセシビリティ権限が付与されているか確認してください。",
-          detail: String(error),
-        };
-        const parentWindow = visualizerWindow || editorWindow;
-        if (parentWindow) void dialog.showMessageBox(parentWindow, options);
-        else void dialog.showMessageBox(options);
-        return { started: false, reason: "error" };
+        try {
+          mouseButtonNormalizer.reset();
+          await synchronizeKeyboardLockState();
+          uIOhook.start();
+          return { started: true };
+        } catch (error) {
+          console.error("visualizer uIOhook.start failed", error);
+          const options: Electron.MessageBoxOptions = {
+            type: "error",
+            buttons: ["OK"],
+            defaultId: 0,
+            title: "入力フックの開始に失敗しました",
+            message: "アクセシビリティ権限が付与されているか確認してください。",
+            detail: String(error)
+          };
+          const parentWindow = visualizerWindow || editorWindow;
+          if (parentWindow) void dialog.showMessageBox(parentWindow, options);
+          else void dialog.showMessageBox(options);
+          return { started: false, reason: "error" };
+        }
       }
-    });
+    );
 
     handleRendererInvoke("visualizer:close", async () => {
       visualizerWindow?.webContents.send("visualizer:close");

@@ -6,7 +6,7 @@ import type {
   LayoutData,
   LayoutItemData,
   LayoutItemImage,
-  MouseData,
+  MouseData
 } from "@shared/types";
 import { mouseButtonNames } from "./mouse-buttons.ts";
 import { resolveImageFilePath } from "./utils/image";
@@ -18,7 +18,7 @@ const zipMtime = new Date("1980-01-01T00:00:00.000Z");
 const imageIdPattern = /^[a-zA-Z0-9_-]+$/;
 const defaultBackground: LayoutData["background"] = {
   color: "#252525",
-  image: "",
+  image: ""
 };
 
 export type LayoutExportImageFile = {
@@ -110,26 +110,22 @@ export const writeLayoutExportArchive = async ({
   layout,
   images,
   outputPath,
-  exportedAt = new Date(),
+  exportedAt = new Date()
 }: LayoutExportArchiveInput): Promise<LayoutExportArchiveResult> => {
   const normalizedLayout = normalizeLayoutForExport(layout);
   const targetPath = ensureLayoutExportFilePath(outputPath);
   const referencedImages = await resolveReferencedImages(
     collectLayoutImageIds(normalizedLayout),
-    images,
+    images
   );
-  const manifest = createManifest(
-    normalizedLayout,
-    referencedImages,
-    exportedAt,
-  );
+  const manifest = createManifest(normalizedLayout, referencedImages, exportedAt);
   const archive = createArchive(normalizedLayout, manifest, referencedImages);
 
   await writeFile(targetPath, archive);
 
   return {
     filePath: targetPath,
-    imageCount: referencedImages.length,
+    imageCount: referencedImages.length
   };
 };
 
@@ -140,7 +136,7 @@ const normalizeLayoutForExport = (layout: LayoutData): LayoutData => ({
   ...layout,
   background: {
     color: layout.background?.color ?? defaultBackground.color,
-    image: layout.background?.image ?? defaultBackground.image,
+    image: layout.background?.image ?? defaultBackground.image
   },
   keys: layout.keys.map((item) => {
     if (item.type !== "mouse") return item;
@@ -152,12 +148,12 @@ const normalizeLayoutForExport = (layout: LayoutData): LayoutData => ({
           button,
           {
             default: item.buttonOverlays?.[button]?.default ?? "",
-            active: item.buttonOverlays?.[button]?.active ?? "",
-          },
-        ]),
-      ) as MouseData["buttonOverlays"],
+            active: item.buttonOverlays?.[button]?.active ?? ""
+          }
+        ])
+      ) as MouseData["buttonOverlays"]
     };
-  }),
+  })
 });
 
 /**
@@ -165,7 +161,7 @@ const normalizeLayoutForExport = (layout: LayoutData): LayoutData => ({
  */
 const collectLayoutItemImageIds = (
   item: LayoutItemData,
-  addImageId: (imageId: string) => void,
+  addImageId: (imageId: string) => void
 ): void => {
   if (item.type === "key") {
     collectKeyImageIds(item, addImageId);
@@ -180,7 +176,7 @@ const collectLayoutItemImageIds = (
  */
 const collectKeyImageIds = (
   item: KeyboardKeyData,
-  addImageId: (imageId: string) => void,
+  addImageId: (imageId: string) => void
 ): void => {
   addImageId(item.images.keyDefault);
   addImageId(item.images.keyActive);
@@ -192,7 +188,7 @@ const collectKeyImageIds = (
  */
 const collectMouseImageIds = (
   item: MouseData,
-  addImageId: (imageId: string) => void,
+  addImageId: (imageId: string) => void
 ): void => {
   addImageId(item.images.mouseDefault);
   addImageId(item.images.mouseLeftClick);
@@ -214,7 +210,7 @@ const collectMouseImageIds = (
  */
 const resolveReferencedImages = async (
   imageIds: string[],
-  images: LayoutItemImage[],
+  images: LayoutItemImage[]
 ): Promise<ResolvedExportImage[]> => {
   const imageById = new Map(images.map((image) => [image.id, image]));
   const resolvedImages = await Promise.all(
@@ -228,12 +224,12 @@ const resolveReferencedImages = async (
           id: imageId,
           fileName,
           path: `images/${fileName}`,
-          data,
+          data
         };
       } catch {
         return null;
       }
-    }),
+    })
   );
   const missingImageIds = imageIds.filter((_, index) => !resolvedImages[index]);
 
@@ -242,7 +238,7 @@ const resolveReferencedImages = async (
   }
 
   return resolvedImages.filter(
-    (image): image is ResolvedExportImage => image !== null,
+    (image): image is ResolvedExportImage => image !== null
   );
 };
 
@@ -252,7 +248,7 @@ const resolveReferencedImages = async (
 const createManifest = (
   layout: LayoutData,
   images: LayoutExportImageFile[],
-  exportedAt: Date,
+  exportedAt: Date
 ): LayoutExportManifest => ({
   schemaVersion: layoutExportSchemaVersion,
   app: layoutExportAppName,
@@ -262,12 +258,12 @@ const createManifest = (
     name: layout.name,
     width: layout.width,
     height: layout.height,
-    itemCount: layout.keys.length,
+    itemCount: layout.keys.length
   },
   files: {
     layout: "layout.json",
-    images: images.map(({ id, fileName, path }) => ({ id, fileName, path })),
-  },
+    images: images.map(({ id, fileName, path }) => ({ id, fileName, path }))
+  }
 });
 
 /**
@@ -276,11 +272,11 @@ const createManifest = (
 const createArchive = (
   layout: LayoutData,
   manifest: LayoutExportManifest,
-  images: ResolvedExportImage[],
+  images: ResolvedExportImage[]
 ): Uint8Array => {
   const entries: Zippable = {
     "manifest.json": toJsonFile(manifest),
-    "layout.json": toJsonFile(layout),
+    "layout.json": toJsonFile(layout)
   };
 
   images.forEach((image) => {
@@ -289,7 +285,7 @@ const createArchive = (
 
   return zipSync(entries, {
     level: 6,
-    mtime: zipMtime,
+    mtime: zipMtime
   });
 };
 

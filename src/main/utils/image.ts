@@ -11,7 +11,7 @@ const imageFileNamePattern = /^[a-zA-Z0-9_-]+\.png$/;
  */
 const getDefaultImagePathCandidates = (): string[] => [
   path.resolve(app.getAppPath(), "resources", "default-images"),
-  path.resolve(process.cwd(), "resources", "default-images"),
+  path.resolve(process.cwd(), "resources", "default-images")
 ];
 
 /**
@@ -19,7 +19,7 @@ const getDefaultImagePathCandidates = (): string[] => [
  */
 const resolveDefaultImagePath = (): string => {
   const resolvedPath = getDefaultImagePathCandidates().find((candidate) =>
-    fs.existsSync(candidate),
+    fs.existsSync(candidate)
   );
 
   if (!resolvedPath) {
@@ -90,7 +90,7 @@ export function saveImage(imageId: string, targetImagePath: string) {
  */
 export function saveImageBuffer(
   imageId: string,
-  data: ArrayBuffer | Buffer | Uint8Array,
+  data: ArrayBuffer | Buffer | Uint8Array
 ) {
   const sourceBuffer =
     data instanceof Buffer
