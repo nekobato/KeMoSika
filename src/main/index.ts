@@ -198,7 +198,7 @@ const saveImportedLayoutPackage = (
 
 const showAccessibilityDialog = () => {
   const win = visualizerWindow || editorWindow || null;
-  dialog.showMessageBox(win, {
+  const options: Electron.MessageBoxOptions = {
     type: "warning",
     buttons: ["OK"],
     defaultId: 0,
@@ -206,7 +206,9 @@ const showAccessibilityDialog = () => {
     message: "KeMoSika が入力イベントを取得するにはアクセシビリティ権限が必要です。",
     detail:
       "システム設定 > プライバシーとセキュリティ > アクセシビリティ で KeMoSika を許可した後、もう一度お試しください。"
-  });
+  };
+  if (win) void dialog.showMessageBox(win, options);
+  else void dialog.showMessageBox(options);
 };
 
 function setMenu() {
@@ -385,10 +387,10 @@ app
     });
 
     handleRendererInvoke("layout:import-select-directory", async () => {
-      const openDialogOptions = {
+      const openDialogOptions: Electron.OpenDialogOptions = {
         title: "レイアウトをインポート",
         buttonLabel: "インポート",
-        properties: ["openDirectory"] as const
+        properties: ["openDirectory"]
       };
       const openResult = editorWindow
         ? await dialog.showOpenDialog(editorWindow, openDialogOptions)
@@ -478,14 +480,17 @@ app
           return { started: true };
         } catch (error) {
           console.error("visualizer uIOhook.start failed", error);
-          dialog.showMessageBox(visualizerWindow || editorWindow || null, {
+          const options: Electron.MessageBoxOptions = {
             type: "error",
             buttons: ["OK"],
             defaultId: 0,
             title: "入力フックの開始に失敗しました",
             message: "アクセシビリティ権限が付与されているか確認してください。",
             detail: String(error)
-          });
+          };
+          const parentWindow = visualizerWindow || editorWindow;
+          if (parentWindow) void dialog.showMessageBox(parentWindow, options);
+          else void dialog.showMessageBox(options);
           return { started: false, reason: "error" };
         }
       }

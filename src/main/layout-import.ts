@@ -249,7 +249,7 @@ const parseJsonEntry = (entry: Uint8Array, fileName: string): unknown => {
 /**
  * Asserts that a parsed manifest matches the supported export schema.
  */
-const assertManifest = (value: unknown): asserts value is LayoutExportManifest => {
+const assertManifest: (value: unknown) => asserts value is LayoutExportManifest = (value) => {
   assertImportPayload(isRecord(value), "manifest.json が不正です。");
   assertImportPayload(
     value.app === layoutExportAppName,
@@ -283,10 +283,10 @@ const assertManifest = (value: unknown): asserts value is LayoutExportManifest =
 /**
  * Asserts that one manifest image entry is safe to read.
  */
-const assertManifestImage = (
+const assertManifestImage: (
   value: unknown,
   fieldName: string
-): asserts value is LayoutExportImageFile => {
+) => asserts value is LayoutExportImageFile = (value, fieldName) => {
   assertImportPayload(isRecord(value), `${fieldName} が不正です。`);
   assertImportPayload(
     typeof value.id === "string" && imageIdPattern.test(value.id),
@@ -496,10 +496,10 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 /**
  * Throws a user-facing import validation error when a condition fails.
  */
-const assertImportPayload = (
+const assertImportPayload: (
   condition: boolean,
   message: string
-): asserts condition => {
+) => asserts condition = (condition, message) => {
   if (!condition) {
     throw new Error(message);
   }

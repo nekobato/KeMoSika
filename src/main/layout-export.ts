@@ -214,7 +214,7 @@ const resolveReferencedImages = async (
 ): Promise<ResolvedExportImage[]> => {
   const imageById = new Map(images.map((image) => [image.id, image]));
   const resolvedImages = await Promise.all(
-    imageIds.map(async (imageId) => {
+    imageIds.map(async (imageId): Promise<ResolvedExportImage | null> => {
       const fileName = imageById.get(imageId)?.fileName ?? `${imageId}.png`;
       const filePath = resolveImageFilePath(fileName);
 

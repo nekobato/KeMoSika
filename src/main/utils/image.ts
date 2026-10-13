@@ -97,7 +97,9 @@ export function saveImageBuffer(
       ? data
       : Buffer.isBuffer(data)
         ? data
-        : Buffer.from(data);
+        : data instanceof ArrayBuffer
+          ? Buffer.from(data)
+          : Buffer.from(data);
 
   const image = nativeImage.createFromBuffer(sourceBuffer);
   if (image.isEmpty()) {
