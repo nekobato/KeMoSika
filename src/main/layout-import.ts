@@ -5,7 +5,7 @@ import type {
   KeyboardKeyData,
   LayoutData,
   LayoutItemData,
-  MouseData
+  MouseData,
 } from "@shared/types";
 import { mouseButtonNames } from "./mouse-buttons.ts";
 import {
@@ -14,7 +14,7 @@ import {
   layoutExportExtension,
   layoutExportSchemaVersion,
   type LayoutExportImageFile,
-  type LayoutExportManifest
+  type LayoutExportManifest,
 } from "./layout-export";
 import { parseLayoutData } from "./validation";
 
@@ -58,7 +58,7 @@ type LayoutImportPrepareInput = {
  * Reads and validates a layout import package from a filesystem path.
  */
 export const readLayoutImportPackageFromPath = async (
-  sourcePath: string
+  sourcePath: string,
 ): Promise<LayoutImportPackage> => {
   const sourceStat = await stat(sourcePath).catch(() => {
     throw new Error("指定されたインポート元が見つかりません。");
@@ -76,7 +76,7 @@ export const readLayoutImportPackageFromPath = async (
 
     return readLayoutImportPackageFromArchive(
       new Uint8Array(await readFile(sourcePath)),
-      path.basename(sourcePath)
+      path.basename(sourcePath),
     );
   }
 
@@ -88,7 +88,7 @@ export const readLayoutImportPackageFromPath = async (
  */
 export const readLayoutImportPackageFromArchive = (
   archiveData: ArrayBuffer | Uint8Array,
-  fileName: string
+  fileName: string,
 ): LayoutImportPackage => {
   if (fileName) {
     const extension = path.extname(fileName).toLowerCase();
@@ -109,7 +109,7 @@ export const readLayoutImportPackageFromArchive = (
 
     return {
       ...image,
-      data
+      data,
     };
   });
 
@@ -122,13 +122,13 @@ export const readLayoutImportPackageFromArchive = (
 export const prepareLayoutImport = ({
   sourcePackage,
   existingLayouts,
-  createId
+  createId,
 }: LayoutImportPrepareInput): PreparedLayoutImport => {
   const imageIds = collectLayoutImageIds(sourcePackage.layout);
   const imageIdMap = new Map(imageIds.map((imageId) => [imageId, createId()]));
   const layout = replaceLayoutImageIds(
     cloneLayout(sourcePackage.layout),
-    imageIdMap
+    imageIdMap,
   );
 
   layout.id = createId();
@@ -138,7 +138,7 @@ export const prepareLayoutImport = ({
     layout,
     images: imageIds.map((imageId) => {
       const sourceImage = sourcePackage.images.find(
-        (image) => image.id === imageId
+        (image) => image.id === imageId,
       );
       const importedImageId = imageIdMap.get(imageId);
       if (!sourceImage) {
@@ -150,9 +150,9 @@ export const prepareLayoutImport = ({
 
       return {
         id: importedImageId,
-        data: sourceImage.data
+        data: sourceImage.data,
       };
-    })
+    }),
   };
 };
 
@@ -160,30 +160,30 @@ export const prepareLayoutImport = ({
  * Reads and validates an unpacked layout export directory.
  */
 const readLayoutImportPackageFromDirectory = async (
-  directoryPath: string
+  directoryPath: string,
 ): Promise<LayoutImportPackage> => {
   const manifest = parseManifestEntry(
     await readFile(path.join(directoryPath, manifestFileName)).catch(() => {
       throw new Error("manifest.json が見つかりません。");
-    })
+    }),
   );
   const layout = parseLayoutEntry(
-    await readFile(resolveImportPath(directoryPath, manifest.files.layout))
+    await readFile(resolveImportPath(directoryPath, manifest.files.layout)),
   );
   const images = await Promise.all(
     manifest.files.images.map(async (image) => {
-      const data = await readFile(resolveImportPath(directoryPath, image.path)).catch(
-        () => {
-          throw new Error(`画像ファイル ${image.path} が見つかりません。`);
-        }
-      );
+      const data = await readFile(
+        resolveImportPath(directoryPath, image.path),
+      ).catch(() => {
+        throw new Error(`画像ファイル ${image.path} が見つかりません。`);
+      });
       assertPngData(data, image.path);
 
       return {
         ...image,
-        data: new Uint8Array(data)
+        data: new Uint8Array(data),
       };
-    })
+    }),
   );
 
   return createValidatedImportPackage("directory", manifest, layout, images);
@@ -236,7 +236,7 @@ const parseLayoutEntry = (entry?: Uint8Array): LayoutData => {
 const parseJsonEntry = (entry: Uint8Array, fileName: string): unknown => {
   assertImportPayload(
     entry.byteLength <= maxImportTextLength,
-    `${fileName} が大きすぎます。`
+    `${fileName} が大きすぎます。`,
   );
 
   try {
@@ -249,24 +249,26 @@ const parseJsonEntry = (entry: Uint8Array, fileName: string): unknown => {
 /**
  * Asserts that a parsed manifest matches the supported export schema.
  */
-const assertManifest = (value: unknown): asserts value is LayoutExportManifest => {
+const assertManifest: (
+  value: unknown,
+) => asserts value is LayoutExportManifest = (value) => {
   assertImportPayload(isRecord(value), "manifest.json が不正です。");
   assertImportPayload(
     value.app === layoutExportAppName,
-    "KeMoSika のレイアウトではありません。"
+    "KeMoSika のレイアウトではありません。",
   );
   assertImportPayload(
     value.schemaVersion === layoutExportSchemaVersion,
-    "対応していないレイアウト形式です。"
+    "対応していないレイアウト形式です。",
   );
   assertImportPayload(isRecord(value.files), "manifest.json が不正です。");
   assertImportPayload(
     value.files.layout === layoutFileName,
-    "layout.json の指定が不正です。"
+    "layout.json の指定が不正です。",
   );
   assertImportPayload(
     Array.isArray(value.files.images),
-    "画像リストの指定が不正です。"
+    "画像リストの指定が不正です。",
   );
 
   const imageIds = new Set<string>();
@@ -274,7 +276,7 @@ const assertManifest = (value: unknown): asserts value is LayoutExportManifest =
     assertManifestImage(image, `画像リスト[${index}]`);
     assertImportPayload(
       !imageIds.has(image.id),
-      `画像 ID ${image.id} が重複しています。`
+      `画像 ID ${image.id} が重複しています。`,
     );
     imageIds.add(image.id);
   });
@@ -283,23 +285,23 @@ const assertManifest = (value: unknown): asserts value is LayoutExportManifest =
 /**
  * Asserts that one manifest image entry is safe to read.
  */
-const assertManifestImage = (
+const assertManifestImage: (
   value: unknown,
-  fieldName: string
-): asserts value is LayoutExportImageFile => {
+  fieldName: string,
+) => asserts value is LayoutExportImageFile = (value, fieldName) => {
   assertImportPayload(isRecord(value), `${fieldName} が不正です。`);
   assertImportPayload(
     typeof value.id === "string" && imageIdPattern.test(value.id),
-    `${fieldName} の ID が不正です。`
+    `${fieldName} の ID が不正です。`,
   );
   assertImportPayload(
     typeof value.fileName === "string" &&
       path.basename(value.fileName) === value.fileName,
-    `${fieldName} のファイル名が不正です。`
+    `${fieldName} のファイル名が不正です。`,
   );
   assertImportPayload(
     typeof value.path === "string" && imagePathPattern.test(value.path),
-    `${fieldName} のパスが不正です。`
+    `${fieldName} のパスが不正です。`,
   );
 };
 
@@ -309,7 +311,7 @@ const assertManifestImage = (
 const resolveImportPath = (rootPath: string, entryPath: string): string => {
   assertImportPayload(
     entryPath === layoutFileName || imagePathPattern.test(entryPath),
-    "インポート元のパスが不正です。"
+    "インポート元のパスが不正です。",
   );
 
   const root = path.resolve(rootPath);
@@ -318,7 +320,7 @@ const resolveImportPath = (rootPath: string, entryPath: string): string => {
 
   assertImportPayload(
     !relative.startsWith("..") && !path.isAbsolute(relative),
-    "インポート元のパスが不正です。"
+    "インポート元のパスが不正です。",
   );
 
   return target;
@@ -329,9 +331,12 @@ const resolveImportPath = (rootPath: string, entryPath: string): string => {
  */
 const assertPngData = (data: Uint8Array, fileName: string): void => {
   const hasPngSignature = pngSignature.every(
-    (byte, index) => data[index] === byte
+    (byte, index) => data[index] === byte,
   );
-  assertImportPayload(hasPngSignature, `${fileName} は PNG 画像ではありません。`);
+  assertImportPayload(
+    hasPngSignature,
+    `${fileName} は PNG 画像ではありません。`,
+  );
 };
 
 /**
@@ -341,27 +346,29 @@ const createValidatedImportPackage = (
   sourceType: LayoutImportSourceType,
   manifest: LayoutExportManifest,
   layout: LayoutData,
-  images: LayoutImportImage[]
+  images: LayoutImportImage[],
 ): LayoutImportPackage => {
   const manifestImageById = new Map(images.map((image) => [image.id, image]));
   const referencedImageIds = collectLayoutImageIds(layout);
   const missingImageIds = referencedImageIds.filter(
-    (imageId) => !manifestImageById.has(imageId)
+    (imageId) => !manifestImageById.has(imageId),
   );
 
   assertImportPayload(
     missingImageIds.length === 0,
-    `参照画像が見つかりません: ${missingImageIds.join(", ")}`
+    `参照画像が見つかりません: ${missingImageIds.join(", ")}`,
   );
   assertImportPayload(
     manifest.layout.itemCount === layout.keys.length,
-    "manifest.json と layout.json の内容が一致しません。"
+    "manifest.json と layout.json の内容が一致しません。",
   );
 
   return {
     sourceType,
     layout,
-    images: referencedImageIds.map((imageId) => manifestImageById.get(imageId)!)
+    images: referencedImageIds.map((imageId) =>
+      manifestImageById.get(imageId)!,
+    ),
   };
 };
 
@@ -376,14 +383,14 @@ const cloneLayout = (layout: LayoutData): LayoutData =>
  */
 const replaceLayoutImageIds = (
   layout: LayoutData,
-  imageIdMap: Map<string, string>
+  imageIdMap: Map<string, string>,
 ): LayoutData => ({
   ...layout,
   background: {
     ...layout.background,
-    image: replaceImageId(layout.background.image, imageIdMap)
+    image: replaceImageId(layout.background.image, imageIdMap),
   },
-  keys: layout.keys.map((item) => replaceLayoutItemImageIds(item, imageIdMap))
+  keys: layout.keys.map((item) => replaceLayoutItemImageIds(item, imageIdMap)),
 });
 
 /**
@@ -391,7 +398,7 @@ const replaceLayoutImageIds = (
  */
 const replaceLayoutItemImageIds = (
   item: LayoutItemData,
-  imageIdMap: Map<string, string>
+  imageIdMap: Map<string, string>,
 ): LayoutItemData => {
   if (item.type === "key") {
     return replaceKeyImageIds(item, imageIdMap);
@@ -405,14 +412,14 @@ const replaceLayoutItemImageIds = (
  */
 const replaceKeyImageIds = (
   item: KeyboardKeyData,
-  imageIdMap: Map<string, string>
+  imageIdMap: Map<string, string>,
 ): KeyboardKeyData => ({
   ...item,
   images: {
     keyDefault: replaceImageId(item.images.keyDefault, imageIdMap),
     keyActive: replaceImageId(item.images.keyActive, imageIdMap),
-    keyLocked: replaceImageId(item.images.keyLocked, imageIdMap)
-  }
+    keyLocked: replaceImageId(item.images.keyLocked, imageIdMap),
+  },
 });
 
 /**
@@ -420,7 +427,7 @@ const replaceKeyImageIds = (
  */
 const replaceMouseImageIds = (
   item: MouseData,
-  imageIdMap: Map<string, string>
+  imageIdMap: Map<string, string>,
 ): MouseData => ({
   ...item,
   images: {
@@ -429,14 +436,14 @@ const replaceMouseImageIds = (
     mouseRightClick: replaceImageId(item.images.mouseRightClick, imageIdMap),
     mouseMiddleClick: replaceImageId(item.images.mouseMiddleClick, imageIdMap),
     mouseScrollUp: replaceImageId(item.images.mouseScrollUp, imageIdMap),
-    mouseScrollDown: replaceImageId(item.images.mouseScrollDown, imageIdMap)
+    mouseScrollDown: replaceImageId(item.images.mouseScrollDown, imageIdMap),
   },
   ring: {
     ...item.ring,
     images: {
       ring: replaceImageId(item.ring.images.ring, imageIdMap),
-      pointer: replaceImageId(item.ring.images.pointer, imageIdMap)
-    }
+      pointer: replaceImageId(item.ring.images.pointer, imageIdMap),
+    },
   },
   buttonOverlays: Object.fromEntries(
     mouseButtonNames.map((button) => [
@@ -444,15 +451,12 @@ const replaceMouseImageIds = (
       {
         default: replaceImageId(
           item.buttonOverlays[button].default,
-          imageIdMap
+          imageIdMap,
         ),
-        active: replaceImageId(
-          item.buttonOverlays[button].active,
-          imageIdMap
-        )
-      }
-    ])
-  ) as MouseData["buttonOverlays"]
+        active: replaceImageId(item.buttonOverlays[button].active, imageIdMap),
+      },
+    ]),
+  ) as MouseData["buttonOverlays"],
 });
 
 /**
@@ -460,7 +464,7 @@ const replaceMouseImageIds = (
  */
 const replaceImageId = (
   imageId: string,
-  imageIdMap: Map<string, string>
+  imageIdMap: Map<string, string>,
 ): string => {
   if (!imageId) return "";
   return imageIdMap.get(imageId) ?? imageId;
@@ -471,7 +475,7 @@ const replaceImageId = (
  */
 const createImportedLayoutName = (
   originalName: string,
-  existingLayouts: LayoutData[]
+  existingLayouts: LayoutData[],
 ): string => {
   const existingNames = new Set(existingLayouts.map((layout) => layout.name));
   const baseName = originalName.trim() || "Imported Layout";
@@ -496,10 +500,10 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 /**
  * Throws a user-facing import validation error when a condition fails.
  */
-const assertImportPayload = (
+const assertImportPayload: (
   condition: boolean,
-  message: string
-): asserts condition => {
+  message: string,
+) => asserts condition = (condition, message) => {
   if (!condition) {
     throw new Error(message);
   }

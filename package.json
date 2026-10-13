@@ -21,7 +21,7 @@
     "docs:dev": "vitepress dev doc",
     "docs:build": "vitepress build doc",
     "docs:preview": "vitepress preview doc",
-    "typecheck": "node node_modules/typescript/bin/tsc --noEmit && node scripts/typecheck-vue.cjs --noEmit",
+    "typecheck": "node node_modules/typescript/bin/tsc --noEmit -p tsconfig.node.json && node node_modules/typescript/bin/tsc --noEmit && node scripts/typecheck-vue.cjs --noEmit",
     "lint": "pnpm run typecheck"
   },
   "engines": {
