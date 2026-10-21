@@ -25,7 +25,7 @@
     "lint": "pnpm run typecheck"
   },
   "engines": {
-    "node": ">=24",
+    "node": "^24.22.1 || ^26.12.1",
     "pnpm": ">=10.24.0"
   },
   "packageManager": "pnpm@10.24.0",
