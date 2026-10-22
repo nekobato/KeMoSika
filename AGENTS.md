@@ -24,7 +24,7 @@ KeMoSika はキーボードとマウスの入力をリアルタイムに可視�
 
 ## 開発環境
 
-- Node.js は `package.json` の `engines.node` に従う。現在は `>=24`。
+- Node.js は `package.json` の `engines.node` に従う。現在は `^24.22.1 || ^26.12.1`。
 - pnpm は `packageManager` に従う。現在は `pnpm@10.24.0`。
 - 依存の追加、削除、更新を行う場合は `package.json` と `pnpm-lock.yaml` を一致させる。
 
