@@ -30,7 +30,7 @@
   },
   "packageManager": "pnpm@10.24.0",
   "dependencies": {
-    "@sentry/electron": "8.2.0",
+    "@sentry/electron": "8.3.0",
     "@sentry/vue": "11.8.0",
     "electron-store": "12.0.0",
     "fflate": "0.8.3",
@@ -45,7 +45,7 @@
     "@vue/devtools-api": "8.2.1",
     "@vueuse/core": "15.0.0",
     "dotenv": "18.0.8",
-    "electron": "44.9.0",
+    "electron": "44.9.1",
     "electron-builder": "26.17.0",
     "electron-icon-builder": "2.0.1",
     "electron-vite": "6.0.0",
@@ -69,7 +69,7 @@
   },
   "pnpm": {
     "overrides": {
-      "fast-uri@>=3.0.0 <3.1.8": "3.1.8",
+      "fast-uri@>=3.0.0 <3.1.9": "3.1.9",
       "@babel/core@>=7.0.0 <7.29.6": "7.29.6",
       "browserslist@>=4.0.0 <4.28.7": "4.28.7",
       "baseline-browser-mapping@>=2.0.0 <2.11.0": "2.11.0",
